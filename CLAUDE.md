@@ -482,7 +482,9 @@ NEXT_PUBLIC_APP_NAME=DentiVerse
 
 > Update this section as issues are discovered. Format: `YYYY-MM-DD: What happened → What we do now.`
 
-- *(No entries yet — this project is starting fresh. Add entries as you encounter issues.)*
+- `2026-03-22:` npm registry was blocked in the Cowork sandbox environment → Project was scaffolded manually (all files hand-written). Run `npm install` locally before using `npm run dev` or any npm scripts. All configs are correct and ready.
+- `2026-03-22:` `desktop.ini` files appear in every directory (Windows host artifact) → These are read-only and cannot be deleted. They are in `.gitignore` and harmless. Ignore them.
+- `2026-03-22:` Next.js 15 uses `Promise<params>` for dynamic route params (breaking change from v14) → All `[id]` pages use `params: Promise<{ id: string }>` with `await params` pattern.
 
 ---
 

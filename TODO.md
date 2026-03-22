@@ -10,7 +10,7 @@
 
 | Milestone | Tasks | Done | Progress |
 |-----------|-------|------|----------|
-| M0: Project Setup | 8 | 0 | ░░░░░░░░░░ 0% |
+| M0: Project Setup | 8 | 1 | █░░░░░░░░░ 12% |
 | M1: Auth & Users | 10 | 0 | ░░░░░░░░░░ 0% |
 | M2: Case Management | 12 | 0 | ░░░░░░░░░░ 0% |
 | M3: Designer Marketplace | 8 | 0 | ░░░░░░░░░░ 0% |
@@ -44,13 +44,12 @@
 
 ### M0: Project Setup (DO FIRST)
 
-- [ ] **M0-1** Initialize Next.js 15 project with TypeScript, Tailwind CSS, App Router
 - [ ] **M0-2** Install and configure shadcn/ui (Button, Input, Card, Dialog, Table, Badge, Avatar, Tabs, Toast, Skeleton, DropdownMenu, Sheet, Command, Tooltip)
 - [ ] **M0-3** Set up Supabase project (local dev + cloud). Run `schema.sql` to create all tables.
-- [ ] **M0-4** Configure environment variables (`.env.local` + `.env.example`)
-- [ ] **M0-5** Set up Vitest + Testing Library + Playwright. Create test helper files (`tests/helpers/factories.ts`, `tests/helpers/supabase.ts`)
-- [ ] **M0-6** Set up ESLint + Prettier + Conventional Commits (husky + lint-staged)
-- [ ] **M0-7** Create base layout components: `sidebar.tsx`, `header.tsx`, `footer.tsx`, dashboard shell layout
+- [ ] **M0-4** Configure environment variables (`.env.local` + `.env.example`) *(`.env.example` created in M0-1; still need `.env.local` with real keys)*
+- [ ] **M0-5** Set up Vitest + Testing Library + Playwright. Create test helper files (`tests/helpers/factories.ts`, `tests/helpers/supabase.ts`) *(configs created in M0-1; needs `npm install` + verification)*
+- [ ] **M0-6** Set up ESLint + Prettier + Conventional Commits (husky + lint-staged) *(ESLint + Prettier configs created in M0-1; still need husky + lint-staged)*
+- [ ] **M0-7** Create base layout components: `sidebar.tsx`, `header.tsx`, `footer.tsx`, dashboard shell layout *(dashboard shell layout created in M0-1; still need sidebar, header, footer components)*
 - [ ] **M0-8** Generate Supabase TypeScript types: `database.types.ts`. Set up Supabase client files (`client.ts`, `server.ts`, `admin.ts`, `middleware.ts`)
 
 ### M1: Auth & Users
@@ -162,6 +161,22 @@
 - [x] **P2-5** Payment/Escrow Flow Diagram — 2026-03-22
 - [x] **P2-6** Dashboard Wireframes (client + designer) — 2026-03-22
 
+### Phase 3: M0 — Project Setup
+- [x] **M0-1** Initialize Next.js 15 project with TypeScript, Tailwind CSS, App Router — 2026-03-22
+  - Created: `package.json`, `tsconfig.json` (strict), `next.config.ts`, `tailwind.config.ts`, `postcss.config.mjs`
+  - Created: `eslint.config.mjs`, `.prettierrc`, `vitest.config.ts`, `playwright.config.ts`
+  - Created: `.gitignore`, `.env.example`, `next-env.d.ts`
+  - Created: Root layout, landing page, error/not-found pages
+  - Created: Auth route group — login, register, forgot-password placeholder pages
+  - Created: Dashboard route group — shell layout + 12 placeholder pages (cases, designers, proposals, payments, notifications, settings)
+  - Created: `src/lib/utils.ts` (cn, formatCurrency, formatDate, truncate, getInitials)
+  - Created: `src/lib/constants.ts` (UserRole, CaseStatus, ProposalStatus, PaymentStatus, CaseType, FILE_LIMITS, StorageBucket, PAGINATION)
+  - Created: `src/lib/errors.ts` (AppError, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError, ConflictError, RateLimitError)
+  - Created: `src/types/` — User, Case, DesignerProfile, Proposal, Payment, API response interfaces
+  - Created: `tests/helpers/` — setup.ts, factories.ts, supabase.ts stubs
+  - Created: `supabase/config.toml`
+  - Created: Full directory structure matching CLAUDE.md spec (src/app, components, lib, hooks, services, stores, types, tests)
+
 ---
 
 ## 📝 Session Log
@@ -171,6 +186,7 @@
 | Date | Session | What was done | Next up |
 |------|---------|---------------|---------|
 | 2026-03-22 | #1 | Phase 1 + 2 + 3 planning complete | Start M0: Project scaffolding |
+| 2026-03-22 | #2 | M0-1: Initialized Next.js 15 + TS + Tailwind 4 + App Router. Full directory structure, all placeholder pages, config files (ESLint, Prettier, Vitest, Playwright), type definitions, utility modules. | M0-2: shadcn/ui setup |
 
 ---
 
@@ -186,3 +202,4 @@
 | 4 | Decision | 3D viewer | Three.js via React Three Fiber |
 | 5 | Decision | State management | Zustand (client) + TanStack Query (server state) |
 | 6 | Decision | Testing | Vitest (unit/integration) + Playwright (E2E), TDD approach |
+| 7 | Note | npm not available in sandbox | Project was scaffolded manually. Run `npm install` locally before `npm run dev`. |
