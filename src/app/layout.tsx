@@ -1,4 +1,6 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { APP_NAME, APP_DESCRIPTION, APP_URL } from '@/lib/constants';
 
@@ -17,6 +19,21 @@ export const metadata: Metadata = {
     locale: 'en_US',
     type: 'website',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#1e40af',
 };
 
 export default function RootLayout({
@@ -28,6 +45,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -1,18 +1,25 @@
 import Link from 'next/link';
 
-export default function NotFound() {
+import { Button } from '@/components/ui/button';
+
+/**
+ * Custom 404 page.
+ */
+export default function NotFoundPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <h1 className="font-heading text-6xl font-bold text-brand-600">404</h1>
-      <p className="mt-4 text-lg text-muted-foreground">
-        The page you&apos;re looking for doesn&apos;t exist.
-      </p>
-      <Link
-        href="/"
-        className="mt-6 rounded-lg bg-brand-600 px-6 py-3 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
-      >
-        Go Home
-      </Link>
-    </main>
+    <div className="flex min-h-screen flex-col items-center justify-center p-8">
+      <div className="mx-auto max-w-md text-center">
+        <h1 className="text-6xl font-bold text-muted-foreground">404</h1>
+        <h2 className="mt-4 text-2xl font-bold">Page not found</h2>
+        <p className="mt-2 text-muted-foreground">
+          The page you&apos;re looking for doesn&apos;t exist or has been moved.
+        </p>
+        <div className="mt-8">
+          <Link href="/">
+            <Button>Go Home</Button>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
