@@ -12,7 +12,7 @@
 |-----------|-------|------|----------|
 | M0: Project Setup | 8 | 8 | ██████████ 100% |
 | M1: Auth & Users | 10 | 10 | ██████████ 100% |
-| M2: Case Management | 12 | 0 | ░░░░░░░░░░ 0% |
+| M2: Case Management | 12 | 12 | ██████████ 100% |
 | M3: Designer Marketplace | 8 | 0 | ░░░░░░░░░░ 0% |
 | M4: Proposals & Matching | 8 | 0 | ░░░░░░░░░░ 0% |
 | M5: Design Review & 3D | 6 | 0 | ░░░░░░░░░░ 0% |
@@ -42,21 +42,6 @@
 ## ⬜ Up Next
 
 *(Prioritized backlog — work on these next, in order)*
-
-### M2: Case Management
-
-- [ ] **M2-1** `TEST:` Write tests for case validation schemas
-- [ ] **M2-2** `IMPL:` Create Zod schemas: `src/lib/validations/case.ts`
-- [ ] **M2-3** `TEST:` Write tests for case service (create, update, publish, cancel, list)
-- [ ] **M2-4** `IMPL:` Create case service: `src/services/case.service.ts`
-- [ ] **M2-5** `TEST:` Write integration tests for case API routes
-- [ ] **M2-6** `IMPL:` Create API routes: `/api/v1/cases` (GET, POST), `/api/v1/cases/[id]` (GET, PATCH), `/api/v1/cases/[id]/publish`, `/api/v1/cases/[id]/cancel`
-- [ ] **M2-7** `IMPL:` Create `case-card.tsx` component with status badges
-- [ ] **M2-8** `IMPL:` Create `case-status-badge.tsx` and `case-status-timeline.tsx`
-- [ ] **M2-9** `IMPL:` Create `tooth-chart.tsx` — interactive FDI tooth number selector
-- [ ] **M2-10** `IMPL:` Create case list page with filters (status, type, date)
-- [ ] **M2-11** `IMPL:` Create case creation form (multi-step: details → upload scans → set budget → review → submit)
-- [ ] **M2-12** `IMPL:` Create case detail page with status timeline, files, messages tab
 
 ### M3: Designer Marketplace
 
@@ -161,6 +146,20 @@
 - [x] **M1-9** `IMPL:` Settings hub page, profile edit page, `GET/PATCH /api/v1/users/me` — 2026-03-23
 - [x] **M1-10** `IMPL:` `useAuth` hook + `useAuthStore` Zustand store — 2026-03-23
 
+### M2: Case Management
+- [x] **M2-1** `TEST:` Case validation schema tests (28 tests) — 2026-03-23
+- [x] **M2-2** `IMPL:` Zod schemas: `createCaseSchema`, `updateCaseSchema`, `caseListQuerySchema` — 2026-03-23
+- [x] **M2-3** `TEST:` Case service tests (11 tests) — 2026-03-23
+- [x] **M2-4** `IMPL:` `CaseService` class (create, get, update, publish, cancel, list) — 2026-03-23
+- [x] **M2-5** `TEST:` Case API integration tests (10 tests) — 2026-03-23
+- [x] **M2-6** `IMPL:` API routes: POST/GET /cases, GET/PATCH /cases/[id], publish, cancel — 2026-03-23
+- [x] **M2-7** `IMPL:` `case-card.tsx` with status badge, type, teeth, budget, deadline — 2026-03-23
+- [x] **M2-8** `IMPL:` `case-status-badge.tsx` and `case-status-timeline.tsx` — 2026-03-23
+- [x] **M2-9** `IMPL:` `tooth-chart.tsx` — interactive FDI tooth selector (4 quadrants) — 2026-03-23
+- [x] **M2-10** `IMPL:` Case list page with status filters and pagination — 2026-03-23
+- [x] **M2-11** `IMPL:` Multi-step case creation form (Details→Teeth→Budget→Review) — 2026-03-23
+- [x] **M2-12** `IMPL:` Case detail page with timeline, details, tooth chart, actions — 2026-03-23
+
 ---
 
 ## 📝 Session Log
@@ -172,6 +171,7 @@
 | 2026-03-22 | #1 | Phase 1 + 2 + 3 planning complete | Start M0: Project scaffolding |
 | 2026-03-22 | #2 | M0-1 scaffolding, M0-2 shadcn/ui (14 components), M0-7 layout components, M0-8 Supabase clients + types | M0-6, M1 |
 | 2026-03-23 | #3 | M0-5/6 test infra + git hooks, M1-1 to M1-10 auth complete (82 tests passing). Created: auth schemas, service, 5 API routes, middleware, auth pages, useAuth hook, auth store, settings/profile pages, error classes, constants, utils | M2: Case Management |
+| 2026-03-23 | #4 | M2-1 to M2-12 case management complete (131 tests passing). Created: case Zod schemas, CaseService, 4 API routes, case-card, status-badge, status-timeline, tooth-chart, case list/create/detail pages | M3: Designer Marketplace |
 
 ---
 
