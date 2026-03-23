@@ -1,22 +1,218 @@
-import type { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Case Detail',
-};
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { CaseStatusBadge } from '@/components/cases/case-status-badge';
+import { CaseStatusTimeline } from '@/components/cases/case-status-timeline';
+import { ToothChart } from '@/components/shared/tooth-chart';
+import type { Database } from '@/lib/database.types';
+
+type CaseRow = Database['public']['Tables']['cases']['Row'];
 
 interface CaseDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
-  const { id } = await params;
+/**
+ * Case detail page with status timeline, details, and actions.
+ */
+export default function CaseDetailPage({ params }: CaseDetailPageProps) {
+  const router = useRouter();
+  const [caseData, setCaseData] = useState<CaseRow | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [caseId, setCaseId] = useState<string | null>(null);
+
+  // Resolve params
+  useEffect(() => {
+    params.then((p) => setCaseId(p.id));
+  }, [params]);
+
+  const fetchCase = useCallback(async () => {
+    if (!caseId) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/v1/cases/${caseId}`);
+      if (!res.ok) throw new Error('Failed to load case');
+      const json = await res.json();
+      setCaseData(json.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [caseId]);
+
+  useEffect(() => {
+    fetchCase();
+  }, [fetchCase]);
+
+  const handlePublish = useCallback(async () => {
+    if (!caseId) return;
+    try {
+      const res = await fetch(`/api/v1/cases/${caseId}/publish`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to publish');
+      fetchCase();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Publish failed');
+    }
+  }, [caseId, fetchCase]);
+
+  const handleCancel = useCallback(async () => {
+    if (!caseId) return;
+    try {
+      const res = await fetch(`/api/v1/cases/${caseId}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'Cancelled by user' }),
+      });
+      if (!res.ok) throw new Error('Failed to cancel');
+      fetchCase();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Cancel failed');
+    }
+  }, [caseId, fetchCase]);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-[500px] w-full" />
+      </div>
+    );
+  }
+
+  if (error || !caseData) {
+    return (
+      <div className="space-y-4">
+        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error ?? 'Case not found'}
+        </div>
+        <Link href="/cases">
+          <Button variant="outline">Back to cases</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const toothNumbers = (caseData.tooth_numbers as number[]) ?? [];
 
   return (
-    <div>
-      <h1 className="font-heading text-2xl font-bold">Case #{id}</h1>
-      <div className="mt-6 rounded-lg border border-border bg-card p-12 text-center text-muted-foreground">
-        Case detail view — coming in M2: Case Management
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/cases')}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight">{caseData.title}</h1>
+              <CaseStatusBadge status={caseData.status} />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {caseData.case_type} &middot; Created{' '}
+              {new Date(caseData.created_at).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          {caseData.status === 'DRAFT' && (
+            <Button onClick={handlePublish}>Publish</Button>
+          )}
+          {['DRAFT', 'OPEN'].includes(caseData.status) && (
+            <Button variant="destructive" onClick={handleCancel}>
+              Cancel
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Timeline */}
+      <CaseStatusTimeline currentStatus={caseData.status} />
+
+      {/* Details */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Case Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            {caseData.description && (
+              <div>
+                <span className="font-medium">Description:</span>
+                <p className="mt-1 text-muted-foreground">{caseData.description}</p>
+              </div>
+            )}
+            {caseData.material_preference && (
+              <div><span className="font-medium">Material:</span> {caseData.material_preference}</div>
+            )}
+            {caseData.shade && (
+              <div><span className="font-medium">Shade:</span> {caseData.shade}</div>
+            )}
+            <div><span className="font-medium">Urgency:</span> {caseData.urgency}</div>
+            <div><span className="font-medium">Output Format:</span> {caseData.output_format}</div>
+            <div><span className="font-medium">Max Revisions:</span> {caseData.max_revisions}</div>
+            {caseData.software_required && (
+              <div><span className="font-medium">Software:</span> {caseData.software_required}</div>
+            )}
+            {caseData.special_instructions && (
+              <div>
+                <span className="font-medium">Instructions:</span>
+                <p className="mt-1 text-muted-foreground">{caseData.special_instructions}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Budget & Timeline</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            {(caseData.budget_min || caseData.budget_max) && (
+              <div>
+                <span className="font-medium">Budget:</span>{' '}
+                {caseData.budget_min && caseData.budget_max
+                  ? `$${caseData.budget_min} – $${caseData.budget_max}`
+                  : caseData.budget_max
+                    ? `Up to $${caseData.budget_max}`
+                    : `From $${caseData.budget_min}`}
+              </div>
+            )}
+            {caseData.agreed_price && (
+              <div><span className="font-medium">Agreed Price:</span> ${caseData.agreed_price}</div>
+            )}
+            {caseData.deadline && (
+              <div><span className="font-medium">Deadline:</span> {new Date(caseData.deadline).toLocaleDateString()}</div>
+            )}
+            <div><span className="font-medium">Currency:</span> {caseData.currency}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tooth Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Selected Teeth</CardTitle>
+          <CardDescription>FDI numbering system</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ToothChart selected={toothNumbers} onChange={() => {}} disabled />
+        </CardContent>
+      </Card>
     </div>
   );
 }
