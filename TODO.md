@@ -15,7 +15,7 @@
 | M2: Case Management | 12 | 12 | ██████████ 100% |
 | M3: Designer Marketplace | 8 | 8 | ██████████ 100% |
 | M4: Proposals & Matching | 8 | 8 | ██████████ 100% |
-| M5: Design Review & 3D | 6 | 0 | ░░░░░░░░░░ 0% |
+| M5: Design Review & 3D | 6 | 6 | ██████████ 100% |
 | M6: Payments & Escrow | 8 | 0 | ░░░░░░░░░░ 0% |
 | M7: Messaging & Notifications | 6 | 0 | ░░░░░░░░░░ 0% |
 | M8: Polish & Launch | 6 | 0 | ░░░░░░░░░░ 0% |
@@ -42,15 +42,6 @@
 ## ⬜ Up Next
 
 *(Prioritized backlog — work on these next, in order)*
-
-### M5: Design Review & 3D Viewer
-
-- [ ] **M5-1** `IMPL:` Create `file-uploader.tsx` with Uppy.js (drag-drop, progress, resumable)
-- [ ] **M5-2** `IMPL:` Create file upload API route with validation (file type, size)
-- [ ] **M5-3** `IMPL:` Create `stl-viewer.tsx` — Three.js STL/OBJ viewer with rotate, zoom, pan
-- [ ] **M5-4** `IMPL:` Create design version submission flow (designer uploads → client reviews)
-- [ ] **M5-5** `IMPL:` Create approve/revision-request flow on case detail page
-- [ ] **M5-6** `IMPL:` Create design version history UI (v1, v2, v3... with diff notes)
 
 ### M6: Payments & Escrow
 
@@ -158,6 +149,14 @@
 - [x] **M4-7** `IMPL:` Added proposal list + form to case detail page — 2026-03-23
 - [x] **M4-8** `IMPL:` My Proposals page with status filters and pagination — 2026-03-23
 
+### M5: Design Review & 3D Viewer
+- [x] **M5-1** `IMPL:` `file-uploader.tsx` — drag-drop uploader with progress and file list — 2026-03-23
+- [x] **M5-2** `IMPL:` File upload API: POST /files with type/size validation, Supabase Storage — 2026-03-23
+- [x] **M5-3** `IMPL:` `stl-viewer.tsx` — Canvas wireframe renderer with rotate/zoom/pan — 2026-03-23
+- [x] **M5-4** `IMPL:` Design version submission flow (DesignVersionSubmit + API) — 2026-03-23
+- [x] **M5-5** `IMPL:` Approve/revision-request flow (DesignVersionHistory + review API) — 2026-03-23
+- [x] **M5-6** `IMPL:` Design version history UI with status badges, file links, 3D preview — 2026-03-23
+
 ---
 
 ## 📝 Session Log
@@ -170,7 +169,7 @@
 | 2026-03-22 | #2 | M0-1 scaffolding, M0-2 shadcn/ui (14 components), M0-7 layout components, M0-8 Supabase clients + types | M0-6, M1 |
 | 2026-03-23 | #3 | M0-5/6 test infra + git hooks, M1-1 to M1-10 auth complete (82 tests passing). Created: auth schemas, service, 5 API routes, middleware, auth pages, useAuth hook, auth store, settings/profile pages, error classes, constants, utils | M2: Case Management |
 | 2026-03-23 | #4 | M2-1 to M2-12 case management complete (131 tests passing). Created: case Zod schemas, CaseService, 4 API routes, case-card, status-badge, status-timeline, tooth-chart, case list/create/detail pages | M3: Designer Marketplace |
-| 2026-03-23 | #5 | M3-1 to M3-8 designer marketplace complete (174 tests passing). Created: designer Zod schemas, DesignerService, 3 API routes, designer-card, search-filters, browse/search page, profile page. M4-1 to M4-8 proposals complete (200 tests passing). Created: proposal schemas, ProposalService, 5 API routes, proposal-card, proposal-form, My Proposals page, proposals in case detail | M5: Design Review & 3D |
+| 2026-03-23 | #5 | M3 designer marketplace (174 tests), M4 proposals (200 tests), M5 design review & 3D (227 tests). Created: designer/proposal/design-version schemas+services+APIs, file upload, STL viewer, design version history, all UI components and pages | M6: Payments & Escrow |
 
 ---
 

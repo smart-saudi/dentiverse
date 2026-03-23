@@ -19,6 +19,8 @@ import { CaseStatusTimeline } from '@/components/cases/case-status-timeline';
 import { ToothChart } from '@/components/shared/tooth-chart';
 import { ProposalCard } from '@/components/proposals/proposal-card';
 import { ProposalForm } from '@/components/proposals/proposal-form';
+import { DesignVersionHistory } from '@/components/cases/design-version-history';
+import { DesignVersionSubmit } from '@/components/cases/design-version-submit';
 import type { Database } from '@/lib/database.types';
 
 type CaseRow = Database['public']['Tables']['cases']['Row'];
@@ -272,6 +274,20 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
           <ProposalForm caseId={caseData.id} onSubmitted={fetchProposals} />
         )}
       </div>
+
+      {/* Design Versions */}
+      {['ASSIGNED', 'IN_PROGRESS', 'REVIEW', 'REVISION', 'APPROVED', 'COMPLETED'].includes(caseData.status) && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Design Versions</h2>
+          <DesignVersionHistory
+            caseId={caseData.id}
+            canReview={['REVIEW'].includes(caseData.status)}
+          />
+          {['ASSIGNED', 'IN_PROGRESS', 'REVISION'].includes(caseData.status) && (
+            <DesignVersionSubmit caseId={caseData.id} />
+          )}
+        </div>
+      )}
     </div>
   );
 }
