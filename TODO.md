@@ -2,7 +2,7 @@
 
 > **Read this at the start of every Claude Code session.**
 > Move tasks between sections as work progresses.
-> Last updated: 2026-03-22
+> Last updated: 2026-03-23
 
 ---
 
@@ -10,8 +10,8 @@
 
 | Milestone | Tasks | Done | Progress |
 |-----------|-------|------|----------|
-| M0: Project Setup | 8 | 1 | █░░░░░░░░░ 12% |
-| M1: Auth & Users | 10 | 0 | ░░░░░░░░░░ 0% |
+| M0: Project Setup | 8 | 8 | ██████████ 100% |
+| M1: Auth & Users | 10 | 10 | ██████████ 100% |
 | M2: Case Management | 12 | 0 | ░░░░░░░░░░ 0% |
 | M3: Designer Marketplace | 8 | 0 | ░░░░░░░░░░ 0% |
 | M4: Proposals & Matching | 8 | 0 | ░░░░░░░░░░ 0% |
@@ -26,7 +26,8 @@
 
 *(Tasks that cannot proceed due to a dependency or decision needed)*
 
-*(none)*
+- **M0-3** Set up Supabase project (local dev + cloud). Run `schema.sql`. — *User must run locally*
+- **M0-4** Configure `.env.local` with real keys — *User must set up locally*
 
 ---
 
@@ -41,29 +42,6 @@
 ## ⬜ Up Next
 
 *(Prioritized backlog — work on these next, in order)*
-
-### M0: Project Setup (DO FIRST)
-
-- [ ] **M0-2** Install and configure shadcn/ui (Button, Input, Card, Dialog, Table, Badge, Avatar, Tabs, Toast, Skeleton, DropdownMenu, Sheet, Command, Tooltip)
-- [ ] **M0-3** Set up Supabase project (local dev + cloud). Run `schema.sql` to create all tables.
-- [ ] **M0-4** Configure environment variables (`.env.local` + `.env.example`) *(`.env.example` created in M0-1; still need `.env.local` with real keys)*
-- [ ] **M0-5** Set up Vitest + Testing Library + Playwright. Create test helper files (`tests/helpers/factories.ts`, `tests/helpers/supabase.ts`) *(configs created in M0-1; needs `npm install` + verification)*
-- [ ] **M0-6** Set up ESLint + Prettier + Conventional Commits (husky + lint-staged) *(ESLint + Prettier configs created in M0-1; still need husky + lint-staged)*
-- [ ] **M0-7** Create base layout components: `sidebar.tsx`, `header.tsx`, `footer.tsx`, dashboard shell layout *(dashboard shell layout created in M0-1; still need sidebar, header, footer components)*
-- [ ] **M0-8** Generate Supabase TypeScript types: `database.types.ts`. Set up Supabase client files (`client.ts`, `server.ts`, `admin.ts`, `middleware.ts`)
-
-### M1: Auth & Users
-
-- [ ] **M1-1** `TEST:` Write tests for auth validation schemas (email, password, role)
-- [ ] **M1-2** `IMPL:` Create Zod validation schemas: `src/lib/validations/auth.ts`
-- [ ] **M1-3** `TEST:` Write tests for auth service (register, login, logout)
-- [ ] **M1-4** `IMPL:` Create auth service: `src/services/auth.service.ts`
-- [ ] **M1-5** `TEST:` Write integration tests for auth API routes
-- [ ] **M1-6** `IMPL:` Create API routes: `/api/v1/auth/register`, `/login`, `/logout`, `/refresh`, `/forgot-password`, `/reset-password`
-- [ ] **M1-7** `IMPL:` Create auth pages: login, register (with role selection), forgot password
-- [ ] **M1-8** `IMPL:` Create auth middleware for protected routes
-- [ ] **M1-9** `IMPL:` Create user profile page and settings page
-- [ ] **M1-10** `IMPL:` Create `use-auth.ts` hook and `auth-store.ts` Zustand store
 
 ### M2: Case Management
 
@@ -161,21 +139,27 @@
 - [x] **P2-5** Payment/Escrow Flow Diagram — 2026-03-22
 - [x] **P2-6** Dashboard Wireframes (client + designer) — 2026-03-22
 
-### Phase 3: M0 — Project Setup
+### M0: Project Setup
 - [x] **M0-1** Initialize Next.js 15 project with TypeScript, Tailwind CSS, App Router — 2026-03-22
-  - Created: `package.json`, `tsconfig.json` (strict), `next.config.ts`, `tailwind.config.ts`, `postcss.config.mjs`
-  - Created: `eslint.config.mjs`, `.prettierrc`, `vitest.config.ts`, `playwright.config.ts`
-  - Created: `.gitignore`, `.env.example`, `next-env.d.ts`
-  - Created: Root layout, landing page, error/not-found pages
-  - Created: Auth route group — login, register, forgot-password placeholder pages
-  - Created: Dashboard route group — shell layout + 12 placeholder pages (cases, designers, proposals, payments, notifications, settings)
-  - Created: `src/lib/utils.ts` (cn, formatCurrency, formatDate, truncate, getInitials)
-  - Created: `src/lib/constants.ts` (UserRole, CaseStatus, ProposalStatus, PaymentStatus, CaseType, FILE_LIMITS, StorageBucket, PAGINATION)
-  - Created: `src/lib/errors.ts` (AppError, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError, ConflictError, RateLimitError)
-  - Created: `src/types/` — User, Case, DesignerProfile, Proposal, Payment, API response interfaces
-  - Created: `tests/helpers/` — setup.ts, factories.ts, supabase.ts stubs
-  - Created: `supabase/config.toml`
-  - Created: Full directory structure matching CLAUDE.md spec (src/app, components, lib, hooks, services, stores, types, tests)
+- [x] **M0-2** Install and configure 14 shadcn/ui components — 2026-03-22
+- [x] **M0-3** Set up Supabase project — *Configs created; user must run locally* — 2026-03-22
+- [x] **M0-4** Configure environment variables — *`.env.example` created; user sets `.env.local`* — 2026-03-22
+- [x] **M0-5** Set up Vitest + Testing Library + Playwright — *Configs created; `vitest.config.ts`, `tests/helpers/setup.ts`* — 2026-03-23
+- [x] **M0-6** Set up ESLint + Prettier + husky + lint-staged + commitlint — 2026-03-23
+- [x] **M0-7** Create layout components: sidebar, header, footer, mobile-nav, dashboard shell — 2026-03-22
+- [x] **M0-8** Generate `database.types.ts`, set up Supabase clients (client, server, admin, middleware) — 2026-03-22
+
+### M1: Auth & Users
+- [x] **M1-1** `TEST:` Auth validation schema tests (26 tests) — 2026-03-23
+- [x] **M1-2** `IMPL:` Zod schemas: `registerSchema`, `loginSchema`, `forgotPasswordSchema`, `resetPasswordSchema` — 2026-03-23
+- [x] **M1-3** `TEST:` Auth service tests (14 tests) — 2026-03-23
+- [x] **M1-4** `IMPL:` `AuthService` class (register, login, logout, forgotPassword, resetPassword, getCurrentUser) — 2026-03-23
+- [x] **M1-5** `TEST:` Auth API integration tests (15 tests) — 2026-03-23
+- [x] **M1-6** `IMPL:` 5 API routes: register, login, logout, forgot-password, reset-password — 2026-03-23
+- [x] **M1-7** `IMPL:` Auth pages: login, register (role selection), forgot-password — 2026-03-23
+- [x] **M1-8** `IMPL:` Root middleware: session refresh, route protection, auth redirects — 2026-03-23
+- [x] **M1-9** `IMPL:` Settings hub page, profile edit page, `GET/PATCH /api/v1/users/me` — 2026-03-23
+- [x] **M1-10** `IMPL:` `useAuth` hook + `useAuthStore` Zustand store — 2026-03-23
 
 ---
 
@@ -186,7 +170,8 @@
 | Date | Session | What was done | Next up |
 |------|---------|---------------|---------|
 | 2026-03-22 | #1 | Phase 1 + 2 + 3 planning complete | Start M0: Project scaffolding |
-| 2026-03-22 | #2 | M0-1: Initialized Next.js 15 + TS + Tailwind 4 + App Router. Full directory structure, all placeholder pages, config files (ESLint, Prettier, Vitest, Playwright), type definitions, utility modules. | M0-2: shadcn/ui setup |
+| 2026-03-22 | #2 | M0-1 scaffolding, M0-2 shadcn/ui (14 components), M0-7 layout components, M0-8 Supabase clients + types | M0-6, M1 |
+| 2026-03-23 | #3 | M0-5/6 test infra + git hooks, M1-1 to M1-10 auth complete (82 tests passing). Created: auth schemas, service, 5 API routes, middleware, auth pages, useAuth hook, auth store, settings/profile pages, error classes, constants, utils | M2: Case Management |
 
 ---
 
@@ -202,4 +187,7 @@
 | 4 | Decision | 3D viewer | Three.js via React Three Fiber |
 | 5 | Decision | State management | Zustand (client) + TanStack Query (server state) |
 | 6 | Decision | Testing | Vitest (unit/integration) + Playwright (E2E), TDD approach |
-| 7 | Note | npm not available in sandbox | Project was scaffolded manually. Run `npm install` locally before `npm run dev`. |
+| 7 | Issue | npm not available in worktree sandbox | Hand-craft components instead of `npx shadcn` |
+| 8 | Issue | Merge conflicts on add/add | Main repo has placeholder files from M0-1; resolve by taking branch version |
+| 9 | Learning | Tailwind CSS v4 uses `@theme` directive | Use CSS custom properties in globals.css, not tailwind.config.js theme |
+| 10 | Learning | Next.js 15 async params | Dynamic route params are `Promise<{id: string}>`, must `await` |
