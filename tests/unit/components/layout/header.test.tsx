@@ -20,7 +20,11 @@ vi.mock('@/lib/supabase/client', () => ({
 // Mock fetch for NotificationBell's useNotifications hook
 const mockFetch = vi.fn().mockResolvedValue({
   ok: true,
-  json: () => Promise.resolve({ data: [], meta: { page: 1, per_page: 20, total: 0, total_pages: 0 } }),
+  json: () =>
+    Promise.resolve({
+      data: [],
+      meta: { page: 1, per_page: 20, total: 0, total_pages: 0 },
+    }),
 });
 
 import { Header } from '@/components/layout/header';
@@ -37,9 +41,7 @@ describe('Header', () => {
 
   it('should render the mobile menu trigger button', () => {
     render(<Header />);
-    expect(
-      screen.getByRole('button', { name: /toggle menu/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /toggle menu/i })).toBeInTheDocument();
   });
 
   it('should render a search input', () => {
@@ -49,15 +51,11 @@ describe('Header', () => {
 
   it('should render notification bell button', () => {
     render(<Header />);
-    expect(
-      screen.getByRole('button', { name: /notifications/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /notifications/i })).toBeInTheDocument();
   });
 
   it('should render user menu trigger', () => {
     render(<Header />);
-    expect(
-      screen.getByRole('button', { name: /user menu/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /user menu/i })).toBeInTheDocument();
   });
 });

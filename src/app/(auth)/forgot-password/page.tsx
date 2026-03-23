@@ -47,8 +47,8 @@ export default function ForgotPasswordPage() {
         <CardHeader>
           <CardTitle>Check your email</CardTitle>
           <CardDescription>
-            If an account exists for <strong>{email}</strong>, we&apos;ve sent a
-            password reset link.
+            If an account exists for <strong>{email}</strong>, we&apos;ve sent a password
+            reset link.
           </CardDescription>
         </CardHeader>
         <CardFooter>
@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
           {error && (
             <div
               role="alert"
-              className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
             >
               {error}
             </div>
@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Sending...' : 'Send reset link'}
           </Button>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-center text-sm">
             Remember your password?{' '}
             <Link href="/login" className="text-primary hover:underline">
               Sign in

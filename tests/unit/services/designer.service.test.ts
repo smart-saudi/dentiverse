@@ -7,7 +7,8 @@ function createMockClient(overrides: Record<string, unknown> = {}) {
     from: vi.fn(),
     ...overrides,
   };
-  return client as never;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock Supabase client for testing
+  return client as any;
 }
 
 describe('DesignerService', () => {
@@ -34,7 +35,12 @@ describe('DesignerService', () => {
 
     it('should throw NotFoundError when profile does not exist', async () => {
       const client = createMockClient();
-      const single = vi.fn().mockResolvedValue({ data: null, error: { message: 'Not found', code: 'PGRST116' } });
+      const single = vi
+        .fn()
+        .mockResolvedValue({
+          data: null,
+          error: { message: 'Not found', code: 'PGRST116' },
+        });
       const eq = vi.fn().mockReturnValue({ single });
       const select = vi.fn().mockReturnValue({ eq });
       client.from.mockReturnValue({ select });
@@ -63,8 +69,9 @@ describe('DesignerService', () => {
       const input = {
         bio: 'Expert designer',
         software_skills: ['Exocad'],
-        specializations: ['CROWN'],
+        specializations: ['CROWN' as const],
         years_experience: 5,
+        is_available: true,
       };
       const mockProfile = { id: 'dp-1', user_id: 'u-1', ...input };
       const client = createMockClient();
@@ -75,10 +82,12 @@ describe('DesignerService', () => {
 
       const result = await service.createProfile(client, 'u-1', input);
       expect(result).toEqual(mockProfile);
-      expect(insert).toHaveBeenCalledWith(expect.objectContaining({
-        user_id: 'u-1',
-        bio: 'Expert designer',
-      }));
+      expect(insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_id: 'u-1',
+          bio: 'Expert designer',
+        }),
+      );
     });
   });
 
@@ -95,10 +104,12 @@ describe('DesignerService', () => {
 
       const result = await service.updateProfile(client, 'u-1', updates);
       expect(result).toEqual(mockProfile);
-      expect(update).toHaveBeenCalledWith(expect.objectContaining({
-        bio: 'Updated bio',
-        hourly_rate: 60,
-      }));
+      expect(update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          bio: 'Updated bio',
+          hourly_rate: 60,
+        }),
+      );
       expect(eq).toHaveBeenCalledWith('user_id', 'u-1');
     });
   });
@@ -116,7 +127,11 @@ describe('DesignerService', () => {
       const select = vi.fn().mockReturnValue({ eq });
       client.from.mockReturnValue({ select });
 
-      const result = await service.listDesigners(client, { page: 1, per_page: 20, sort_by: 'avg_rating' });
+      const result = await service.listDesigners(client, {
+        page: 1,
+        per_page: 20,
+        sort_by: 'avg_rating',
+      });
       expect(result.data).toEqual(mockData);
       expect(result.meta.total).toBe(2);
       expect(result.meta.page).toBe(1);

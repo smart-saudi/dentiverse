@@ -52,7 +52,10 @@ export class MessageService {
     supabase: SupabaseClient<Database>,
     caseId: string,
     query: MessageListQuery,
-  ): Promise<{ data: MessageRow[]; meta: { page: number; per_page: number; total: number; total_pages: number } }> {
+  ): Promise<{
+    data: MessageRow[];
+    meta: { page: number; per_page: number; total: number; total_pages: number };
+  }> {
     const { page, per_page } = query;
     const from = (page - 1) * per_page;
     const to = from + per_page - 1;

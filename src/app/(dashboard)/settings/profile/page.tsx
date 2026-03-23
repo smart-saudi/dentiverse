@@ -94,18 +94,14 @@ export default function ProfilePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground">
-          Update your personal information
-        </p>
+        <p className="text-muted-foreground">Update your personal information</p>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
             <CardTitle>Personal Information</CardTitle>
-            {user?.role && (
-              <Badge variant="secondary">{user.role}</Badge>
-            )}
+            {user?.role && <Badge variant="secondary">{user.role}</Badge>}
           </div>
           <CardDescription>
             This information is visible to other users on the platform
@@ -136,9 +132,7 @@ export default function ProfilePage() {
                 disabled
                 className="bg-muted"
               />
-              <p className="text-xs text-muted-foreground">
-                Email cannot be changed
-              </p>
+              <p className="text-muted-foreground text-xs">Email cannot be changed</p>
             </div>
             <div className="space-y-2">
               <label htmlFor="fullName" className="text-sm font-medium">

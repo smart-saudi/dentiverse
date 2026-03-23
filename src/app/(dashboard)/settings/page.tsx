@@ -55,9 +55,9 @@ export default function SettingsPage() {
               href={section.disabled ? '#' : section.href}
               className={section.disabled ? 'pointer-events-none opacity-50' : ''}
             >
-              <Card className="h-full transition-colors hover:border-primary/50">
+              <Card className="hover:border-primary/50 h-full transition-colors">
                 <CardHeader className="flex flex-row items-center gap-3">
-                  <Icon className="h-5 w-5 text-muted-foreground" />
+                  <Icon className="text-muted-foreground h-5 w-5" />
                   <div>
                     <CardTitle className="text-base">{section.title}</CardTitle>
                     <CardDescription>{section.description}</CardDescription>
@@ -65,9 +65,7 @@ export default function SettingsPage() {
                 </CardHeader>
                 {section.disabled && (
                   <CardContent>
-                    <span className="text-xs text-muted-foreground">
-                      Coming soon
-                    </span>
+                    <span className="text-muted-foreground text-xs">Coming soon</span>
                   </CardContent>
                 )}
               </Card>

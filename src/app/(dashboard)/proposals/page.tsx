@@ -52,9 +52,7 @@ export default function MyProposalsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">My Proposals</h1>
-        <p className="text-muted-foreground">
-          Track your proposals and their status
-        </p>
+        <p className="text-muted-foreground">Track your proposals and their status</p>
       </div>
 
       {/* Status filter */}
@@ -73,7 +71,10 @@ export default function MyProposalsPage() {
 
       {/* Error */}
       {error && (
-        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+        >
           {error}
         </div>
       )}
@@ -90,7 +91,7 @@ export default function MyProposalsPage() {
       {/* Empty state */}
       {!isLoading && !error && proposals.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <p className="mb-4 text-muted-foreground">No proposals found</p>
+          <p className="text-muted-foreground mb-4">No proposals found</p>
           <Link href="/designers">
             <Button variant="outline">Browse cases</Button>
           </Link>
@@ -119,7 +120,7 @@ export default function MyProposalsPage() {
           >
             Previous
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             Page {meta.page} of {meta.total_pages}
           </span>
           <Button

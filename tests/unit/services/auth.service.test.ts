@@ -6,14 +6,16 @@ import { AuthService } from '@/services/auth.service';
 // Helpers — build a fake Supabase client with chainable auth methods
 // ---------------------------------------------------------------------------
 
-function createMockSupabaseClient(overrides: {
-  signUp?: ReturnType<typeof vi.fn>;
-  signInWithPassword?: ReturnType<typeof vi.fn>;
-  signOut?: ReturnType<typeof vi.fn>;
-  resetPasswordForEmail?: ReturnType<typeof vi.fn>;
-  updateUser?: ReturnType<typeof vi.fn>;
-  getUser?: ReturnType<typeof vi.fn>;
-} = {}) {
+function createMockSupabaseClient(
+  overrides: {
+    signUp?: ReturnType<typeof vi.fn>;
+    signInWithPassword?: ReturnType<typeof vi.fn>;
+    signOut?: ReturnType<typeof vi.fn>;
+    resetPasswordForEmail?: ReturnType<typeof vi.fn>;
+    updateUser?: ReturnType<typeof vi.fn>;
+    getUser?: ReturnType<typeof vi.fn>;
+  } = {},
+) {
   return {
     auth: {
       signUp: overrides.signUp ?? vi.fn(),
@@ -37,7 +39,9 @@ function createMockSupabaseClient(overrides: {
     }),
   } as unknown as Parameters<typeof AuthService.prototype.register>[0] extends never
     ? never
-    : ReturnType<typeof import('@/lib/supabase/server').createServerSupabaseClient> extends Promise<infer C>
+    : ReturnType<
+          typeof import('@/lib/supabase/server').createServerSupabaseClient
+        > extends Promise<infer C>
       ? C
       : never;
 }

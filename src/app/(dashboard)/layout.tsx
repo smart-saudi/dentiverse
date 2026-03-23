@@ -21,7 +21,7 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen">
       {/* Sidebar — hidden on mobile, visible on lg+ */}
-      <div className="hidden w-64 shrink-0 border-r border-border bg-card lg:block">
+      <div className="border-border bg-card hidden w-64 shrink-0 border-r lg:block">
         <Sidebar />
       </div>
 

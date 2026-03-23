@@ -18,10 +18,8 @@ interface RouteContext {
  */
 export async function GET(_req: NextRequest, context: RouteContext) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
-  }
+  // Designer profiles are publicly viewable — no auth required
+  await supabase.auth.getUser();
 
   const { id } = await context.params;
 
@@ -30,10 +28,16 @@ export async function GET(_req: NextRequest, context: RouteContext) {
     return NextResponse.json({ data: profile });
   } catch (err) {
     if (err instanceof Error && err.message.includes('not found')) {
-      return NextResponse.json({ code: 'NOT_FOUND', message: 'Designer not found' }, { status: 404 });
+      return NextResponse.json(
+        { code: 'NOT_FOUND', message: 'Designer not found' },
+        { status: 404 },
+      );
     }
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to fetch designer' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Failed to fetch designer',
+      },
       { status: 500 },
     );
   }

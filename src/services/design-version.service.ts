@@ -47,7 +47,8 @@ export class DesignVersionService {
       .select()
       .single();
 
-    if (error || !data) throw new Error(error?.message ?? 'Failed to create design version');
+    if (error || !data)
+      throw new Error(error?.message ?? 'Failed to create design version');
     return data;
   }
 
@@ -133,7 +134,8 @@ export class DesignVersionService {
       .select()
       .single();
 
-    if (error || !data) throw new Error(error?.message ?? 'Failed to review design version');
+    if (error || !data)
+      throw new Error(error?.message ?? 'Failed to review design version');
     return data;
   }
 

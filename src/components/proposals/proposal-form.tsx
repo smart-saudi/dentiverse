@@ -63,7 +63,8 @@ export function ProposalForm({ caseId, onSubmitted }: ProposalFormProps) {
     }
   }, [caseId, price, estimatedHours, message, onSubmitted]);
 
-  const canSubmit = Number(price) > 0 && Number(estimatedHours) > 0 && message.trim().length > 0;
+  const canSubmit =
+    Number(price) > 0 && Number(estimatedHours) > 0 && message.trim().length > 0;
 
   return (
     <Card>
@@ -72,13 +73,18 @@ export function ProposalForm({ caseId, onSubmitted }: ProposalFormProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         {error && (
-          <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <div
+            role="alert"
+            className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+          >
             {error}
           </div>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <label htmlFor="price" className="text-sm font-medium">Price ($)</label>
+            <label htmlFor="price" className="text-sm font-medium">
+              Price ($)
+            </label>
             <Input
               id="price"
               type="number"
@@ -89,7 +95,9 @@ export function ProposalForm({ caseId, onSubmitted }: ProposalFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="hours" className="text-sm font-medium">Estimated Hours</label>
+            <label htmlFor="hours" className="text-sm font-medium">
+              Estimated Hours
+            </label>
             <Input
               id="hours"
               type="number"
@@ -101,14 +109,16 @@ export function ProposalForm({ caseId, onSubmitted }: ProposalFormProps) {
           </div>
         </div>
         <div className="space-y-2">
-          <label htmlFor="message" className="text-sm font-medium">Message</label>
+          <label htmlFor="message" className="text-sm font-medium">
+            Message
+          </label>
           <textarea
             id="message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Describe your approach, timeline, and why you're the right fit..."
             rows={4}
-            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="border-input bg-background flex w-full rounded-md border px-3 py-2 text-sm"
           />
         </div>
       </CardContent>

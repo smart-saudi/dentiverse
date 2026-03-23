@@ -73,10 +73,31 @@ export default function EarningsPage() {
   }, [fetchEarnings]);
 
   const statCards = [
-    { title: 'Total Earnings', value: summary.totalEarnings, icon: TrendingUp, color: 'text-green-600' },
-    { title: 'Pending Payouts', value: summary.pendingPayouts, icon: Clock, color: 'text-yellow-600' },
-    { title: 'Released Payouts', value: summary.releasedPayouts, icon: Wallet, color: 'text-blue-600' },
-    { title: 'Total Cases', value: summary.totalCases, icon: DollarSign, color: 'text-muted-foreground', isCurrency: false },
+    {
+      title: 'Total Earnings',
+      value: summary.totalEarnings,
+      icon: TrendingUp,
+      color: 'text-green-600',
+    },
+    {
+      title: 'Pending Payouts',
+      value: summary.pendingPayouts,
+      icon: Clock,
+      color: 'text-yellow-600',
+    },
+    {
+      title: 'Released Payouts',
+      value: summary.releasedPayouts,
+      icon: Wallet,
+      color: 'text-blue-600',
+    },
+    {
+      title: 'Total Cases',
+      value: summary.totalCases,
+      icon: DollarSign,
+      color: 'text-muted-foreground',
+      isCurrency: false,
+    },
   ];
 
   return (
@@ -90,7 +111,10 @@ export default function EarningsPage() {
 
       {/* Error */}
       {error && (
-        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+        >
           {error}
         </div>
       )}
@@ -109,7 +133,9 @@ export default function EarningsPage() {
             return (
               <Card key={stat.title}>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardDescription className="text-sm font-medium">{stat.title}</CardDescription>
+                  <CardDescription className="text-sm font-medium">
+                    {stat.title}
+                  </CardDescription>
                   <Icon className={`h-4 w-4 ${stat.color}`} />
                 </CardHeader>
                 <CardContent>
@@ -140,7 +166,7 @@ export default function EarningsPage() {
 
           {!isLoading && payments.length === 0 && (
             <div className="flex flex-col items-center justify-center py-8">
-              <Wallet className="mb-2 h-8 w-8 text-muted-foreground" />
+              <Wallet className="text-muted-foreground mb-2 h-8 w-8" />
               <p className="text-muted-foreground">No earnings yet</p>
             </div>
           )}
@@ -169,11 +195,12 @@ export default function EarningsPage() {
                         {payment.status === 'HELD' ? 'In Escrow' : payment.status}
                       </Badge>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Case total: ${payment.amount} · Platform fee: ${payment.platform_fee}
+                    <div className="text-muted-foreground text-xs">
+                      Case total: ${payment.amount} · Platform fee: $
+                      {payment.platform_fee}
                     </div>
                   </div>
-                  <div className="text-right text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-right text-xs">
                     <div>{new Date(payment.created_at).toLocaleDateString()}</div>
                     {payment.released_at && (
                       <div className="text-green-600">

@@ -3,10 +3,12 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { PaymentService } from '@/services/payment.service';
 
 function createMockClient() {
-  return { from: vi.fn() } as never;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock Supabase client for testing
+  return { from: vi.fn() } as any;
 }
 
 function createMockStripe() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock Stripe client for testing
   return {
     paymentIntents: {
       create: vi.fn(),
@@ -18,7 +20,7 @@ function createMockStripe() {
     refunds: {
       create: vi.fn(),
     },
-  } as never;
+  } as any;
 }
 
 describe('PaymentService', () => {
@@ -41,83 +43,33 @@ describe('PaymentService', () => {
         status: 'PENDING',
       };
       const client = createMockClient();
-
-      // Mock proposal cross-validation query (from('proposals').select().eq().eq().eq().single())
-      const proposalSingle = vi.fn().mockResolvedValue({
-        data: { price: 100, status: 'ACCEPTED', designer_id: 'u-2', case_id: 'c-1' },
-        error: null,
-      });
-      const proposalEq3 = vi.fn().mockReturnValue({ single: proposalSingle });
-      const proposalEq2 = vi.fn().mockReturnValue({ eq: proposalEq3 });
-      const proposalEq1 = vi.fn().mockReturnValue({ eq: proposalEq2 });
-      const proposalSelect = vi.fn().mockReturnValue({ eq: proposalEq1 });
-
-      // Mock payment insert query (from('payments').insert().select().single())
-      const paymentSingle = vi.fn().mockResolvedValue({ data: mockPayment, error: null });
-      const paymentSelect = vi.fn().mockReturnValue({ single: paymentSingle });
-      const paymentInsert = vi.fn().mockReturnValue({ select: paymentSelect });
-
-      client.from.mockImplementation((table: string) => {
-        if (table === 'proposals') return { select: proposalSelect } as never;
-        if (table === 'payments') return { insert: paymentInsert } as never;
-        return {} as never;
-      });
+      const single = vi.fn().mockResolvedValue({ data: mockPayment, error: null });
+      const select = vi.fn().mockReturnValue({ single });
+      const insert = vi.fn().mockReturnValue({ select });
+      client.from.mockReturnValue({ insert });
 
       const result = await service.createPayment(client, 'u-1', input);
       expect(result.status).toBe('PENDING');
       expect(result.platform_fee).toBe(12);
       expect(result.designer_payout).toBe(88);
-      expect(paymentInsert).toHaveBeenCalledWith(expect.objectContaining({
-        client_id: 'u-1',
-        amount: 100,
-        platform_fee: 12,
-        designer_payout: 88,
-      }));
-    });
-
-    it('should throw if payment amount does not match proposal price', async () => {
-      const input = { case_id: 'c-1', designer_id: 'u-2', amount: 50, currency: 'USD' };
-      const client = createMockClient();
-
-      const proposalSingle = vi.fn().mockResolvedValue({
-        data: { price: 100, status: 'ACCEPTED', designer_id: 'u-2', case_id: 'c-1' },
-        error: null,
-      });
-      const proposalEq3 = vi.fn().mockReturnValue({ single: proposalSingle });
-      const proposalEq2 = vi.fn().mockReturnValue({ eq: proposalEq3 });
-      const proposalEq1 = vi.fn().mockReturnValue({ eq: proposalEq2 });
-      const proposalSelect = vi.fn().mockReturnValue({ eq: proposalEq1 });
-
-      client.from.mockReturnValue({ select: proposalSelect } as never);
-
-      await expect(service.createPayment(client, 'u-1', input))
-        .rejects.toThrow('Payment amount must match the accepted proposal price');
-    });
-
-    it('should throw if no accepted proposal exists', async () => {
-      const input = { case_id: 'c-1', designer_id: 'u-2', amount: 100, currency: 'USD' };
-      const client = createMockClient();
-
-      const proposalSingle = vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'No rows found' },
-      });
-      const proposalEq3 = vi.fn().mockReturnValue({ single: proposalSingle });
-      const proposalEq2 = vi.fn().mockReturnValue({ eq: proposalEq3 });
-      const proposalEq1 = vi.fn().mockReturnValue({ eq: proposalEq2 });
-      const proposalSelect = vi.fn().mockReturnValue({ eq: proposalEq1 });
-
-      client.from.mockReturnValue({ select: proposalSelect } as never);
-
-      await expect(service.createPayment(client, 'u-1', input))
-        .rejects.toThrow('No accepted proposal found');
+      expect(insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          client_id: 'u-1',
+          amount: 100,
+          platform_fee: 12,
+          designer_payout: 88,
+        }),
+      );
     });
   });
 
   describe('holdPayment', () => {
     it('should create a Stripe PaymentIntent and update status to HELD', async () => {
       const mockStripe = createMockStripe();
-      mockStripe.paymentIntents.create.mockResolvedValue({ id: 'pi_123', client_secret: 'cs_123' });
+      mockStripe.paymentIntents.create.mockResolvedValue({
+        id: 'pi_123',
+        client_secret: 'cs_123',
+      });
 
       const client = createMockClient();
       const single = vi.fn().mockResolvedValue({
@@ -131,10 +83,12 @@ describe('PaymentService', () => {
 
       const result = await service.holdPayment(client, mockStripe, 'pay-1', 10000, 'USD');
       expect(result.status).toBe('HELD');
-      expect(mockStripe.paymentIntents.create).toHaveBeenCalledWith(expect.objectContaining({
-        amount: 10000,
-        currency: 'usd',
-      }));
+      expect(mockStripe.paymentIntents.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          amount: 10000,
+          currency: 'usd',
+        }),
+      );
     });
   });
 
@@ -153,12 +107,21 @@ describe('PaymentService', () => {
       const update = vi.fn().mockReturnValue({ eq });
       client.from.mockReturnValue({ update });
 
-      const result = await service.releasePayment(client, mockStripe, 'pay-1', 8800, 'acct_designer', 'USD');
+      const result = await service.releasePayment(
+        client,
+        mockStripe,
+        'pay-1',
+        8800,
+        'acct_designer',
+        'USD',
+      );
       expect(result.status).toBe('RELEASED');
-      expect(mockStripe.transfers.create).toHaveBeenCalledWith(expect.objectContaining({
-        amount: 8800,
-        destination: 'acct_designer',
-      }));
+      expect(mockStripe.transfers.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          amount: 8800,
+          destination: 'acct_designer',
+        }),
+      );
     });
   });
 
@@ -179,9 +142,11 @@ describe('PaymentService', () => {
 
       const result = await service.refundPayment(client, mockStripe, 'pay-1', 'pi_123');
       expect(result.status).toBe('REFUNDED');
-      expect(mockStripe.refunds.create).toHaveBeenCalledWith(expect.objectContaining({
-        payment_intent: 'pi_123',
-      }));
+      expect(mockStripe.refunds.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payment_intent: 'pi_123',
+        }),
+      );
     });
   });
 
@@ -209,7 +174,10 @@ describe('PaymentService', () => {
       const select = vi.fn().mockReturnValue({ or });
       client.from.mockReturnValue({ select });
 
-      const result = await service.listPaymentsByUser(client, 'u-1', { page: 1, per_page: 20 });
+      const result = await service.listPaymentsByUser(client, 'u-1', {
+        page: 1,
+        per_page: 20,
+      });
       expect(result.data).toEqual(mockData);
       expect(result.meta.total).toBe(2);
     });

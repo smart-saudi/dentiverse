@@ -61,7 +61,7 @@ export function ToothChart({
       <div className="text-sm font-medium">
         Tooth Chart (FDI)
         {selected.length > 0 && (
-          <span className="ml-2 text-muted-foreground">
+          <span className="text-muted-foreground ml-2">
             Selected: {selected.join(', ')}
           </span>
         )}
@@ -69,7 +69,7 @@ export function ToothChart({
 
       {/* Upper jaw */}
       <div className="space-y-1">
-        <div className="text-center text-xs text-muted-foreground">Upper</div>
+        <div className="text-muted-foreground text-center text-xs">Upper</div>
         <div className="flex justify-center gap-0.5">
           {QUADRANTS[0].teeth.map((tooth) => (
             <ToothButton
@@ -80,7 +80,7 @@ export function ToothChart({
               disabled={disabled}
             />
           ))}
-          <div className="mx-1 w-px bg-border" />
+          <div className="bg-border mx-1 w-px" />
           {QUADRANTS[1].teeth.map((tooth) => (
             <ToothButton
               key={tooth}
@@ -94,7 +94,7 @@ export function ToothChart({
       </div>
 
       {/* Separator line */}
-      <div className="mx-auto h-px w-3/4 bg-border" />
+      <div className="bg-border mx-auto h-px w-3/4" />
 
       {/* Lower jaw */}
       <div className="space-y-1">
@@ -108,7 +108,7 @@ export function ToothChart({
               disabled={disabled}
             />
           ))}
-          <div className="mx-1 w-px bg-border" />
+          <div className="bg-border mx-1 w-px" />
           {QUADRANTS[3].teeth.map((tooth) => (
             <ToothButton
               key={tooth}
@@ -119,7 +119,7 @@ export function ToothChart({
             />
           ))}
         </div>
-        <div className="text-center text-xs text-muted-foreground">Lower</div>
+        <div className="text-muted-foreground text-center text-xs">Lower</div>
       </div>
     </div>
   );

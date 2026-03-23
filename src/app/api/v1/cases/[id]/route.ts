@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { updateCaseSchema } from '@/lib/validations/case';
+import { CaseService } from '@/services/case.service';
+
+const caseService = new CaseService();
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -28,25 +31,12 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       );
     }
 
-    const { data, error } = await supabase
-      .from('cases')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error) {
-      return NextResponse.json(
-        { code: 'NOT_FOUND', message: 'Case not found' },
-        { status: 404 },
-      );
-    }
+    const data = await caseService.getCase(supabase, id);
 
     return NextResponse.json({ data }, { status: 200 });
-  } catch {
-    return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
-      { status: 500 },
-    );
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+    return NextResponse.json({ code: 'NOT_FOUND', message }, { status: 404 });
   }
 }
 

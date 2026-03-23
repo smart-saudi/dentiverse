@@ -5,7 +5,10 @@ type CaseStatus = Database['public']['Enums']['case_status'];
 
 const STATUS_CONFIG: Record<
   CaseStatus,
-  { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' }
+  {
+    label: string;
+    variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning';
+  }
 > = {
   DRAFT: { label: 'Draft', variant: 'secondary' },
   OPEN: { label: 'Open', variant: 'default' },

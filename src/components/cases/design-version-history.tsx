@@ -4,22 +4,28 @@ import { useCallback, useEffect, useState } from 'react';
 import { CheckCircle, AlertCircle, Clock, FileIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StlViewer } from '@/components/viewer/stl-viewer';
 import type { Database } from '@/lib/database.types';
 
 type DesignVersionRow = Database['public']['Tables']['design_versions']['Row'];
 
-const STATUS_CONFIG: Record<string, { icon: typeof CheckCircle; variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
+const STATUS_CONFIG: Record<
+  string,
+  {
+    icon: typeof CheckCircle;
+    variant: 'default' | 'secondary' | 'destructive' | 'outline';
+    label: string;
+  }
+> = {
   SUBMITTED: { icon: Clock, variant: 'outline', label: 'Submitted' },
   APPROVED: { icon: CheckCircle, variant: 'default', label: 'Approved' },
-  REVISION_REQUESTED: { icon: AlertCircle, variant: 'destructive', label: 'Revision Requested' },
+  REVISION_REQUESTED: {
+    icon: AlertCircle,
+    variant: 'destructive',
+    label: 'Revision Requested',
+  },
 };
 
 interface DesignVersionHistoryProps {
@@ -37,7 +43,11 @@ interface DesignVersionHistoryProps {
  * @param props.canSubmit - Whether the user can submit new versions
  * @returns Design version timeline with review controls
  */
-export function DesignVersionHistory({ caseId, canReview, canSubmit }: DesignVersionHistoryProps) {
+export function DesignVersionHistory({
+  caseId,
+  canReview,
+  canSubmit,
+}: DesignVersionHistoryProps) {
   const [versions, setVersions] = useState<DesignVersionRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [feedback, setFeedback] = useState('');
@@ -61,41 +71,52 @@ export function DesignVersionHistory({ caseId, canReview, canSubmit }: DesignVer
     fetchVersions();
   }, [fetchVersions]);
 
-  const handleReview = useCallback(async (versionId: string, status: 'APPROVED' | 'REVISION_REQUESTED') => {
-    try {
-      const body: Record<string, string> = { status };
-      if (status === 'REVISION_REQUESTED' && feedback) {
-        body.revision_feedback = feedback;
-      }
+  const handleReview = useCallback(
+    async (versionId: string, status: 'APPROVED' | 'REVISION_REQUESTED') => {
+      try {
+        const body: Record<string, string> = { status };
+        if (status === 'REVISION_REQUESTED' && feedback) {
+          body.revision_feedback = feedback;
+        }
 
-      const res = await fetch(`/api/v1/design-versions/${versionId}/review`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+        const res = await fetch(`/api/v1/design-versions/${versionId}/review`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
 
-      if (res.ok) {
-        setFeedback('');
-        setReviewingId(null);
-        fetchVersions();
+        if (res.ok) {
+          setFeedback('');
+          setReviewingId(null);
+          fetchVersions();
+        }
+      } catch {
+        // silently ignore
       }
-    } catch {
-      // silently ignore
-    }
-  }, [feedback, fetchVersions]);
+    },
+    [feedback, fetchVersions],
+  );
 
   if (isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading versions...</div>;
+    return <div className="text-muted-foreground text-sm">Loading versions...</div>;
   }
 
   if (versions.length === 0 && !canSubmit) {
-    return <div className="text-sm text-muted-foreground">No design versions submitted yet.</div>;
+    return (
+      <div className="text-muted-foreground text-sm">
+        No design versions submitted yet.
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
       {versions.map((version) => {
-        const config = STATUS_CONFIG[version.status] ?? { icon: Clock, variant: 'outline' as const, label: 'Submitted' };
+        const config = STATUS_CONFIG[version.status] ?? {
+          icon: Clock,
+          variant: 'outline' as const,
+          label: 'Submitted',
+        };
         const StatusIcon = config.icon;
         const fileUrls = (version.file_urls as string[]) ?? [];
         const stlFile = fileUrls.find((u) => u.endsWith('.stl') || u.endsWith('.obj'));
@@ -115,7 +136,7 @@ export function DesignVersionHistory({ caseId, canReview, canSubmit }: DesignVer
             </CardHeader>
             <CardContent className="space-y-3">
               {version.notes && (
-                <p className="text-sm text-muted-foreground">{version.notes}</p>
+                <p className="text-muted-foreground text-sm">{version.notes}</p>
               )}
 
               {/* File list */}
@@ -126,7 +147,7 @@ export function DesignVersionHistory({ caseId, canReview, canSubmit }: DesignVer
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-primary hover:underline"
+                    className="text-primary flex items-center gap-2 text-sm hover:underline"
                   >
                     <FileIcon className="h-3.5 w-3.5" />
                     {url.split('/').pop()}
@@ -135,13 +156,11 @@ export function DesignVersionHistory({ caseId, canReview, canSubmit }: DesignVer
               </div>
 
               {/* 3D preview */}
-              {stlFile && (
-                <StlViewer url={stlFile} className="h-64" />
-              )}
+              {stlFile && <StlViewer url={stlFile} className="h-64" />}
 
               {/* Revision feedback */}
               {version.revision_feedback && (
-                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
                   <strong>Feedback:</strong> {version.revision_feedback}
                 </div>
               )}
@@ -156,7 +175,7 @@ export function DesignVersionHistory({ caseId, canReview, canSubmit }: DesignVer
                         onChange={(e) => setFeedback(e.target.value)}
                         placeholder="Describe what needs to be revised..."
                         rows={3}
-                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        className="border-input bg-background flex w-full rounded-md border px-3 py-2 text-sm"
                       />
                       <div className="flex gap-2">
                         <Button
@@ -169,7 +188,10 @@ export function DesignVersionHistory({ caseId, canReview, canSubmit }: DesignVer
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => { setReviewingId(null); setFeedback(''); }}
+                          onClick={() => {
+                            setReviewingId(null);
+                            setFeedback('');
+                          }}
                         >
                           Cancel
                         </Button>
@@ -177,10 +199,17 @@ export function DesignVersionHistory({ caseId, canReview, canSubmit }: DesignVer
                     </div>
                   ) : (
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={() => handleReview(version.id, 'APPROVED')}>
+                      <Button
+                        size="sm"
+                        onClick={() => handleReview(version.id, 'APPROVED')}
+                      >
                         Approve
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => setReviewingId(version.id)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setReviewingId(version.id)}
+                      >
                         Request Revision
                       </Button>
                     </div>
@@ -188,9 +217,10 @@ export function DesignVersionHistory({ caseId, canReview, canSubmit }: DesignVer
                 </div>
               )}
 
-              <div className="text-xs text-muted-foreground">
+              <div className="text-muted-foreground text-xs">
                 Submitted {new Date(version.created_at).toLocaleDateString()}
-                {version.reviewed_at && ` · Reviewed ${new Date(version.reviewed_at).toLocaleDateString()}`}
+                {version.reviewed_at &&
+                  ` · Reviewed ${new Date(version.reviewed_at).toLocaleDateString()}`}
               </div>
             </CardContent>
           </Card>

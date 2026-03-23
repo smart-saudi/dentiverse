@@ -24,7 +24,15 @@ const mockSelectFn = vi.fn().mockImplementation(() => ({
   single: mockProposalSingleFn,
 }));
 const mockInsertFn = vi.fn().mockReturnValue({ select: mockSelectFn });
-const mockUpdateFn = vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockProposalSingleFn }) }) });
+const mockUpdateFn = vi
+  .fn()
+  .mockReturnValue({
+    eq: vi
+      .fn()
+      .mockReturnValue({
+        select: vi.fn().mockReturnValue({ single: mockProposalSingleFn }),
+      }),
+  });
 
 // Users table mock (for role checks)
 const mockUserSingleFn = vi.fn();
@@ -103,7 +111,11 @@ describe('POST /api/v1/cases/[id]/proposals', () => {
     mockProposalSingleFn.mockResolvedValue({ data: mockProposal, error: null });
 
     const { POST } = await import('@/app/api/v1/cases/[id]/proposals/route');
-    const req = buildRequest({ price: 150, estimated_hours: 8, message: 'I can do this.' });
+    const req = buildRequest({
+      price: 150,
+      estimated_hours: 8,
+      message: 'I can do this.',
+    });
     const res = await POST(req, { params: Promise.resolve({ id: 'c-1' }) });
     const json = await res.json();
 
@@ -112,7 +124,10 @@ describe('POST /api/v1/cases/[id]/proposals', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { POST } = await import('@/app/api/v1/cases/[id]/proposals/route');
     const req = buildRequest({ price: 150, estimated_hours: 8, message: 'test' });
@@ -154,7 +169,11 @@ describe('GET /api/v1/cases/[id]/proposals', () => {
     mockRangeFn.mockResolvedValue({ data: [mockProposal], error: null, count: 1 });
 
     const { GET } = await import('@/app/api/v1/cases/[id]/proposals/route');
-    const req = buildRequest(null, 'GET', 'http://localhost:3000/api/v1/cases/c-1/proposals');
+    const req = buildRequest(
+      null,
+      'GET',
+      'http://localhost:3000/api/v1/cases/c-1/proposals',
+    );
     const res = await GET(req, { params: Promise.resolve({ id: 'c-1' }) });
     const json = await res.json();
 
@@ -184,12 +203,19 @@ describe('POST /api/v1/proposals/[id]/accept', () => {
         return Promise.resolve({ data: { case_id: 'c-1' }, error: null });
       }
       // Accept result
-      return Promise.resolve({ data: { ...mockProposal, status: 'ACCEPTED' }, error: null });
+      return Promise.resolve({
+        data: { ...mockProposal, status: 'ACCEPTED' },
+        error: null,
+      });
     });
     mockCaseSingleFn.mockResolvedValue({ data: { client_id: 'user-1' }, error: null });
 
     const { POST } = await import('@/app/api/v1/proposals/[id]/accept/route');
-    const req = buildRequest(null, 'POST', 'http://localhost:3000/api/v1/proposals/p-1/accept');
+    const req = buildRequest(
+      null,
+      'POST',
+      'http://localhost:3000/api/v1/proposals/p-1/accept',
+    );
     const res = await POST(req, { params: Promise.resolve({ id: 'p-1' }) });
     const json = await res.json();
 
@@ -213,12 +239,19 @@ describe('POST /api/v1/proposals/[id]/reject', () => {
       if (callCount === 1) {
         return Promise.resolve({ data: { case_id: 'c-1' }, error: null });
       }
-      return Promise.resolve({ data: { ...mockProposal, status: 'REJECTED' }, error: null });
+      return Promise.resolve({
+        data: { ...mockProposal, status: 'REJECTED' },
+        error: null,
+      });
     });
     mockCaseSingleFn.mockResolvedValue({ data: { client_id: 'user-1' }, error: null });
 
     const { POST } = await import('@/app/api/v1/proposals/[id]/reject/route');
-    const req = buildRequest(null, 'POST', 'http://localhost:3000/api/v1/proposals/p-1/reject');
+    const req = buildRequest(
+      null,
+      'POST',
+      'http://localhost:3000/api/v1/proposals/p-1/reject',
+    );
     const res = await POST(req, { params: Promise.resolve({ id: 'p-1' }) });
     const json = await res.json();
 

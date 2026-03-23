@@ -103,8 +103,18 @@ export default function NewCasePage() {
       setIsSubmitting(false);
     }
   }, [
-    caseType, title, description, toothNumbers, materialPreference, shade,
-    budgetMin, budgetMax, deadline, urgency, specialInstructions, softwareRequired,
+    caseType,
+    title,
+    description,
+    toothNumbers,
+    materialPreference,
+    shade,
+    budgetMin,
+    budgetMax,
+    deadline,
+    urgency,
+    specialInstructions,
+    softwareRequired,
     router,
   ]);
 
@@ -122,15 +132,16 @@ export default function NewCasePage() {
         {steps.map((s, i) => (
           <div
             key={s}
-            className={`h-1 flex-1 rounded-full ${
-              i <= step ? 'bg-primary' : 'bg-muted'
-            }`}
+            className={`h-1 flex-1 rounded-full ${i <= step ? 'bg-primary' : 'bg-muted'}`}
           />
         ))}
       </div>
 
       {error && (
-        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+        >
           {error}
         </div>
       )}
@@ -144,20 +155,26 @@ export default function NewCasePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="caseType" className="text-sm font-medium">Case Type</label>
+              <label htmlFor="caseType" className="text-sm font-medium">
+                Case Type
+              </label>
               <select
                 id="caseType"
                 value={caseType}
                 onChange={(e) => setCaseType(e.target.value as typeof caseType)}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+                className="border-input bg-background flex h-9 w-full rounded-md border px-3 py-1 text-sm"
               >
                 {CASE_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="space-y-2">
-              <label htmlFor="title" className="text-sm font-medium">Title</label>
+              <label htmlFor="title" className="text-sm font-medium">
+                Title
+              </label>
               <Input
                 id="title"
                 value={title}
@@ -167,19 +184,23 @@ export default function NewCasePage() {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="description" className="text-sm font-medium">Description</label>
+              <label htmlFor="description" className="text-sm font-medium">
+                Description
+              </label>
               <textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe the case requirements..."
                 rows={3}
-                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="border-input bg-background flex w-full rounded-md border px-3 py-2 text-sm"
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label htmlFor="material" className="text-sm font-medium">Material Preference</label>
+                <label htmlFor="material" className="text-sm font-medium">
+                  Material Preference
+                </label>
                 <Input
                   id="material"
                   value={materialPreference}
@@ -188,7 +209,9 @@ export default function NewCasePage() {
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="shade" className="text-sm font-medium">Shade</label>
+                <label htmlFor="shade" className="text-sm font-medium">
+                  Shade
+                </label>
                 <Input
                   id="shade"
                   value={shade}
@@ -224,7 +247,9 @@ export default function NewCasePage() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label htmlFor="budgetMin" className="text-sm font-medium">Min Budget ($)</label>
+                <label htmlFor="budgetMin" className="text-sm font-medium">
+                  Min Budget ($)
+                </label>
                 <Input
                   id="budgetMin"
                   type="number"
@@ -235,7 +260,9 @@ export default function NewCasePage() {
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="budgetMax" className="text-sm font-medium">Max Budget ($)</label>
+                <label htmlFor="budgetMax" className="text-sm font-medium">
+                  Max Budget ($)
+                </label>
                 <Input
                   id="budgetMax"
                   type="number"
@@ -247,7 +274,9 @@ export default function NewCasePage() {
               </div>
             </div>
             <div className="space-y-2">
-              <label htmlFor="deadline" className="text-sm font-medium">Deadline</label>
+              <label htmlFor="deadline" className="text-sm font-medium">
+                Deadline
+              </label>
               <Input
                 id="deadline"
                 type="date"
@@ -273,7 +302,9 @@ export default function NewCasePage() {
               </div>
             </fieldset>
             <div className="space-y-2">
-              <label htmlFor="software" className="text-sm font-medium">Software Required</label>
+              <label htmlFor="software" className="text-sm font-medium">
+                Software Required
+              </label>
               <Input
                 id="software"
                 value={softwareRequired}
@@ -282,14 +313,16 @@ export default function NewCasePage() {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="instructions" className="text-sm font-medium">Special Instructions</label>
+              <label htmlFor="instructions" className="text-sm font-medium">
+                Special Instructions
+              </label>
               <textarea
                 id="instructions"
                 value={specialInstructions}
                 onChange={(e) => setSpecialInstructions(e.target.value)}
                 placeholder="Any additional notes for the designer..."
                 rows={3}
-                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="border-input bg-background flex w-full rounded-md border px-3 py-2 text-sm"
               />
             </div>
           </CardContent>
@@ -304,21 +337,55 @@ export default function NewCasePage() {
             <CardDescription>Confirm your case details before creating</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            <div><strong>Type:</strong> {caseType}</div>
-            <div><strong>Title:</strong> {title}</div>
-            {description && <div><strong>Description:</strong> {description}</div>}
-            <div><strong>Teeth:</strong> {toothNumbers.join(', ')}</div>
-            {materialPreference && <div><strong>Material:</strong> {materialPreference}</div>}
-            {shade && <div><strong>Shade:</strong> {shade}</div>}
-            {(budgetMin || budgetMax) && (
-              <div><strong>Budget:</strong> ${budgetMin || '0'} – ${budgetMax || '∞'}</div>
+            <div>
+              <strong>Type:</strong> {caseType}
+            </div>
+            <div>
+              <strong>Title:</strong> {title}
+            </div>
+            {description && (
+              <div>
+                <strong>Description:</strong> {description}
+              </div>
             )}
-            {deadline && <div><strong>Deadline:</strong> {deadline}</div>}
-            <div><strong>Urgency:</strong> {urgency}</div>
-            {softwareRequired && <div><strong>Software:</strong> {softwareRequired}</div>}
-            {specialInstructions && <div><strong>Instructions:</strong> {specialInstructions}</div>}
+            <div>
+              <strong>Teeth:</strong> {toothNumbers.join(', ')}
+            </div>
+            {materialPreference && (
+              <div>
+                <strong>Material:</strong> {materialPreference}
+              </div>
+            )}
+            {shade && (
+              <div>
+                <strong>Shade:</strong> {shade}
+              </div>
+            )}
+            {(budgetMin || budgetMax) && (
+              <div>
+                <strong>Budget:</strong> ${budgetMin || '0'} – ${budgetMax || '∞'}
+              </div>
+            )}
+            {deadline && (
+              <div>
+                <strong>Deadline:</strong> {deadline}
+              </div>
+            )}
+            <div>
+              <strong>Urgency:</strong> {urgency}
+            </div>
+            {softwareRequired && (
+              <div>
+                <strong>Software:</strong> {softwareRequired}
+              </div>
+            )}
+            {specialInstructions && (
+              <div>
+                <strong>Instructions:</strong> {specialInstructions}
+              </div>
+            )}
           </CardContent>
-          <CardFooter className="text-xs text-muted-foreground">
+          <CardFooter className="text-muted-foreground text-xs">
             The case will be created as a Draft. You can publish it after reviewing.
           </CardFooter>
         </Card>
@@ -334,10 +401,7 @@ export default function NewCasePage() {
           Back
         </Button>
         {step < steps.length - 1 ? (
-          <Button
-            onClick={() => setStep((s) => s + 1)}
-            disabled={!canProceed()}
-          >
+          <Button onClick={() => setStep((s) => s + 1)} disabled={!canProceed()}>
             Next
           </Button>
         ) : (

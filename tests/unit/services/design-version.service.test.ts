@@ -3,7 +3,8 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { DesignVersionService } from '@/services/design-version.service';
 
 function createMockClient() {
-  return { from: vi.fn() } as never;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock Supabase client for testing
+  return { from: vi.fn() } as any;
 }
 
 describe('DesignVersionService', () => {
@@ -15,8 +16,18 @@ describe('DesignVersionService', () => {
 
   describe('createVersion', () => {
     it('should create a design version with SUBMITTED status', async () => {
-      const input = { file_urls: ['https://example.com/file.stl'], notes: 'First version' };
-      const mockVersion = { id: 'dv-1', case_id: 'c-1', designer_id: 'u-1', version_number: 1, status: 'SUBMITTED', ...input };
+      const input = {
+        file_urls: ['https://example.com/file.stl'],
+        notes: 'First version',
+      };
+      const mockVersion = {
+        id: 'dv-1',
+        case_id: 'c-1',
+        designer_id: 'u-1',
+        version_number: 1,
+        status: 'SUBMITTED',
+        ...input,
+      };
       const client = createMockClient();
       const single = vi.fn().mockResolvedValue({ data: mockVersion, error: null });
       const select = vi.fn().mockReturnValue({ single });
@@ -25,11 +36,13 @@ describe('DesignVersionService', () => {
 
       const result = await service.createVersion(client, 'c-1', 'u-1', 1, input);
       expect(result.status).toBe('SUBMITTED');
-      expect(insert).toHaveBeenCalledWith(expect.objectContaining({
-        case_id: 'c-1',
-        version_number: 1,
-        status: 'SUBMITTED',
-      }));
+      expect(insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          case_id: 'c-1',
+          version_number: 1,
+          status: 'SUBMITTED',
+        }),
+      );
     });
   });
 
@@ -60,7 +73,10 @@ describe('DesignVersionService', () => {
       const select = vi.fn().mockReturnValue({ eq });
       client.from.mockReturnValue({ select });
 
-      const result = await service.listVersionsForCase(client, 'c-1', { page: 1, per_page: 20 });
+      const result = await service.listVersionsForCase(client, 'c-1', {
+        page: 1,
+        per_page: 20,
+      });
       expect(result.data).toEqual(mockData);
       expect(result.meta.total).toBe(2);
     });
@@ -81,7 +97,11 @@ describe('DesignVersionService', () => {
     });
 
     it('should request revision with feedback', async () => {
-      const mockVersion = { id: 'dv-1', status: 'REVISION_REQUESTED', revision_feedback: 'Fix contacts' };
+      const mockVersion = {
+        id: 'dv-1',
+        status: 'REVISION_REQUESTED',
+        revision_feedback: 'Fix contacts',
+      };
       const client = createMockClient();
       const single = vi.fn().mockResolvedValue({ data: mockVersion, error: null });
       const select = vi.fn().mockReturnValue({ single });

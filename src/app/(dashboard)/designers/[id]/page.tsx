@@ -5,12 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Star, Monitor, Globe, Award } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Database } from '@/lib/database.types';
@@ -66,7 +61,10 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
   if (error || !designer) {
     return (
       <div className="space-y-4">
-        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+        >
           {error ?? 'Designer not found'}
         </div>
         <Button variant="outline" onClick={() => router.push('/designers')}>
@@ -93,12 +91,14 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight">Designer Profile</h1>
             {designer.is_available ? (
-              <Badge variant="default" className="bg-green-600">Available</Badge>
+              <Badge variant="default" className="bg-green-600">
+                Available
+              </Badge>
             ) : (
               <Badge variant="secondary">Unavailable</Badge>
             )}
           </div>
-          <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground mt-1 flex items-center gap-2 text-sm">
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             <span className="font-medium">{designer.avg_rating.toFixed(1)}</span>
             <span>({designer.total_reviews} reviews)</span>
@@ -121,7 +121,7 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
             <CardTitle className="text-base">About</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">{designer.bio}</p>
+            <p className="text-muted-foreground text-sm">{designer.bio}</p>
           </CardContent>
         </Card>
       )}
@@ -164,7 +164,9 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
                 <span className="text-sm font-medium">Specializations</span>
                 <div className="flex flex-wrap gap-1">
                   {specializations.map((spec) => (
-                    <Badge key={spec} variant="secondary">{spec}</Badge>
+                    <Badge key={spec} variant="secondary">
+                      {spec}
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -172,7 +174,7 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
             {softwareSkills.length > 0 && (
               <div className="space-y-1">
                 <span className="text-sm font-medium">Software</span>
-                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
                   <Monitor className="h-3.5 w-3.5" />
                   {softwareSkills.join(', ')}
                 </div>
@@ -181,7 +183,7 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
             {languages.length > 0 && (
               <div className="space-y-1">
                 <span className="text-sm font-medium">Languages</span>
-                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
                   <Globe className="h-3.5 w-3.5" />
                   {languages.join(', ')}
                 </div>
@@ -201,7 +203,7 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
             <div className="flex flex-wrap gap-2">
               {certifications.map((cert) => (
                 <div key={cert} className="flex items-center gap-1 text-sm">
-                  <Award className="h-3.5 w-3.5 text-primary" />
+                  <Award className="text-primary h-3.5 w-3.5" />
                   <span>{cert}</span>
                 </div>
               ))}
@@ -224,7 +226,7 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-md border p-3 text-sm text-primary hover:border-primary/50"
+                  className="text-primary hover:border-primary/50 block rounded-md border p-3 text-sm"
                 >
                   Portfolio Item {i + 1}
                 </a>

@@ -17,7 +17,10 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get('stripe-signature');
 
   if (!signature) {
-    return NextResponse.json({ code: 'BAD_REQUEST', message: 'Missing stripe-signature header' }, { status: 400 });
+    return NextResponse.json(
+      { code: 'BAD_REQUEST', message: 'Missing stripe-signature header' },
+      { status: 400 },
+    );
   }
 
   let event;
@@ -25,7 +28,10 @@ export async function POST(req: NextRequest) {
     event = constructWebhookEvent(body, signature);
   } catch (err) {
     return NextResponse.json(
-      { code: 'BAD_REQUEST', message: err instanceof Error ? err.message : 'Webhook verification failed' },
+      {
+        code: 'BAD_REQUEST',
+        message: err instanceof Error ? err.message : 'Webhook verification failed',
+      },
       { status: 400 },
     );
   }
@@ -43,7 +49,8 @@ export async function POST(req: NextRequest) {
             .from('payments')
             .update({
               status: 'HELD',
-              stripe_charge_id: typeof intent.latest_charge === 'string' ? intent.latest_charge : null,
+              stripe_charge_id:
+                typeof intent.latest_charge === 'string' ? intent.latest_charge : null,
               held_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             })
@@ -86,7 +93,8 @@ export async function POST(req: NextRequest) {
 
       case 'charge.refunded': {
         const charge = event.data.object;
-        const paymentIntentId = typeof charge.payment_intent === 'string' ? charge.payment_intent : null;
+        const paymentIntentId =
+          typeof charge.payment_intent === 'string' ? charge.payment_intent : null;
         if (paymentIntentId) {
           await supabase
             .from('payments')

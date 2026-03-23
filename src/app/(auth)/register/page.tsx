@@ -64,16 +64,14 @@ export default function RegisterPage() {
     <Card>
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
-        <CardDescription>
-          Join the dental design marketplace
-        </CardDescription>
+        <CardDescription>Join the dental design marketplace</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           {error && (
             <div
               role="alert"
-              className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
             >
               {error}
             </div>
@@ -142,9 +140,7 @@ export default function RegisterPage() {
                   />
                   <div>
                     <div className="font-medium">{r.label}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {r.description}
-                    </div>
+                    <div className="text-muted-foreground text-xs">{r.description}</div>
                   </div>
                 </label>
               ))}
@@ -155,7 +151,7 @@ export default function RegisterPage() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Creating account...' : 'Create account'}
           </Button>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-center text-sm">
             Already have an account?{' '}
             <Link href="/login" className="text-primary hover:underline">
               Sign in

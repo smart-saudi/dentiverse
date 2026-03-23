@@ -50,7 +50,10 @@ describe('MessageService', () => {
       mockSingleFn.mockResolvedValue({ data: null, error: { message: 'Insert failed' } });
 
       await expect(
-        service.sendMessage(mockSupabase, 'c-1', 'u-1', { content: 'Hello', attachment_urls: [] }),
+        service.sendMessage(mockSupabase, 'c-1', 'u-1', {
+          content: 'Hello',
+          attachment_urls: [],
+        }),
       ).rejects.toThrow('Insert failed');
     });
   });
@@ -59,7 +62,10 @@ describe('MessageService', () => {
     it('should return paginated messages', async () => {
       mockRangeFn.mockResolvedValue({ data: [{ id: 'msg-1' }], error: null, count: 1 });
 
-      const result = await service.listMessages(mockSupabase, 'c-1', { page: 1, per_page: 50 });
+      const result = await service.listMessages(mockSupabase, 'c-1', {
+        page: 1,
+        per_page: 50,
+      });
 
       expect(result.data).toHaveLength(1);
       expect(result.meta.total).toBe(1);
@@ -67,7 +73,11 @@ describe('MessageService', () => {
     });
 
     it('should throw on query error', async () => {
-      mockRangeFn.mockResolvedValue({ data: null, error: { message: 'Query failed' }, count: 0 });
+      mockRangeFn.mockResolvedValue({
+        data: null,
+        error: { message: 'Query failed' },
+        count: 0,
+      });
 
       await expect(
         service.listMessages(mockSupabase, 'c-1', { page: 1, per_page: 50 }),

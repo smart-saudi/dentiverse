@@ -25,13 +25,11 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
     <div className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="mx-auto max-w-md text-center">
         <h1 className="text-4xl font-bold">Something went wrong</h1>
-        <p className="mt-4 text-muted-foreground">
+        <p className="text-muted-foreground mt-4">
           An unexpected error occurred. Please try again.
         </p>
         {error.digest && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Error ID: {error.digest}
-          </p>
+          <p className="text-muted-foreground mt-2 text-xs">Error ID: {error.digest}</p>
         )}
         <div className="mt-8 flex justify-center gap-4">
           <Button onClick={reset}>Try Again</Button>

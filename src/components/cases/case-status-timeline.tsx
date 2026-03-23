@@ -43,8 +43,8 @@ export function CaseStatusTimeline({
   if (isCancelled || isDisputed) {
     return (
       <div className={cn('flex items-center gap-2', className)}>
-        <div className="h-3 w-3 rounded-full bg-destructive" />
-        <span className="text-sm font-medium text-destructive">
+        <div className="bg-destructive h-3 w-3 rounded-full" />
+        <span className="text-destructive text-sm font-medium">
           {isCancelled ? 'Cancelled' : 'Disputed'}
         </span>
       </div>
@@ -65,7 +65,9 @@ export function CaseStatusTimeline({
                   'flex h-6 w-6 items-center justify-center rounded-full border-2 text-xs font-bold',
                   isCompleted && 'border-primary bg-primary text-primary-foreground',
                   isCurrent && 'border-primary bg-primary/10 text-primary',
-                  !isCompleted && !isCurrent && 'border-muted-foreground/30 text-muted-foreground/50',
+                  !isCompleted &&
+                    !isCurrent &&
+                    'border-muted-foreground/30 text-muted-foreground/50',
                 )}
               >
                 {isCompleted ? '✓' : index + 1}
@@ -73,7 +75,7 @@ export function CaseStatusTimeline({
               <span
                 className={cn(
                   'mt-1 text-[10px] leading-tight',
-                  isCurrent ? 'font-medium text-foreground' : 'text-muted-foreground',
+                  isCurrent ? 'text-foreground font-medium' : 'text-muted-foreground',
                 )}
               >
                 {step.label}

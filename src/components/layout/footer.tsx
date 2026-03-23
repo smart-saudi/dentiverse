@@ -16,8 +16,8 @@ export function Footer({ className }: FooterProps) {
 
   return (
     <footer className={className} role="contentinfo">
-      <div className="border-t border-border px-6 py-4">
-        <p className="text-center text-sm text-muted-foreground">
+      <div className="border-border border-t px-6 py-4">
+        <p className="text-muted-foreground text-center text-sm">
           &copy; {year} {APP_NAME}. All rights reserved.
         </p>
       </div>

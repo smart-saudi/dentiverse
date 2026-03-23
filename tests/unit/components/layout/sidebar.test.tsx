@@ -43,14 +43,8 @@ describe('Sidebar', () => {
 
   it('should render links with correct href attributes', () => {
     render(<Sidebar />);
-    expect(screen.getByText('Dashboard').closest('a')).toHaveAttribute(
-      'href',
-      '/',
-    );
-    expect(screen.getByText('Cases').closest('a')).toHaveAttribute(
-      'href',
-      '/cases',
-    );
+    expect(screen.getByText('Dashboard').closest('a')).toHaveAttribute('href', '/');
+    expect(screen.getByText('Cases').closest('a')).toHaveAttribute('href', '/cases');
     expect(screen.getByText('Designers').closest('a')).toHaveAttribute(
       'href',
       '/designers',
@@ -59,9 +53,7 @@ describe('Sidebar', () => {
 
   it('should have an accessible navigation landmark', () => {
     render(<Sidebar />);
-    expect(
-      screen.getByRole('navigation', { name: /main/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: /main/i })).toBeInTheDocument();
   });
 
   it('should highlight the active link based on pathname', () => {

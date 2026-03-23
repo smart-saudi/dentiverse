@@ -54,16 +54,23 @@ export default function CasesPage() {
     setPage(1);
   };
 
-  const statuses = ['', 'DRAFT', 'OPEN', 'ASSIGNED', 'IN_PROGRESS', 'REVIEW', 'COMPLETED', 'CANCELLED'];
+  const statuses = [
+    '',
+    'DRAFT',
+    'OPEN',
+    'ASSIGNED',
+    'IN_PROGRESS',
+    'REVIEW',
+    'COMPLETED',
+    'CANCELLED',
+  ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Cases</h1>
-          <p className="text-muted-foreground">
-            Manage your dental design cases
-          </p>
+          <p className="text-muted-foreground">Manage your dental design cases</p>
         </div>
         <Link href="/cases/new">
           <Button>
@@ -89,7 +96,10 @@ export default function CasesPage() {
 
       {/* Error */}
       {error && (
-        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+        >
           {error}
         </div>
       )}
@@ -106,7 +116,7 @@ export default function CasesPage() {
       {/* Case list */}
       {!isLoading && !error && cases.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <p className="mb-4 text-muted-foreground">No cases found</p>
+          <p className="text-muted-foreground mb-4">No cases found</p>
           <Link href="/cases/new">
             <Button variant="outline">Create your first case</Button>
           </Link>
@@ -132,7 +142,7 @@ export default function CasesPage() {
           >
             Previous
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             Page {page} of {totalPages}
           </span>
           <Button

@@ -69,15 +69,22 @@ export function StlViewer({ url, className }: StlViewerProps) {
 
     const { x: rx, y: ry } = rotationRef.current;
     const zoom = zoomRef.current;
-    const cosX = Math.cos(rx), sinX = Math.sin(rx);
-    const cosY = Math.cos(ry), sinY = Math.sin(ry);
+    const cosX = Math.cos(rx),
+      sinX = Math.sin(rx);
+    const cosY = Math.cos(ry),
+      sinY = Math.sin(ry);
 
     // Find bounding box for auto-centering
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    let minX = Infinity,
+      maxX = -Infinity,
+      minY = Infinity,
+      maxY = -Infinity;
     const projected: number[] = [];
 
     for (let i = 0; i < vertices.length; i += 3) {
-      const x = vertices[i]!, y = vertices[i + 1]!, z = vertices[i + 2]!;
+      const x = vertices[i]!,
+        y = vertices[i + 1]!,
+        z = vertices[i + 2]!;
       // Rotate Y then X
       const x1 = x * cosY + z * sinY;
       const z1 = -x * sinY + z * cosY;
@@ -92,7 +99,7 @@ export function StlViewer({ url, className }: StlViewerProps) {
 
     const rangeX = maxX - minX || 1;
     const rangeY = maxY - minY || 1;
-    const scale = zoom * Math.min(w * 0.8 / rangeX, h * 0.8 / rangeY);
+    const scale = zoom * Math.min((w * 0.8) / rangeX, (h * 0.8) / rangeY);
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
 
@@ -146,7 +153,10 @@ export function StlViewer({ url, className }: StlViewerProps) {
 
     load();
     const animId = animRef.current;
-    return () => { cancelled = true; cancelAnimationFrame(animId); };
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(animId);
+    };
   }, [url, parseStlBinary, render]);
 
   // Mouse interaction handlers
@@ -155,42 +165,63 @@ export function StlViewer({ url, className }: StlViewerProps) {
     lastPosRef.current = { x: e.clientX, y: e.clientY };
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDraggingRef.current) return;
-    const dx = e.clientX - lastPosRef.current.x;
-    const dy = e.clientY - lastPosRef.current.y;
-    rotationRef.current.y += dx * 0.01;
-    rotationRef.current.x += dy * 0.01;
-    lastPosRef.current = { x: e.clientX, y: e.clientY };
-    render();
-  }, [render]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      const dx = e.clientX - lastPosRef.current.x;
+      const dy = e.clientY - lastPosRef.current.y;
+      rotationRef.current.y += dx * 0.01;
+      rotationRef.current.x += dy * 0.01;
+      lastPosRef.current = { x: e.clientX, y: e.clientY };
+      render();
+    },
+    [render],
+  );
 
   const handleMouseUp = useCallback(() => {
     isDraggingRef.current = false;
   }, []);
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    zoomRef.current = Math.max(0.1, Math.min(10, zoomRef.current * (e.deltaY > 0 ? 0.9 : 1.1)));
-    render();
-  }, [render]);
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      e.preventDefault();
+      zoomRef.current = Math.max(
+        0.1,
+        Math.min(10, zoomRef.current * (e.deltaY > 0 ? 0.9 : 1.1)),
+      );
+      render();
+    },
+    [render],
+  );
 
   if (error) {
     return (
-      <div className={cn('flex flex-col items-center justify-center rounded-lg border p-8', className)}>
-        <p className="mb-2 text-sm text-muted-foreground">{error}</p>
+      <div
+        className={cn(
+          'flex flex-col items-center justify-center rounded-lg border p-8',
+          className,
+        )}
+      >
+        <p className="text-muted-foreground mb-2 text-sm">{error}</p>
         <a href={url} target="_blank" rel="noopener noreferrer">
-          <Button variant="outline" size="sm">Download File</Button>
+          <Button variant="outline" size="sm">
+            Download File
+          </Button>
         </a>
       </div>
     );
   }
 
   return (
-    <div className={cn('relative overflow-hidden rounded-lg border bg-background', className)}>
+    <div
+      className={cn(
+        'bg-background relative overflow-hidden rounded-lg border',
+        className,
+      )}
+    >
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <RotateCw className="h-6 w-6 animate-spin text-muted-foreground" />
+          <RotateCw className="text-muted-foreground h-6 w-6 animate-spin" />
         </div>
       )}
       <canvas
@@ -205,12 +236,15 @@ export function StlViewer({ url, className }: StlViewerProps) {
         onWheel={handleWheel}
       />
       {/* Controls */}
-      <div className="absolute bottom-2 right-2 flex gap-1">
+      <div className="absolute right-2 bottom-2 flex gap-1">
         <Button
           variant="outline"
           size="icon"
           className="h-7 w-7"
-          onClick={() => { zoomRef.current = Math.min(10, zoomRef.current * 1.2); render(); }}
+          onClick={() => {
+            zoomRef.current = Math.min(10, zoomRef.current * 1.2);
+            render();
+          }}
         >
           <ZoomIn className="h-3 w-3" />
         </Button>
@@ -218,7 +252,10 @@ export function StlViewer({ url, className }: StlViewerProps) {
           variant="outline"
           size="icon"
           className="h-7 w-7"
-          onClick={() => { zoomRef.current = Math.max(0.1, zoomRef.current * 0.8); render(); }}
+          onClick={() => {
+            zoomRef.current = Math.max(0.1, zoomRef.current * 0.8);
+            render();
+          }}
         >
           <ZoomOut className="h-3 w-3" />
         </Button>
@@ -226,7 +263,11 @@ export function StlViewer({ url, className }: StlViewerProps) {
           variant="outline"
           size="icon"
           className="h-7 w-7"
-          onClick={() => { rotationRef.current = { x: -Math.PI / 6, y: Math.PI / 4 }; zoomRef.current = 1; render(); }}
+          onClick={() => {
+            rotationRef.current = { x: -Math.PI / 6, y: Math.PI / 4 };
+            zoomRef.current = 1;
+            render();
+          }}
         >
           <Maximize className="h-3 w-3" />
         </Button>

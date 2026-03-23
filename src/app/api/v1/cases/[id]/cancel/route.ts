@@ -53,7 +53,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (!CANCELLABLE_STATUSES.has(existing.status)) {
       return NextResponse.json(
-        { code: 'INVALID_STATUS', message: `Cannot cancel a case in ${existing.status} status` },
+        {
+          code: 'INVALID_STATUS',
+          message: `Cannot cancel a case in ${existing.status} status`,
+        },
         { status: 409 },
       );
     }

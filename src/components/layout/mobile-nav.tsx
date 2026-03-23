@@ -4,12 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { navItems } from '@/components/layout/sidebar';
 
 interface MobileNavProps {
@@ -32,16 +27,15 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-72 p-0">
-        <SheetHeader className="border-b border-border px-6 py-4">
-          <SheetTitle className="font-heading text-lg font-bold text-brand-600">
+        <SheetHeader className="border-border border-b px-6 py-4">
+          <SheetTitle className="font-heading text-brand-600 text-lg font-bold">
             DentiVerse
           </SheetTitle>
         </SheetHeader>
 
         <nav className="space-y-1 p-4" aria-label="Mobile navigation">
           {navItems.map(({ label, href, icon: Icon }) => {
-            const isActive =
-              href === '/' ? pathname === '/' : pathname.startsWith(href);
+            const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
 
             return (
               <Link

@@ -17,11 +17,7 @@ const passwordSchema = z
 /**
  * Email schema with trim and lowercase transforms.
  */
-const emailSchema = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .email('Invalid email address');
+const emailSchema = z.string().trim().toLowerCase().email('Invalid email address');
 
 /**
  * Schema for user registration.

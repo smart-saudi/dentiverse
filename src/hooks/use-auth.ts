@@ -118,20 +118,17 @@ export function useAuth() {
     router.refresh();
   }, [supabase, clear, router]);
 
-  const forgotPassword = useCallback(
-    async (email: string) => {
-      const res = await fetch('/api/v1/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.message ?? 'Request failed');
-      }
-    },
-    [],
-  );
+  const forgotPassword = useCallback(async (email: string) => {
+    const res = await fetch('/api/v1/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) {
+      const body = await res.json();
+      throw new Error(body.message ?? 'Request failed');
+    }
+  }, []);
 
   return {
     user,
