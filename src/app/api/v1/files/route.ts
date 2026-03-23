@@ -27,7 +27,7 @@ const ALLOWED_BUCKETS = new Set([
  * POST /api/v1/files — Upload a file to Supabase Storage.
  *
  * Accepts multipart form data with a `file` field and optional `bucket` field.
- * Returns the public URL of the uploaded file.
+ * Returns a time-limited signed URL (1 hour) for the uploaded file.
  *
  * @param req - Next.js request with multipart form data
  * @returns The file URL and metadata
@@ -100,12 +100,18 @@ export async function POST(req: NextRequest) {
 
     if (uploadError) throw uploadError;
 
-    const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
+    const { data: urlData, error: urlError } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(path, 3600);
+
+    if (urlError || !urlData?.signedUrl) {
+      throw new Error(urlError?.message ?? 'Failed to generate signed URL');
+    }
 
     return NextResponse.json(
       {
         data: {
-          url: urlData.publicUrl,
+          url: urlData.signedUrl,
           path,
           bucket,
           name: file.name,
