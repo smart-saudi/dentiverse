@@ -24,6 +24,20 @@ export async function POST(req: NextRequest, context: RouteContext) {
     return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
   }
 
+  // Only DESIGNER users can submit proposals
+  const { data: profile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile || profile.role !== 'DESIGNER') {
+    return NextResponse.json(
+      { code: 'FORBIDDEN', message: 'Only designers can submit proposals' },
+      { status: 403 },
+    );
+  }
+
   const { id: caseId } = await context.params;
   const body = await req.json();
   const parsed = createProposalSchema.safeParse(body);

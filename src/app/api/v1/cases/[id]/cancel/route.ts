@@ -6,10 +6,13 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
+const CANCELLABLE_STATUSES = new Set(['DRAFT', 'OPEN', 'ASSIGNED']);
+
 /**
  * POST /api/v1/cases/[id]/cancel
  *
- * Cancel a case with an optional reason.
+ * Cancel a case with an optional reason. Only the case owner can cancel,
+ * and only from DRAFT, OPEN, or ASSIGNED status.
  */
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
@@ -24,6 +27,34 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json(
         { code: 'UNAUTHORIZED', message: 'Not authenticated' },
         { status: 401 },
+      );
+    }
+
+    // Verify ownership and current status
+    const { data: existing, error: fetchError } = await supabase
+      .from('cases')
+      .select('client_id, status')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existing) {
+      return NextResponse.json(
+        { code: 'NOT_FOUND', message: 'Case not found' },
+        { status: 404 },
+      );
+    }
+
+    if (existing.client_id !== user.id) {
+      return NextResponse.json(
+        { code: 'FORBIDDEN', message: 'You do not own this case' },
+        { status: 403 },
+      );
+    }
+
+    if (!CANCELLABLE_STATUSES.has(existing.status)) {
+      return NextResponse.json(
+        { code: 'INVALID_STATUS', message: `Cannot cancel a case in ${existing.status} status` },
+        { status: 409 },
       );
     }
 
@@ -43,6 +74,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         cancelled_at: new Date().toISOString(),
       })
       .eq('id', id)
+      .eq('client_id', user.id)
       .select()
       .single();
 

@@ -16,6 +16,8 @@ const ALLOWED_TYPES = new Set([
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 
+const ALLOWED_BUCKETS = new Set(['dental-scans', 'design-files', 'avatars', 'portfolios']);
+
 /**
  * POST /api/v1/files — Upload a file to Supabase Storage.
  *
@@ -35,6 +37,13 @@ export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const file = formData.get('file') as File | null;
   const bucket = (formData.get('bucket') as string) ?? 'design-files';
+
+  if (!ALLOWED_BUCKETS.has(bucket)) {
+    return NextResponse.json(
+      { code: 'VALIDATION_ERROR', message: `Invalid bucket. Allowed: ${[...ALLOWED_BUCKETS].join(', ')}` },
+      { status: 400 },
+    );
+  }
 
   if (!file) {
     return NextResponse.json({ code: 'VALIDATION_ERROR', message: 'No file provided' }, { status: 400 });

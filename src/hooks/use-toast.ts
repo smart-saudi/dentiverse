@@ -14,6 +14,7 @@ type ToasterToast = ToastProps & {
   action?: ToastActionElement;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- shadcn/ui generated, used as type
 const actionTypes = {
   ADD_TOAST: 'ADD_TOAST',
   UPDATE_TOAST: 'UPDATE_TOAST',
@@ -134,6 +135,7 @@ function dispatch(action: Action) {
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- shadcn/ui generated
 interface Toast extends Omit<ToasterToast, 'id'> {}
 
 function toast({ ...props }: Toast) {

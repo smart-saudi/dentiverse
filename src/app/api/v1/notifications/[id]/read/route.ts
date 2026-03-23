@@ -26,7 +26,7 @@ export async function POST(_req: NextRequest, context: RouteContext) {
   const { id } = await context.params;
 
   try {
-    const notification = await notificationService.markAsRead(supabase, id);
+    const notification = await notificationService.markAsRead(supabase, id, user.id);
     return NextResponse.json({ data: notification });
   } catch (err) {
     return NextResponse.json(

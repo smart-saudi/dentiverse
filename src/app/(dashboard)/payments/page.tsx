@@ -31,7 +31,8 @@ export default function PaymentsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
-  const [meta, setMeta] = useState({ page: 1, per_page: 20, total: 0, total_pages: 0 });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   const fetchPayments = useCallback(async () => {
     setIsLoading(true);
@@ -40,20 +41,20 @@ export default function PaymentsPage() {
     try {
       const params = new URLSearchParams();
       if (statusFilter) params.set('status', statusFilter);
-      params.set('page', String(meta.page));
+      params.set('page', String(page));
 
       const res = await fetch(`/api/v1/payments?${params.toString()}`);
       if (!res.ok) throw new Error('Failed to load payments');
 
       const json = await res.json();
       setPayments(json.data);
-      setMeta(json.meta);
+      setTotalPages(json.meta.total_pages);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load');
     } finally {
       setIsLoading(false);
     }
-  }, [statusFilter, meta.page]);
+  }, [statusFilter, page]);
 
   useEffect(() => {
     fetchPayments();
@@ -144,24 +145,24 @@ export default function PaymentsPage() {
       )}
 
       {/* Pagination */}
-      {meta.total_pages > 1 && (
+      {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            disabled={meta.page <= 1}
-            onClick={() => setMeta((m) => ({ ...m, page: m.page - 1 }))}
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
           >
             Previous
           </Button>
           <span className="text-sm text-muted-foreground">
-            Page {meta.page} of {meta.total_pages}
+            Page {page} of {totalPages}
           </span>
           <Button
             variant="outline"
             size="sm"
-            disabled={meta.page >= meta.total_pages}
-            onClick={() => setMeta((m) => ({ ...m, page: m.page + 1 }))}
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => p + 1)}
           >
             Next
           </Button>

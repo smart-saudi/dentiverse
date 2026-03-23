@@ -145,6 +145,9 @@ export class DesignerService {
     if (query.language) {
       q = q.contains('languages', [query.language]);
     }
+    if (query.q) {
+      q = q.ilike('bio', `%${query.q}%`);
+    }
 
     const offset = (query.page - 1) * query.per_page;
     const { data, error, count } = await q
