@@ -108,7 +108,7 @@ describe('GET /api/v1/designers', () => {
     expect(json.meta).toBeDefined();
   });
 
-  it('should return 401 for unauthenticated users', async () => {
+  it('should allow unauthenticated access (public marketplace)', async () => {
     mockAuth.getUser.mockResolvedValue({
       data: { user: null },
       error: { message: 'No session' },
@@ -118,7 +118,7 @@ describe('GET /api/v1/designers', () => {
     const req = buildRequest(null, 'GET');
     const res = await GET(req);
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
   });
 });
 
@@ -140,7 +140,7 @@ describe('GET /api/v1/designers/[id]', () => {
     expect(json.data.id).toBe('dp-1');
   });
 
-  it('should return 401 for unauthenticated users', async () => {
+  it('should allow unauthenticated access (public profile)', async () => {
     mockAuth.getUser.mockResolvedValue({
       data: { user: null },
       error: { message: 'No session' },
@@ -150,7 +150,7 @@ describe('GET /api/v1/designers/[id]', () => {
     const req = buildRequest(null, 'GET', 'http://localhost:3000/api/v1/designers/dp-1');
     const res = await GET(req, { params: Promise.resolve({ id: 'dp-1' }) });
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
   });
 });
 

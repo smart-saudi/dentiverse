@@ -103,10 +103,7 @@ export async function GET(request: NextRequest) {
 
     const result = await caseService.listCases(supabase, parsed.data);
 
-    return NextResponse.json(
-      { data: result.data, meta: result.meta },
-      { status: 200 },
-    );
+    return NextResponse.json({ data: result.data, meta: result.meta }, { status: 200 });
   } catch {
     return NextResponse.json(
       { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
