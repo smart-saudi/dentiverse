@@ -1,0 +1,143 @@
+%% DentiVerse - Entity Relationship Diagram
+%% Database schema showing all core tables and their relationships.
+
+erDiagram
+    USERS {
+        UUID id PK
+        VARCHAR email
+        VARCHAR full_name
+        ENUM role "DENTIST | LAB | DESIGNER | ADMIN"
+        TEXT avatar_url
+        VARCHAR country
+        VARCHAR timezone
+        BOOLEAN is_verified
+        VARCHAR stripe_account_id
+        VARCHAR stripe_customer_id
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+
+    DESIGNER_PROFILES {
+        UUID id PK
+        UUID user_id FK
+        TEXT bio
+        JSONB software_skills
+        JSONB specializations
+        INTEGER years_experience
+        DECIMAL hourly_rate
+        JSONB portfolio_urls
+        DECIMAL avg_rating
+        INTEGER total_cases
+        DECIMAL avg_delivery_hours
+        BOOLEAN is_available
+        JSONB languages
+    }
+
+    CASES {
+        UUID id PK
+        UUID client_id FK
+        UUID designer_id FK
+        ENUM status "DRAFT | OPEN | ASSIGNED | IN_PROGRESS | REVIEW | REVISION | APPROVED | COMPLETED | CANCELLED | DISPUTED"
+        ENUM case_type "CROWN | BRIDGE | IMPLANT | VENEER | INLAY | ONLAY | DENTURE | OTHER"
+        VARCHAR title
+        TEXT description
+        JSONB tooth_numbers
+        VARCHAR material_preference
+        JSONB scan_file_urls
+        JSONB design_file_urls
+        DECIMAL budget_min
+        DECIMAL budget_max
+        DECIMAL agreed_price
+        TIMESTAMPTZ deadline
+        TIMESTAMPTZ delivered_at
+        TIMESTAMPTZ approved_at
+        JSONB metadata
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+
+    PROPOSALS {
+        UUID id PK
+        UUID case_id FK
+        UUID designer_id FK
+        DECIMAL price
+        DECIMAL estimated_hours
+        TEXT message
+        ENUM status "PENDING | ACCEPTED | REJECTED | WITHDRAWN"
+        TIMESTAMPTZ created_at
+    }
+
+    DESIGN_VERSIONS {
+        UUID id PK
+        UUID case_id FK
+        UUID designer_id FK
+        INTEGER version_number
+        JSONB file_urls
+        TEXT thumbnail_url
+        TEXT notes
+        ENUM status "SUBMITTED | APPROVED | REVISION_REQUESTED"
+        TEXT revision_feedback
+        TIMESTAMPTZ created_at
+    }
+
+    PAYMENTS {
+        UUID id PK
+        UUID case_id FK
+        UUID client_id FK
+        UUID designer_id FK
+        DECIMAL amount
+        DECIMAL platform_fee
+        DECIMAL designer_payout
+        ENUM status "PENDING | HELD | RELEASED | REFUNDED | DISPUTED"
+        VARCHAR stripe_payment_id
+        VARCHAR stripe_transfer_id
+        TIMESTAMPTZ held_at
+        TIMESTAMPTZ released_at
+        TIMESTAMPTZ created_at
+    }
+
+    REVIEWS {
+        UUID id PK
+        UUID case_id FK
+        UUID reviewer_id FK
+        UUID designer_id FK
+        INTEGER rating
+        INTEGER accuracy_rating
+        INTEGER speed_rating
+        INTEGER communication_rating
+        TEXT comment
+        TIMESTAMPTZ created_at
+    }
+
+    MESSAGES {
+        UUID id PK
+        UUID case_id FK
+        UUID sender_id FK
+        TEXT content
+        JSONB attachment_urls
+        BOOLEAN is_read
+        TIMESTAMPTZ created_at
+    }
+
+    NOTIFICATIONS {
+        UUID id PK
+        UUID user_id FK
+        ENUM type "NEW_PROPOSAL | DESIGN_SUBMITTED | REVISION_REQUESTED | PAYMENT_RELEASED | NEW_MESSAGE | CASE_ASSIGNED"
+        VARCHAR title
+        TEXT body
+        UUID case_id FK
+        BOOLEAN is_read
+        TIMESTAMPTZ created_at
+    }
+
+    USERS ||--o| DESIGNER_PROFILES : "has profile"
+    USERS ||--o{ CASES : "creates as client"
+    USERS ||--o{ CASES : "assigned as designer"
+    CASES ||--o{ PROPOSALS : "receives"
+    CASES ||--o{ DESIGN_VERSIONS : "has versions"
+    CASES ||--|| PAYMENTS : "has payment"
+    CASES ||--o| REVIEWS : "has review"
+    CASES ||--o{ MESSAGES : "has messages"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    USERS ||--o{ MESSAGES : "sends"
+    USERS ||--o{ PROPOSALS : "submits"

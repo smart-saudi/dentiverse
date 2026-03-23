@@ -497,10 +497,10 @@ NEXT_PUBLIC_APP_NAME=DentiVerse
 | Database Schema | `docs/phase-2/schema/schema.sql` | All table definitions, RLS, triggers |
 | API Specification | `docs/phase-2/api/openapi.yaml` | All endpoint definitions |
 | Design System | `docs/phase-2/design/DESIGN_SYSTEM.md` | Colors, typography, components |
-| User Flows | `diagrams/client-user-flow.mmd` | Client navigation |
-| Designer Flows | `diagrams/designer-user-flow.mmd` | Designer navigation |
-| System Architecture | `diagrams/system-architecture.mmd` | Infrastructure overview |
-| Payment Flow | `diagrams/payment-escrow-flow.mmd` | Escrow sequence |
+| User Flows | `docs/diagrams/client-user-flow.mmd` | Client navigation |
+| Designer Flows | `docs/diagrams/designer-user-flow.mmd` | Designer navigation |
+| System Architecture | `docs/diagrams/system-architecture.mmd` | Infrastructure overview |
+| Payment Flow | `docs/diagrams/payment-escrow-flow.mmd` | Escrow sequence |
 
 ---
 
@@ -509,6 +509,6 @@ NEXT_PUBLIC_APP_NAME=DentiVerse
 - When implementing an API endpoint, refer to `openapi.yaml` for the exact request/response shape.
 - When building a UI component, refer to `DESIGN_SYSTEM.md` for colors, spacing, and component patterns.
 - When writing database queries, refer to `schema.sql` for table structures and relationships.
-- When unsure about a user flow, refer to the Mermaid diagrams in `diagrams/`.
+- When unsure about a user flow, refer to the Mermaid diagrams in `docs/diagrams/`.
 - When a task feels too large, break it into smaller sub-tasks and update `TODO.md`.
 - After any schema change, always run `npx supabase gen types typescript --local > src/lib/database.types.ts`.

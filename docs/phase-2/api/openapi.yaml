@@ -1,0 +1,1598 @@
+openapi: 3.0.3
+info:
+  title: DentiVerse API
+  description: |
+    REST API for the DentiVerse dental design marketplace.
+    All endpoints require authentication unless marked otherwise.
+    Auth is handled via Supabase JWT tokens passed in the Authorization header.
+  version: 1.0.0
+  contact:
+    name: DentiVerse Team
+
+servers:
+  - url: https://app.dentiverse.com/api/v1
+    description: Production
+  - url: https://staging.dentiverse.com/api/v1
+    description: Staging
+  - url: http://localhost:3000/api/v1
+    description: Local development
+
+tags:
+  - name: Auth
+    description: Authentication & account management
+  - name: Users
+    description: User profile operations
+  - name: Designers
+    description: Designer profiles & search
+  - name: Cases
+    description: Dental design cases (orders)
+  - name: Proposals
+    description: Designer proposals/bids on cases
+  - name: Designs
+    description: Design version management
+  - name: Payments
+    description: Payment & escrow operations
+  - name: Reviews
+    description: Designer reviews & ratings
+  - name: Messages
+    description: In-platform messaging
+  - name: Notifications
+    description: User notifications
+  - name: Files
+    description: File upload & management
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase JWT token
+
+  # ============================
+  # SCHEMAS
+  # ============================
+  schemas:
+    # --- Pagination ---
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        per_page:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 145
+        total_pages:
+          type: integer
+          example: 8
+
+    # --- Error ---
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          example: "Invalid input data"
+        details:
+          type: object
+
+    # --- User ---
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        role:
+          type: string
+          enum: [DENTIST, LAB, DESIGNER, ADMIN]
+        avatar_url:
+          type: string
+        country:
+          type: string
+          maxLength: 2
+        city:
+          type: string
+        timezone:
+          type: string
+        is_verified:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    UserUpdate:
+      type: object
+      properties:
+        full_name:
+          type: string
+          maxLength: 255
+        phone:
+          type: string
+        country:
+          type: string
+          maxLength: 2
+        city:
+          type: string
+        timezone:
+          type: string
+        preferred_lang:
+          type: string
+          maxLength: 5
+
+    # --- Designer Profile ---
+    DesignerProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        user:
+          $ref: '#/components/schemas/User'
+        bio:
+          type: string
+        software_skills:
+          type: array
+          items:
+            type: string
+        specializations:
+          type: array
+          items:
+            type: string
+        years_experience:
+          type: integer
+        hourly_rate:
+          type: number
+          format: decimal
+        avg_rating:
+          type: number
+          format: decimal
+        total_reviews:
+          type: integer
+        completed_cases:
+          type: integer
+        avg_delivery_hours:
+          type: number
+        is_available:
+          type: boolean
+        languages:
+          type: array
+          items:
+            type: string
+        portfolio_urls:
+          type: array
+          items:
+            type: string
+
+    DesignerProfileUpdate:
+      type: object
+      properties:
+        bio:
+          type: string
+        software_skills:
+          type: array
+          items:
+            type: string
+        specializations:
+          type: array
+          items:
+            type: string
+        years_experience:
+          type: integer
+        hourly_rate:
+          type: number
+        is_available:
+          type: boolean
+        languages:
+          type: array
+          items:
+            type: string
+
+    # --- Case ---
+    Case:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        client_id:
+          type: string
+          format: uuid
+        client:
+          $ref: '#/components/schemas/User'
+        designer_id:
+          type: string
+          format: uuid
+        designer:
+          $ref: '#/components/schemas/User'
+        status:
+          type: string
+          enum: [DRAFT, OPEN, ASSIGNED, IN_PROGRESS, REVIEW, REVISION, APPROVED, COMPLETED, CANCELLED, DISPUTED]
+        case_type:
+          type: string
+          enum: [CROWN, BRIDGE, IMPLANT, VENEER, INLAY, ONLAY, DENTURE, OTHER]
+        title:
+          type: string
+        description:
+          type: string
+        tooth_numbers:
+          type: array
+          items:
+            type: integer
+        material_preference:
+          type: string
+        shade:
+          type: string
+        budget_min:
+          type: number
+        budget_max:
+          type: number
+        agreed_price:
+          type: number
+        currency:
+          type: string
+        deadline:
+          type: string
+          format: date-time
+        urgency:
+          type: string
+          enum: [normal, urgent, rush]
+        software_required:
+          type: string
+        output_format:
+          type: string
+        max_revisions:
+          type: integer
+        revision_count:
+          type: integer
+        scan_file_urls:
+          type: array
+          items:
+            type: string
+        design_file_urls:
+          type: array
+          items:
+            type: string
+        proposal_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CaseCreate:
+      type: object
+      required: [case_type, title, tooth_numbers]
+      properties:
+        case_type:
+          type: string
+          enum: [CROWN, BRIDGE, IMPLANT, VENEER, INLAY, ONLAY, DENTURE, OTHER]
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        tooth_numbers:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+        material_preference:
+          type: string
+        shade:
+          type: string
+        budget_min:
+          type: number
+          minimum: 0
+        budget_max:
+          type: number
+        deadline:
+          type: string
+          format: date-time
+        urgency:
+          type: string
+          enum: [normal, urgent, rush]
+          default: normal
+        special_instructions:
+          type: string
+        software_required:
+          type: string
+        output_format:
+          type: string
+          default: STL
+        max_revisions:
+          type: integer
+          default: 2
+
+    CaseUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        budget_min:
+          type: number
+        budget_max:
+          type: number
+        deadline:
+          type: string
+          format: date-time
+        special_instructions:
+          type: string
+
+    # --- Proposal ---
+    Proposal:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        case_id:
+          type: string
+          format: uuid
+        designer_id:
+          type: string
+          format: uuid
+        designer:
+          $ref: '#/components/schemas/DesignerProfile'
+        price:
+          type: number
+        estimated_hours:
+          type: number
+        message:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, ACCEPTED, REJECTED, WITHDRAWN]
+        created_at:
+          type: string
+          format: date-time
+
+    ProposalCreate:
+      type: object
+      required: [price, estimated_hours, message]
+      properties:
+        price:
+          type: number
+          minimum: 1
+        estimated_hours:
+          type: number
+          minimum: 0.5
+        message:
+          type: string
+          minLength: 20
+
+    # --- Design Version ---
+    DesignVersion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        case_id:
+          type: string
+          format: uuid
+        designer_id:
+          type: string
+          format: uuid
+        version_number:
+          type: integer
+        file_urls:
+          type: array
+          items:
+            type: string
+        thumbnail_url:
+          type: string
+        preview_model_url:
+          type: string
+        notes:
+          type: string
+        status:
+          type: string
+          enum: [SUBMITTED, APPROVED, REVISION_REQUESTED]
+        revision_feedback:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # --- Payment ---
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        case_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        platform_fee:
+          type: number
+        designer_payout:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, HELD, RELEASED, REFUNDED, DISPUTED]
+        held_at:
+          type: string
+          format: date-time
+        released_at:
+          type: string
+          format: date-time
+
+    # --- Review ---
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        case_id:
+          type: string
+          format: uuid
+        reviewer:
+          $ref: '#/components/schemas/User'
+        designer_id:
+          type: string
+          format: uuid
+        overall_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        accuracy_rating:
+          type: integer
+        speed_rating:
+          type: integer
+        communication_rating:
+          type: integer
+        comment:
+          type: string
+        designer_response:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    ReviewCreate:
+      type: object
+      required: [overall_rating, accuracy_rating, speed_rating, communication_rating]
+      properties:
+        overall_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        accuracy_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        speed_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        communication_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+
+    # --- Message ---
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        case_id:
+          type: string
+          format: uuid
+        sender_id:
+          type: string
+          format: uuid
+        sender:
+          $ref: '#/components/schemas/User'
+        content:
+          type: string
+        attachment_urls:
+          type: array
+          items:
+            type: string
+        is_read:
+          type: boolean
+        is_system:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    MessageCreate:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          minLength: 1
+        attachment_urls:
+          type: array
+          items:
+            type: string
+
+    # --- Notification ---
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        case_id:
+          type: string
+          format: uuid
+        action_url:
+          type: string
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    # --- File Upload ---
+    FileUploadResponse:
+      type: object
+      properties:
+        file_url:
+          type: string
+        file_name:
+          type: string
+        file_size:
+          type: integer
+        mime_type:
+          type: string
+        thumbnail_url:
+          type: string
+
+    # --- Dashboard Stats ---
+    DashboardStats:
+      type: object
+      properties:
+        active_cases:
+          type: integer
+        completed_cases:
+          type: integer
+        pending_proposals:
+          type: integer
+        total_spent:
+          type: number
+        total_earned:
+          type: number
+        avg_rating:
+          type: number
+        unread_messages:
+          type: integer
+        unread_notifications:
+          type: integer
+
+# ============================
+# PATHS
+# ============================
+paths:
+  # --- AUTH ---
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, full_name, role]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                full_name:
+                  type: string
+                role:
+                  type: string
+                  enum: [DENTIST, LAB, DESIGNER]
+      responses:
+        '201':
+          description: User created. Verification email sent.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  session:
+                    type: object
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  expires_at:
+                    type: integer
+        '401':
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout and invalidate session
+      responses:
+        '200':
+          description: Logged out
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Request password reset email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Reset email sent (always returns 200)
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password with token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: Password updated
+
+  # --- USERS ---
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    patch:
+      tags: [Users]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/me/dashboard:
+    get:
+      tags: [Users]
+      summary: Get dashboard statistics for current user
+      responses:
+        '200':
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStats'
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Get public user profile by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+  # --- DESIGNERS ---
+  /designers:
+    get:
+      tags: [Designers]
+      summary: Search and list designers
+      parameters:
+        - name: q
+          in: query
+          description: Search query (name, bio)
+          schema:
+            type: string
+        - name: software
+          in: query
+          description: Filter by software skill
+          schema:
+            type: string
+          example: exocad
+        - name: specialization
+          in: query
+          description: Filter by specialization
+          schema:
+            type: string
+          example: crowns
+        - name: min_rating
+          in: query
+          schema:
+            type: number
+        - name: max_rate
+          in: query
+          description: Max hourly rate (USD)
+          schema:
+            type: number
+        - name: language
+          in: query
+          schema:
+            type: string
+        - name: available_only
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [rating, rate_low, rate_high, cases_completed, delivery_speed]
+            default: rating
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+      responses:
+        '200':
+          description: List of designers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DesignerProfile'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /designers/{id}:
+    get:
+      tags: [Designers]
+      summary: Get designer profile by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Designer profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DesignerProfile'
+
+  /designers/me:
+    get:
+      tags: [Designers]
+      summary: Get current user's designer profile
+      responses:
+        '200':
+          description: Designer profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DesignerProfile'
+    patch:
+      tags: [Designers]
+      summary: Update current user's designer profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DesignerProfileUpdate'
+      responses:
+        '200':
+          description: Updated designer profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DesignerProfile'
+
+  # --- CASES ---
+  /cases:
+    get:
+      tags: [Cases]
+      summary: List cases (filtered by role)
+      description: |
+        - Clients see their own cases
+        - Designers see their assigned cases + open cases
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [DRAFT, OPEN, ASSIGNED, IN_PROGRESS, REVIEW, REVISION, APPROVED, COMPLETED, CANCELLED, DISPUTED]
+        - name: case_type
+          in: query
+          schema:
+            type: string
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [created_at, deadline, budget_max]
+            default: created_at
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of cases
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Case'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+    post:
+      tags: [Cases]
+      summary: Create a new case
+      description: Only clients (DENTIST, LAB) can create cases
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseCreate'
+      responses:
+        '201':
+          description: Case created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Case'
+
+  /cases/{id}:
+    get:
+      tags: [Cases]
+      summary: Get case details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Case details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Case'
+    patch:
+      tags: [Cases]
+      summary: Update case (client only, DRAFT/OPEN status)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseUpdate'
+      responses:
+        '200':
+          description: Updated case
+
+  /cases/{id}/publish:
+    post:
+      tags: [Cases]
+      summary: Publish a draft case (DRAFT → OPEN)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Case published
+
+  /cases/{id}/cancel:
+    post:
+      tags: [Cases]
+      summary: Cancel a case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Case cancelled
+
+  /cases/{id}/approve:
+    post:
+      tags: [Cases]
+      summary: Approve the latest design (triggers payment release)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Design approved, payment released
+
+  /cases/{id}/request-revision:
+    post:
+      tags: [Cases]
+      summary: Request revision on latest design
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [feedback]
+              properties:
+                feedback:
+                  type: string
+                  minLength: 20
+      responses:
+        '200':
+          description: Revision requested
+
+  # --- PROPOSALS ---
+  /cases/{case_id}/proposals:
+    get:
+      tags: [Proposals]
+      summary: List proposals for a case
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of proposals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Proposal'
+    post:
+      tags: [Proposals]
+      summary: Submit a proposal on a case (designer only)
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalCreate'
+      responses:
+        '201':
+          description: Proposal submitted
+
+  /cases/{case_id}/proposals/{id}/accept:
+    post:
+      tags: [Proposals]
+      summary: Accept a proposal (client only, creates escrow)
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Proposal accepted, payment held in escrow
+
+  /cases/{case_id}/proposals/{id}/reject:
+    post:
+      tags: [Proposals]
+      summary: Reject a proposal (client only)
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Proposal rejected
+
+  # --- DESIGN VERSIONS ---
+  /cases/{case_id}/designs:
+    get:
+      tags: [Designs]
+      summary: List all design versions for a case
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Design versions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DesignVersion'
+    post:
+      tags: [Designs]
+      summary: Submit a new design version (designer only)
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [file_urls]
+              properties:
+                file_urls:
+                  type: array
+                  items:
+                    type: string
+                  minItems: 1
+                notes:
+                  type: string
+      responses:
+        '201':
+          description: Design version submitted
+
+  # --- PAYMENTS ---
+  /payments:
+    get:
+      tags: [Payments]
+      summary: List payment history for current user
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Payment history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /payments/{id}:
+    get:
+      tags: [Payments]
+      summary: Get payment details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+
+  /payments/create-intent:
+    post:
+      tags: [Payments]
+      summary: Create Stripe PaymentIntent for escrow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [case_id, proposal_id]
+              properties:
+                case_id:
+                  type: string
+                  format: uuid
+                proposal_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Stripe client secret
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client_secret:
+                    type: string
+                  payment_id:
+                    type: string
+                    format: uuid
+
+  /payments/webhook:
+    post:
+      tags: [Payments]
+      summary: Stripe webhook endpoint
+      security: []
+      description: Handles payment confirmations, disputes, refunds
+      responses:
+        '200':
+          description: Webhook processed
+
+  # --- REVIEWS ---
+  /designers/{designer_id}/reviews:
+    get:
+      tags: [Reviews]
+      summary: List reviews for a designer
+      parameters:
+        - name: designer_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Designer reviews
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /cases/{case_id}/review:
+    post:
+      tags: [Reviews]
+      summary: Submit a review for a completed case
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreate'
+      responses:
+        '201':
+          description: Review submitted
+
+  # --- MESSAGES ---
+  /cases/{case_id}/messages:
+    get:
+      tags: [Messages]
+      summary: Get message thread for a case
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: before
+          in: query
+          description: Cursor pagination (messages before this ID)
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+    post:
+      tags: [Messages]
+      summary: Send a message in a case
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreate'
+      responses:
+        '201':
+          description: Message sent
+
+  /cases/{case_id}/messages/read:
+    post:
+      tags: [Messages]
+      summary: Mark all messages in case as read
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Messages marked as read
+
+  # --- NOTIFICATIONS ---
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Get notifications for current user
+      parameters:
+        - name: unread_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /notifications/read-all:
+    post:
+      tags: [Notifications]
+      summary: Mark all notifications as read
+      responses:
+        '200':
+          description: All marked as read
+
+  /notifications/{id}/read:
+    post:
+      tags: [Notifications]
+      summary: Mark single notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Marked as read
+
+  # --- FILES ---
+  /files/upload:
+    post:
+      tags: [Files]
+      summary: Upload a file (scan, design, attachment)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, bucket]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                bucket:
+                  type: string
+                  enum: [dental-scans, design-files, avatars, portfolios, message-attachments]
+                case_id:
+                  type: string
+                  format: uuid
+                  description: Required for dental-scans and design-files
+      responses:
+        '200':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+
+  /files/{bucket}/{filename}/signed-url:
+    get:
+      tags: [Files]
+      summary: Get a time-limited signed URL for a private file
+      parameters:
+        - name: bucket
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: expires_in
+          in: query
+          description: URL expiry in seconds
+          schema:
+            type: integer
+            default: 3600
+            maximum: 86400
+      responses:
+        '200':
+          description: Signed URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signed_url:
+                    type: string
+                  expires_at:
+                    type: string
+                    format: date-time
