@@ -14,7 +14,7 @@
 | M1: Auth & Users | 10 | 10 | ██████████ 100% |
 | M2: Case Management | 12 | 12 | ██████████ 100% |
 | M3: Designer Marketplace | 8 | 8 | ██████████ 100% |
-| M4: Proposals & Matching | 8 | 0 | ░░░░░░░░░░ 0% |
+| M4: Proposals & Matching | 8 | 8 | ██████████ 100% |
 | M5: Design Review & 3D | 6 | 0 | ░░░░░░░░░░ 0% |
 | M6: Payments & Escrow | 8 | 0 | ░░░░░░░░░░ 0% |
 | M7: Messaging & Notifications | 6 | 0 | ░░░░░░░░░░ 0% |
@@ -42,17 +42,6 @@
 ## ⬜ Up Next
 
 *(Prioritized backlog — work on these next, in order)*
-
-### M4: Proposals & Matching
-
-- [ ] **M4-1** `TEST:` Write tests for proposal validation schemas
-- [ ] **M4-2** `IMPL:` Create proposal service: `src/services/proposal.service.ts`
-- [ ] **M4-3** `TEST:` Write integration tests for proposal API routes
-- [ ] **M4-4** `IMPL:` Create API routes: `/api/v1/cases/[id]/proposals` (GET, POST), `/accept`, `/reject`
-- [ ] **M4-5** `IMPL:` Create `proposal-card.tsx` with designer info, price, delivery estimate
-- [ ] **M4-6** `IMPL:` Create `proposal-form.tsx` for designers to submit proposals
-- [ ] **M4-7** `IMPL:` Add proposal list to case detail page (client view)
-- [ ] **M4-8** `IMPL:` Create "My Proposals" page for designers
 
 ### M5: Design Review & 3D Viewer
 
@@ -159,6 +148,16 @@
 - [x] **M3-7** `IMPL:` Designer browse/search page with filters and pagination — 2026-03-23
 - [x] **M3-8** `IMPL:` Designer public profile page (bio, stats, skills, certifications, portfolio) — 2026-03-23
 
+### M4: Proposals & Matching
+- [x] **M4-1** `TEST:` Proposal validation schema tests (13 tests) — 2026-03-23
+- [x] **M4-2** `IMPL:` Zod schemas: `createProposalSchema`, `proposalListQuerySchema` — 2026-03-23
+- [x] **M4-3** `TEST:` Proposal service tests (7 tests) + integration tests (6 tests) — 2026-03-23
+- [x] **M4-4** `IMPL:` `ProposalService` + API routes: POST/GET /cases/[id]/proposals, accept, reject, GET /proposals/me — 2026-03-23
+- [x] **M4-5** `IMPL:` `proposal-card.tsx` with status badge and accept/reject actions — 2026-03-23
+- [x] **M4-6** `IMPL:` `proposal-form.tsx` for designers to submit proposals — 2026-03-23
+- [x] **M4-7** `IMPL:` Added proposal list + form to case detail page — 2026-03-23
+- [x] **M4-8** `IMPL:` My Proposals page with status filters and pagination — 2026-03-23
+
 ---
 
 ## 📝 Session Log
@@ -171,7 +170,7 @@
 | 2026-03-22 | #2 | M0-1 scaffolding, M0-2 shadcn/ui (14 components), M0-7 layout components, M0-8 Supabase clients + types | M0-6, M1 |
 | 2026-03-23 | #3 | M0-5/6 test infra + git hooks, M1-1 to M1-10 auth complete (82 tests passing). Created: auth schemas, service, 5 API routes, middleware, auth pages, useAuth hook, auth store, settings/profile pages, error classes, constants, utils | M2: Case Management |
 | 2026-03-23 | #4 | M2-1 to M2-12 case management complete (131 tests passing). Created: case Zod schemas, CaseService, 4 API routes, case-card, status-badge, status-timeline, tooth-chart, case list/create/detail pages | M3: Designer Marketplace |
-| 2026-03-23 | #5 | M3-1 to M3-8 designer marketplace complete (174 tests passing). Created: designer Zod schemas, DesignerService, 3 API routes, designer-card, search-filters, browse/search page, profile page | M4: Proposals & Matching |
+| 2026-03-23 | #5 | M3-1 to M3-8 designer marketplace complete (174 tests passing). Created: designer Zod schemas, DesignerService, 3 API routes, designer-card, search-filters, browse/search page, profile page. M4-1 to M4-8 proposals complete (200 tests passing). Created: proposal schemas, ProposalService, 5 API routes, proposal-card, proposal-form, My Proposals page, proposals in case detail | M5: Design Review & 3D |
 
 ---
 

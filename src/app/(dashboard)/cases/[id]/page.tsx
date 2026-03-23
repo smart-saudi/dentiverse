@@ -17,9 +17,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CaseStatusBadge } from '@/components/cases/case-status-badge';
 import { CaseStatusTimeline } from '@/components/cases/case-status-timeline';
 import { ToothChart } from '@/components/shared/tooth-chart';
+import { ProposalCard } from '@/components/proposals/proposal-card';
+import { ProposalForm } from '@/components/proposals/proposal-form';
 import type { Database } from '@/lib/database.types';
 
 type CaseRow = Database['public']['Tables']['cases']['Row'];
+type ProposalRow = Database['public']['Tables']['proposals']['Row'];
 
 interface CaseDetailPageProps {
   params: Promise<{ id: string }>;
@@ -31,6 +34,7 @@ interface CaseDetailPageProps {
 export default function CaseDetailPage({ params }: CaseDetailPageProps) {
   const router = useRouter();
   const [caseData, setCaseData] = useState<CaseRow | null>(null);
+  const [proposals, setProposals] = useState<ProposalRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [caseId, setCaseId] = useState<string | null>(null);
@@ -55,9 +59,44 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
     }
   }, [caseId]);
 
+  const fetchProposals = useCallback(async () => {
+    if (!caseId) return;
+    try {
+      const res = await fetch(`/api/v1/cases/${caseId}/proposals`);
+      if (res.ok) {
+        const json = await res.json();
+        setProposals(json.data);
+      }
+    } catch {
+      // Silently ignore proposal fetch errors
+    }
+  }, [caseId]);
+
   useEffect(() => {
     fetchCase();
-  }, [fetchCase]);
+    fetchProposals();
+  }, [fetchCase, fetchProposals]);
+
+  const handleAcceptProposal = useCallback(async (proposalId: string) => {
+    try {
+      const res = await fetch(`/api/v1/proposals/${proposalId}/accept`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to accept');
+      fetchProposals();
+      fetchCase();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Accept failed');
+    }
+  }, [fetchProposals, fetchCase]);
+
+  const handleRejectProposal = useCallback(async (proposalId: string) => {
+    try {
+      const res = await fetch(`/api/v1/proposals/${proposalId}/reject`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to reject');
+      fetchProposals();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Reject failed');
+    }
+  }, [fetchProposals]);
 
   const handlePublish = useCallback(async () => {
     if (!caseId) return;
@@ -213,6 +252,26 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
           <ToothChart selected={toothNumbers} onChange={() => {}} disabled />
         </CardContent>
       </Card>
+
+      {/* Proposals */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">Proposals ({proposals.length})</h2>
+        {proposals.length === 0 && caseData.status === 'OPEN' && (
+          <p className="text-sm text-muted-foreground">No proposals yet.</p>
+        )}
+        {proposals.map((p) => (
+          <ProposalCard
+            key={p.id}
+            proposal={p}
+            showActions={caseData.status === 'OPEN'}
+            onAccept={handleAcceptProposal}
+            onReject={handleRejectProposal}
+          />
+        ))}
+        {caseData.status === 'OPEN' && (
+          <ProposalForm caseId={caseData.id} onSubmitted={fetchProposals} />
+        )}
+      </div>
     </div>
   );
 }
