@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { DollarSign, TrendingUp, Wallet, Clock } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,

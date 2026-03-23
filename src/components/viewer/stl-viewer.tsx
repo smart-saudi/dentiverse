@@ -145,7 +145,8 @@ export function StlViewer({ url, className }: StlViewerProps) {
     }
 
     load();
-    return () => { cancelled = true; cancelAnimationFrame(animRef.current); };
+    const animId = animRef.current;
+    return () => { cancelled = true; cancelAnimationFrame(animId); };
   }, [url, parseStlBinary, render]);
 
   // Mouse interaction handlers

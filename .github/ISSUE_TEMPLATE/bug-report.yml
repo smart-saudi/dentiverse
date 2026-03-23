@@ -1,0 +1,121 @@
+name: Bug Report
+description: Report a bug found during testing or production use
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How critical is this bug?
+      options:
+        - "Critical — Data loss, security issue, payment failure, complete feature broken"
+        - "High — Major feature broken, no workaround available"
+        - "Medium — Feature partially broken, workaround exists"
+        - "Low — Cosmetic issue, minor inconvenience"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the app is affected?
+      options:
+        - "Auth (login, register, password reset)"
+        - "Cases (create, list, detail, status)"
+        - "Designers (search, profile, browse)"
+        - "Proposals (submit, accept, reject)"
+        - "3D Viewer (STL loading, rendering)"
+        - "Payments (escrow, payout, Stripe)"
+        - "Messages (chat, attachments)"
+        - "Notifications (in-app, email)"
+        - "File Upload (scans, designs, avatars)"
+        - "Dashboard (stats, overview)"
+        - "Settings (profile, preferences)"
+        - "Landing Page (public pages)"
+        - "Performance (slow, timeout)"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: User Role
+      description: Which user type encountered this?
+      options:
+        - "Dentist"
+        - "Lab"
+        - "Designer"
+        - "Admin"
+        - "Not logged in (public)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Clear description of the bug.
+      placeholder: "What happened? What did you expect to happen?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Exact steps to reproduce the bug.
+      placeholder: |
+        1. Go to /cases/new
+        2. Fill in case details
+        3. Click "Upload Scan"
+        4. Select a 200MB STL file
+        5. Upload progress shows 100% but file doesn't appear
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+      placeholder: "File should appear in the scan files list after upload completes."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: "Upload progress reaches 100%, spinner keeps spinning, file never appears. Console shows 413 error."
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser & OS
+      placeholder: "Chrome 124 on macOS 15 / Safari on iOS 18 / Firefox 130 on Windows 11"
+
+  - type: input
+    id: screen
+    attributes:
+      label: Screen Size
+      placeholder: "Desktop (1440px) / Tablet (768px) / Mobile (375px)"
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Console Errors
+      description: Attach screenshots or paste console error messages.
+      placeholder: "Paste screenshots or error messages here"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other relevant information.
+      placeholder: "Only happens with files larger than 100MB. Smaller files upload fine."

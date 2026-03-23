@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Star, Clock, Monitor, Globe, Award } from 'lucide-react';
+import { ArrowLeft, Star, Monitor, Globe, Award } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {

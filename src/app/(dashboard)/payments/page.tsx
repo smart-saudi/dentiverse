@@ -1,14 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { DollarSign, ArrowUpRight, ArrowDownLeft, Clock, RefreshCw } from 'lucide-react';
+import { DollarSign, ArrowUpRight, Clock, RefreshCw } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -112,7 +110,7 @@ export default function PaymentsPage() {
       {!isLoading && payments.length > 0 && (
         <div className="space-y-3">
           {payments.map((payment) => {
-            const config = STATUS_CONFIG[payment.status] ?? STATUS_CONFIG.PENDING;
+            const config = STATUS_CONFIG[payment.status] ?? { variant: 'outline' as const, label: 'Pending', icon: Clock };
             const StatusIcon = config.icon;
 
             return (

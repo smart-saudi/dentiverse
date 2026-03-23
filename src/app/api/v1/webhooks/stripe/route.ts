@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { constructWebhookEvent } from '@/lib/stripe/webhooks';
-import { createServiceRoleClient } from '@/lib/supabase/admin';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 /**
  * POST /api/v1/webhooks/stripe — Handle Stripe webhook events.
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Use service role client to bypass RLS for webhook operations
-  const supabase = createServiceRoleClient();
+  const supabase = createAdminClient();
 
   try {
     switch (event.type) {

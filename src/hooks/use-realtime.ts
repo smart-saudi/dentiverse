@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 interface UseRealtimeOptions {
   table: string;
@@ -21,7 +21,7 @@ export function useRealtime({ table, filter, event = '*', onEvent }: UseRealtime
   callbackRef.current = onEvent;
 
   useEffect(() => {
-    const supabase = createBrowserSupabaseClient();
+    const supabase = createClient();
     const channelName = `realtime-${table}-${filter ?? 'all'}`;
 
     const channel = supabase
