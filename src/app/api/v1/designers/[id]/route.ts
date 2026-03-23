@@ -18,16 +18,8 @@ interface RouteContext {
  */
 export async function GET(_req: NextRequest, context: RouteContext) {
   const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json(
-      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
-      { status: 401 },
-    );
-  }
+  // Designer profiles are publicly viewable — no auth required
+  await supabase.auth.getUser();
 
   const { id } = await context.params;
 

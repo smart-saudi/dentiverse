@@ -2,7 +2,14 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 /** Routes that do not require authentication. */
-const PUBLIC_ROUTES = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
+const PUBLIC_ROUTES = [
+  '/',
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/designers',
+];
 
 /** API routes that do not require authentication. */
 const PUBLIC_API_PREFIXES = [
@@ -11,6 +18,7 @@ const PUBLIC_API_PREFIXES = [
   '/api/v1/auth/forgot-password',
   '/api/v1/auth/reset-password',
   '/api/v1/webhooks/',
+  '/api/v1/designers',
 ];
 
 /**
@@ -65,7 +73,8 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
-  const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+  const isPublicRoute =
+    PUBLIC_ROUTES.includes(pathname) || pathname.startsWith('/designers/');
   const isAuthRoute = ['/login', '/register', '/forgot-password'].includes(pathname);
 
   // Redirect authenticated users away from auth pages → dashboard

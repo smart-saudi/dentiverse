@@ -14,16 +14,8 @@ const designerService = new DesignerService();
  */
 export async function GET(req: NextRequest) {
   const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json(
-      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
-      { status: 401 },
-    );
-  }
+  // Designer browsing is public — no auth required
+  await supabase.auth.getUser();
 
   const params = Object.fromEntries(req.nextUrl.searchParams.entries());
   const parsed = designerSearchQuerySchema.safeParse(params);
