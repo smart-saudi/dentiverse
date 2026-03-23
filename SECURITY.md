@@ -116,3 +116,42 @@ All secrets are stored in environment variables, never in code. See `.env.exampl
 - Row Level Security (RLS) enabled on all database tables
 - Role-based access: DENTIST, LAB, DESIGNER, ADMIN
 - Service role key used only in webhooks and admin operations
+
+---
+
+## Threat Model
+
+A comprehensive threat model using the STRIDE methodology is maintained at [`docs/phase-4/THREAT_MODEL.md`](docs/phase-4/THREAT_MODEL.md). It covers:
+
+- Trust boundaries and attack surfaces
+- Asset sensitivity classification
+- STRIDE analysis (Spoofing, Tampering, Repudiation, Information Disclosure, DoS, Elevation of Privilege)
+- Attack scenarios with mitigations
+- Risk matrix and prioritized action items
+- Compliance considerations (HIPAA, PCI DSS, GDPR)
+
+---
+
+## Environment Variables Schema
+
+All secrets are managed via environment variables. See [`.env.example`](.env.example) for the complete template.
+
+| Variable | Required | Scope | Rotation | Description |
+|----------|----------|-------|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Public | Never | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Public | On compromise | Supabase anonymous (public) key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | **Server only** | Quarterly | Bypasses RLS — never expose to client |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Yes | Public | On compromise | Stripe publishable key (pk_test/pk_live) |
+| `STRIPE_SECRET_KEY` | Yes | **Server only** | Quarterly | Stripe secret API key |
+| `STRIPE_WEBHOOK_SECRET` | Yes | **Server only** | On endpoint change | Stripe webhook signature secret |
+| `RESEND_API_KEY` | Yes | **Server only** | Annually | Resend email API key |
+| `NEXT_PUBLIC_SENTRY_DSN` | No | Public | Never | Sentry error tracking DSN |
+| `SENTRY_AUTH_TOKEN` | No | **Server only** | Annually | Sentry release/sourcemap upload |
+| `NEXT_PUBLIC_APP_URL` | Yes | Public | Never | Application base URL |
+| `NEXT_PUBLIC_APP_NAME` | Yes | Public | Never | Application display name |
+
+**Rules:**
+- Variables prefixed `NEXT_PUBLIC_` are embedded in the client bundle — never put secrets in them
+- Server-only variables are accessible only in API routes, server components, and middleware
+- Rotate critical secrets (service role key, Stripe secret) quarterly or on any suspected compromise
+- All variables documented in `.env.example` with placeholder values

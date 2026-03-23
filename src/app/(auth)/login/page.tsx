@@ -30,7 +30,10 @@ export default function LoginPage() {
 function LoginForm() {
   const { login } = useAuth();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') ?? '/';
+  const rawRedirect = searchParams.get('redirectTo') ?? '/';
+  // Prevent open redirect: only allow relative paths
+  const redirectTo =
+    rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
