@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 // Mock next/navigation
@@ -6,9 +6,30 @@ vi.mock('next/navigation', () => ({
   usePathname: vi.fn(() => '/'),
 }));
 
+// Mock Supabase browser client for useRealtime
+vi.mock('@/lib/supabase/client', () => ({
+  createBrowserSupabaseClient: vi.fn(() => ({
+    channel: vi.fn(() => ({
+      on: vi.fn().mockReturnThis(),
+      subscribe: vi.fn(),
+    })),
+    removeChannel: vi.fn(),
+  })),
+}));
+
+// Mock fetch for NotificationBell's useNotifications hook
+const mockFetch = vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve({ data: [], meta: { page: 1, per_page: 20, total: 0, total_pages: 0 } }),
+});
+
 import { Header } from '@/components/layout/header';
 
 describe('Header', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', mockFetch);
+  });
+
   it('should render the header element', () => {
     render(<Header />);
     expect(screen.getByRole('banner')).toBeInTheDocument();

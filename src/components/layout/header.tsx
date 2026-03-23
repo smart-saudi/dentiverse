@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, Bell, Search, User } from 'lucide-react';
+import { Menu, Search, User } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MobileNav } from '@/components/layout/mobile-nav';
+import { NotificationBell } from '@/components/layout/notification-bell';
 
 interface HeaderProps {
   className?: string;
@@ -62,9 +63,7 @@ export function Header({ className }: HeaderProps) {
       </div>
 
       {/* Notifications */}
-      <Button variant="ghost" size="icon" aria-label="Notifications">
-        <Bell className="h-5 w-5" />
-      </Button>
+      <NotificationBell />
 
       {/* User menu */}
       <DropdownMenu>

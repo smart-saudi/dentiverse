@@ -17,7 +17,7 @@
 | M4: Proposals & Matching | 8 | 8 | ██████████ 100% |
 | M5: Design Review & 3D | 6 | 6 | ██████████ 100% |
 | M6: Payments & Escrow | 8 | 8 | ██████████ 100% |
-| M7: Messaging & Notifications | 6 | 0 | ░░░░░░░░░░ 0% |
+| M7: Messaging & Notifications | 6 | 6 | ██████████ 100% |
 | M8: Polish & Launch | 6 | 0 | ░░░░░░░░░░ 0% |
 
 ---
@@ -42,15 +42,6 @@
 ## ⬜ Up Next
 
 *(Prioritized backlog — work on these next, in order)*
-
-### M7: Messaging & Notifications
-
-- [ ] **M7-1** `IMPL:` Create message service: `src/services/message.service.ts`
-- [ ] **M7-2** `IMPL:` Create `chat-thread.tsx` component with Supabase Realtime
-- [ ] **M7-3** `IMPL:` Create messaging UI within case detail page
-- [ ] **M7-4** `IMPL:` Create notification service: `src/services/notification.service.ts`
-- [ ] **M7-5** `IMPL:` Create notification center (bell icon → dropdown → full page)
-- [ ] **M7-6** `IMPL:` Set up email notifications via Resend (new proposal, design submitted, payment released)
 
 ### M8: Polish & Launch Prep
 
@@ -156,6 +147,14 @@
 - [x] **M6-7** `IMPL:` Payment history page with status filters and pagination — 2026-03-23
 - [x] **M6-8** `IMPL:` Designer earnings/payout dashboard with summary cards — 2026-03-23
 
+### M7: Messaging & Notifications
+- [x] **M7-1** `IMPL:` MessageService — send, list (paginated), markAsRead + Zod schemas — 2026-03-23
+- [x] **M7-2** `IMPL:` NotificationService — create, list, markAsRead, markAllAsRead, getUnreadCount — 2026-03-23
+- [x] **M7-3** `IMPL:` API routes: messages (POST/GET), notifications (GET, read, read-all, unread-count) — 2026-03-23
+- [x] **M7-4** `IMPL:` useRealtime hook + useMessages hook with Supabase Realtime subscriptions — 2026-03-23
+- [x] **M7-5** `IMPL:` ChatThread component + integrated into case detail page — 2026-03-23
+- [x] **M7-6** `IMPL:` NotificationBell dropdown in header + full notifications page — 2026-03-23
+
 ---
 
 ## 📝 Session Log
@@ -170,6 +169,7 @@
 | 2026-03-23 | #4 | M2-1 to M2-12 case management complete (131 tests passing). Created: case Zod schemas, CaseService, 4 API routes, case-card, status-badge, status-timeline, tooth-chart, case list/create/detail pages | M3: Designer Marketplace |
 | 2026-03-23 | #5 | M3 designer marketplace (174 tests), M4 proposals (200 tests), M5 design review & 3D (227 tests). Created: designer/proposal/design-version schemas+services+APIs, file upload, STL viewer, design version history, all UI components and pages | M6: Payments & Escrow |
 | 2026-03-23 | #6 | M6 payments & escrow (250 tests). Created: Stripe client/webhook, payment validation schemas, PaymentService (escrow flow), webhook handler, payment API routes, payment history page, designer earnings dashboard | M7: Messaging & Notifications |
+| 2026-03-23 | #7 | M7 messaging & notifications (292 tests). Created: message/notification schemas+services+APIs, useRealtime hook, ChatThread with realtime updates, NotificationBell dropdown, notifications page | M8: Polish & Launch |
 
 ---
 

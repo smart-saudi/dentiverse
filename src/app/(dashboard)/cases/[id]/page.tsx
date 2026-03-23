@@ -21,6 +21,7 @@ import { ProposalCard } from '@/components/proposals/proposal-card';
 import { ProposalForm } from '@/components/proposals/proposal-form';
 import { DesignVersionHistory } from '@/components/cases/design-version-history';
 import { DesignVersionSubmit } from '@/components/cases/design-version-submit';
+import { ChatThread } from '@/components/cases/chat-thread';
 import type { Database } from '@/lib/database.types';
 
 type CaseRow = Database['public']['Tables']['cases']['Row'];
@@ -40,11 +41,20 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [caseId, setCaseId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Resolve params
   useEffect(() => {
     params.then((p) => setCaseId(p.id));
   }, [params]);
+
+  // Fetch current user ID for chat
+  useEffect(() => {
+    fetch('/api/v1/users/me')
+      .then((r) => r.ok ? r.json() : null)
+      .then((json) => { if (json?.data?.id) setCurrentUserId(json.data.id); })
+      .catch(() => {});
+  }, []);
 
   const fetchCase = useCallback(async () => {
     if (!caseId) return;
@@ -286,6 +296,14 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
           {['ASSIGNED', 'IN_PROGRESS', 'REVISION'].includes(caseData.status) && (
             <DesignVersionSubmit caseId={caseData.id} />
           )}
+        </div>
+      )}
+
+      {/* Messages */}
+      {['ASSIGNED', 'IN_PROGRESS', 'REVIEW', 'REVISION', 'APPROVED', 'COMPLETED'].includes(caseData.status) && currentUserId && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Messages</h2>
+          <ChatThread caseId={caseData.id} currentUserId={currentUserId} />
         </div>
       )}
     </div>
