@@ -75,6 +75,9 @@ describe('CaseService', () => {
         case_type: 'CROWN',
         title: 'Crown #14',
         tooth_numbers: [14],
+        urgency: 'normal',
+        output_format: 'STL',
+        max_revisions: 2,
       });
 
       expect(mocks.fromFn).toHaveBeenCalledWith('cases');
@@ -103,6 +106,9 @@ describe('CaseService', () => {
           case_type: 'CROWN',
           title: 'Test',
           tooth_numbers: [14],
+          urgency: 'normal',
+          output_format: 'STL',
+          max_revisions: 2,
         }),
       ).rejects.toThrow('Insert failed');
     });
@@ -139,9 +145,7 @@ describe('CaseService', () => {
       });
       const client = { from: fromFn, auth: { getUser: vi.fn() } } as any;
 
-      await expect(
-        service.getCase(client, 'nonexistent'),
-      ).rejects.toThrow();
+      await expect(service.getCase(client, 'nonexistent')).rejects.toThrow();
     });
   });
 
@@ -228,11 +232,7 @@ describe('CaseService', () => {
         update: vi.fn().mockReturnValue({ eq: updateEqFn }),
       });
 
-      const result = await service.cancelCase(
-        mocks.client,
-        'case-1',
-        'No longer needed',
-      );
+      const result = await service.cancelCase(mocks.client, 'case-1', 'No longer needed');
 
       expect(result.status).toBe('CANCELLED');
       expect(result.cancellation_reason).toBe('No longer needed');

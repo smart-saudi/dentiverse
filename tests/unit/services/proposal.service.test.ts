@@ -3,7 +3,8 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { ProposalService } from '@/services/proposal.service';
 
 function createMockClient(overrides: Record<string, unknown> = {}) {
-  return { from: vi.fn(), ...overrides } as never;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock Supabase client for testing
+  return { from: vi.fn(), ...overrides } as any;
 }
 
 describe('ProposalService', () => {
@@ -16,7 +17,13 @@ describe('ProposalService', () => {
   describe('createProposal', () => {
     it('should create a proposal with PENDING status', async () => {
       const input = { price: 150, estimated_hours: 8, message: 'I can do this.' };
-      const mockProposal = { id: 'p-1', case_id: 'c-1', designer_id: 'u-1', status: 'PENDING', ...input };
+      const mockProposal = {
+        id: 'p-1',
+        case_id: 'c-1',
+        designer_id: 'u-1',
+        status: 'PENDING',
+        ...input,
+      };
       const client = createMockClient();
       const single = vi.fn().mockResolvedValue({ data: mockProposal, error: null });
       const select = vi.fn().mockReturnValue({ single });
@@ -25,11 +32,13 @@ describe('ProposalService', () => {
 
       const result = await service.createProposal(client, 'c-1', 'u-1', input);
       expect(result.status).toBe('PENDING');
-      expect(insert).toHaveBeenCalledWith(expect.objectContaining({
-        case_id: 'c-1',
-        designer_id: 'u-1',
-        price: 150,
-      }));
+      expect(insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          case_id: 'c-1',
+          designer_id: 'u-1',
+          price: 150,
+        }),
+      );
     });
   });
 
@@ -57,7 +66,10 @@ describe('ProposalService', () => {
       const select = vi.fn().mockReturnValue({ eq });
       client.from.mockReturnValue({ select });
 
-      const result = await service.listProposalsForCase(client, 'c-1', { page: 1, per_page: 20 });
+      const result = await service.listProposalsForCase(client, 'c-1', {
+        page: 1,
+        per_page: 20,
+      });
       expect(result.data).toEqual(mockData);
       expect(result.meta.total).toBe(2);
       expect(eq).toHaveBeenCalledWith('case_id', 'c-1');
@@ -74,7 +86,10 @@ describe('ProposalService', () => {
       const select = vi.fn().mockReturnValue({ eq });
       client.from.mockReturnValue({ select });
 
-      const result = await service.listProposalsByDesigner(client, 'u-1', { page: 1, per_page: 20 });
+      const result = await service.listProposalsByDesigner(client, 'u-1', {
+        page: 1,
+        per_page: 20,
+      });
       expect(result.data).toEqual(mockData);
       expect(eq).toHaveBeenCalledWith('designer_id', 'u-1');
     });
@@ -92,7 +107,9 @@ describe('ProposalService', () => {
 
       const result = await service.acceptProposal(client, 'p-1');
       expect(result.status).toBe('ACCEPTED');
-      expect(update).toHaveBeenCalledWith(expect.objectContaining({ status: 'ACCEPTED' }));
+      expect(update).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'ACCEPTED' }),
+      );
     });
   });
 
