@@ -16,7 +16,7 @@
 | M3: Designer Marketplace | 8 | 8 | ██████████ 100% |
 | M4: Proposals & Matching | 8 | 8 | ██████████ 100% |
 | M5: Design Review & 3D | 6 | 6 | ██████████ 100% |
-| M6: Payments & Escrow | 8 | 0 | ░░░░░░░░░░ 0% |
+| M6: Payments & Escrow | 8 | 8 | ██████████ 100% |
 | M7: Messaging & Notifications | 6 | 0 | ░░░░░░░░░░ 0% |
 | M8: Polish & Launch | 6 | 0 | ░░░░░░░░░░ 0% |
 
@@ -42,17 +42,6 @@
 ## ⬜ Up Next
 
 *(Prioritized backlog — work on these next, in order)*
-
-### M6: Payments & Escrow
-
-- [ ] **M6-1** `IMPL:` Set up Stripe Connect: platform account, onboarding flow for designers
-- [ ] **M6-2** `TEST:` Write tests for payment service (create intent, hold, release, refund)
-- [ ] **M6-3** `IMPL:` Create payment service: `src/services/payment.service.ts`
-- [ ] **M6-4** `IMPL:` Create Stripe webhook handler: `/api/v1/webhooks/stripe/route.ts`
-- [ ] **M6-5** `IMPL:` Create payment flow: accept proposal → create PaymentIntent → hold in escrow
-- [ ] **M6-6** `IMPL:` Create release flow: approve design → release escrow → transfer to designer
-- [ ] **M6-7** `IMPL:` Create payment history page
-- [ ] **M6-8** `IMPL:` Create designer earnings/payout dashboard
 
 ### M7: Messaging & Notifications
 
@@ -157,6 +146,16 @@
 - [x] **M5-5** `IMPL:` Approve/revision-request flow (DesignVersionHistory + review API) — 2026-03-23
 - [x] **M5-6** `IMPL:` Design version history UI with status badges, file links, 3D preview — 2026-03-23
 
+### M6: Payments & Escrow
+- [x] **M6-1** `IMPL:` Stripe client factory + webhook signature verification — 2026-03-23
+- [x] **M6-2** `TEST:` Payment validation schema tests (12 tests) + service tests (6 tests) — 2026-03-23
+- [x] **M6-3** `IMPL:` `PaymentService` — create, hold, release, refund, list with 12% platform fee — 2026-03-23
+- [x] **M6-4** `IMPL:` Stripe webhook handler: payment_intent.succeeded/failed, transfer.created, charge.refunded — 2026-03-23
+- [x] **M6-5** `IMPL:` Payment API routes: POST/GET /payments, GET /payments/[id] — 2026-03-23
+- [x] **M6-6** `TEST:` Payment integration tests (5 tests) — 2026-03-23
+- [x] **M6-7** `IMPL:` Payment history page with status filters and pagination — 2026-03-23
+- [x] **M6-8** `IMPL:` Designer earnings/payout dashboard with summary cards — 2026-03-23
+
 ---
 
 ## 📝 Session Log
@@ -170,6 +169,7 @@
 | 2026-03-23 | #3 | M0-5/6 test infra + git hooks, M1-1 to M1-10 auth complete (82 tests passing). Created: auth schemas, service, 5 API routes, middleware, auth pages, useAuth hook, auth store, settings/profile pages, error classes, constants, utils | M2: Case Management |
 | 2026-03-23 | #4 | M2-1 to M2-12 case management complete (131 tests passing). Created: case Zod schemas, CaseService, 4 API routes, case-card, status-badge, status-timeline, tooth-chart, case list/create/detail pages | M3: Designer Marketplace |
 | 2026-03-23 | #5 | M3 designer marketplace (174 tests), M4 proposals (200 tests), M5 design review & 3D (227 tests). Created: designer/proposal/design-version schemas+services+APIs, file upload, STL viewer, design version history, all UI components and pages | M6: Payments & Escrow |
+| 2026-03-23 | #6 | M6 payments & escrow (250 tests). Created: Stripe client/webhook, payment validation schemas, PaymentService (escrow flow), webhook handler, payment API routes, payment history page, designer earnings dashboard | M7: Messaging & Notifications |
 
 ---
 
