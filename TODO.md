@@ -172,6 +172,7 @@
 | 2026-03-23 | #6 | M6 payments & escrow (250 tests). Created: Stripe client/webhook, payment validation schemas, PaymentService (escrow flow), webhook handler, payment API routes, payment history page, designer earnings dashboard | M7: Messaging & Notifications |
 | 2026-03-23 | #7 | M7 messaging & notifications (292 tests). Created: message/notification schemas+services+APIs, useRealtime hook, ChatThread with realtime updates, NotificationBell dropdown, notifications page | M8: Polish & Launch |
 | 2026-03-23 | #8 | M8 polish & launch prep. Created: landing page, error boundary, 404 page, Vercel Analytics, SEO (sitemap, robots, meta), Playwright E2E specs, responsive audit. **ALL MILESTONES COMPLETE** (292 unit/integration tests) | Production deployment |
+| 2026-03-23 | #9 | Repo audit: reviewed README/CLAUDE/SECURITY against codebase, verified stack/scripts, and identified drift between docs and implementation (diagram path references differ from actual `docs/diagrams` location, custom canvas STL viewer, public file URL usage). Current health check: `npm.cmd run check` fails on TypeScript test errors and `npm.cmd test` has 2 notification-read failures. | Align docs with code and fix notification/typecheck regressions |
 
 ---
 

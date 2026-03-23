@@ -20,8 +20,10 @@ const mockSelectFn = vi.fn().mockImplementation(() => ({
 const mockInsertFn = vi.fn().mockReturnValue({ select: mockSelectFn });
 const mockUpdateFn = vi.fn().mockReturnValue({
   eq: vi.fn().mockReturnValue({
+    eq: vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({ single: mockSingleFn }),
+    }),
     select: vi.fn().mockReturnValue({ single: mockSingleFn }),
-    eq: vi.fn(),
   }),
 });
 
@@ -96,7 +98,7 @@ describe('NotificationService', () => {
       const mockNotif = { id: 'n-1', is_read: true };
       mockSingleFn.mockResolvedValue({ data: mockNotif, error: null });
 
-      const result = await service.markAsRead(mockSupabase, 'n-1');
+      const result = await service.markAsRead(mockSupabase, 'n-1', 'user-1');
       expect(result.is_read).toBe(true);
     });
   });

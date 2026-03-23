@@ -9,30 +9,44 @@ const mockAuth = {
   getUser: vi.fn(),
 };
 
-const mockSingleFn = vi.fn();
-const mockRangeFn = vi.fn();
-const mockOrderFn = vi.fn().mockReturnValue({ range: mockRangeFn });
-const mockEqFn = vi.fn().mockImplementation(() => ({
-  single: mockSingleFn,
-  order: mockOrderFn,
-  range: mockRangeFn,
+// Cases table mock chain
+const mockCaseSingleFn = vi.fn();
+const mockCaseRangeFn = vi.fn();
+const mockCaseOrderFn = vi.fn().mockReturnValue({ range: mockCaseRangeFn });
+const mockCaseEqFn = vi.fn().mockImplementation(() => ({
+  single: mockCaseSingleFn,
+  order: mockCaseOrderFn,
+  range: mockCaseRangeFn,
+  eq: mockCaseEqFn,
+  select: vi.fn().mockReturnValue({ single: mockCaseSingleFn }),
 }));
-const mockSelectFn = vi.fn().mockImplementation(() => ({
-  eq: mockEqFn,
-  order: mockOrderFn,
-  single: mockSingleFn,
+const mockCaseSelectFn = vi.fn().mockImplementation(() => ({
+  eq: mockCaseEqFn,
+  order: mockCaseOrderFn,
+  single: mockCaseSingleFn,
 }));
-const mockInsertFn = vi.fn().mockReturnValue({ select: mockSelectFn });
-const mockUpdateFn = vi.fn().mockReturnValue({ eq: mockEqFn });
+const mockCaseInsertFn = vi.fn().mockReturnValue({ select: mockCaseSelectFn });
+const mockCaseUpdateFn = vi.fn().mockReturnValue({ eq: mockCaseEqFn });
+
+// Users table mock (for role checks)
+const mockUserSingleFn = vi.fn();
+const mockUserEqFn = vi.fn().mockReturnValue({ single: mockUserSingleFn });
+const mockUserSelectFn = vi.fn().mockReturnValue({ eq: mockUserEqFn });
 
 vi.mock('@/lib/supabase/server', () => ({
   createServerSupabaseClient: vi.fn(() => ({
     auth: mockAuth,
-    from: vi.fn(() => ({
-      insert: mockInsertFn,
-      update: mockUpdateFn,
-      select: mockSelectFn,
-    })),
+    from: vi.fn((table: string) => {
+      if (table === 'users') {
+        return { select: mockUserSelectFn };
+      }
+      // Default: cases table
+      return {
+        insert: mockCaseInsertFn,
+        update: mockCaseUpdateFn,
+        select: mockCaseSelectFn,
+      };
+    }),
   })),
 }));
 
@@ -60,6 +74,8 @@ function mockAuthenticatedUser(id = 'user-1', email = 'dentist@example.com') {
     data: { user: { id, email } },
     error: null,
   });
+  // Default: user has DENTIST role
+  mockUserSingleFn.mockResolvedValue({ data: { role: 'DENTIST' }, error: null });
 }
 
 function mockUnauthenticated() {
@@ -76,6 +92,16 @@ function mockUnauthenticated() {
 describe('Cases API Routes', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset default mock implementations
+    mockCaseEqFn.mockImplementation(() => ({
+      single: mockCaseSingleFn,
+      order: mockCaseOrderFn,
+      range: mockCaseRangeFn,
+      eq: mockCaseEqFn,
+      select: vi.fn().mockReturnValue({ single: mockCaseSingleFn }),
+    }));
+    mockUserEqFn.mockReturnValue({ single: mockUserSingleFn });
+    mockUserSelectFn.mockReturnValue({ eq: mockUserEqFn });
   });
 
   // ---- POST /api/v1/cases -----------------------------------------------
@@ -88,7 +114,7 @@ describe('Cases API Routes', () => {
 
     it('should return 201 on valid case creation', async () => {
       mockAuthenticatedUser();
-      mockSingleFn.mockResolvedValue({
+      mockCaseSingleFn.mockResolvedValue({
         data: {
           id: 'case-1',
           client_id: 'user-1',
@@ -137,13 +163,23 @@ describe('Cases API Routes', () => {
 
       expect(res.status).toBe(400);
     });
+
+    it('should return 403 for DESIGNER role', async () => {
+      mockAuthenticatedUser();
+      mockUserSingleFn.mockResolvedValue({ data: { role: 'DESIGNER' }, error: null });
+
+      const { POST } = await import('@/app/api/v1/cases/route');
+      const res = await POST(buildRequest(validBody));
+
+      expect(res.status).toBe(403);
+    });
   });
 
   // ---- GET /api/v1/cases ------------------------------------------------
   describe('GET /api/v1/cases', () => {
     it('should return 200 with paginated cases', async () => {
       mockAuthenticatedUser();
-      mockRangeFn.mockResolvedValue({
+      mockCaseRangeFn.mockResolvedValue({
         data: [{ id: 'case-1', title: 'Crown' }],
         error: null,
         count: 1,
@@ -173,7 +209,7 @@ describe('Cases API Routes', () => {
   describe('GET /api/v1/cases/[id]', () => {
     it('should return 200 with case detail', async () => {
       mockAuthenticatedUser();
-      mockSingleFn.mockResolvedValue({
+      mockCaseSingleFn.mockResolvedValue({
         data: { id: 'case-1', title: 'Crown #14', status: 'OPEN' },
         error: null,
       });
@@ -202,15 +238,15 @@ describe('Cases API Routes', () => {
   describe('POST /api/v1/cases/[id]/publish', () => {
     it('should return 200 when publishing a draft', async () => {
       mockAuthenticatedUser();
-      // eq().select().single() chain for update
-      mockEqFn.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: { id: 'case-1', status: 'OPEN' },
-            error: null,
-          }),
-        }),
-        single: mockSingleFn,
+      // First call: ownership check → returns DRAFT case owned by user-1
+      // Second call: update → returns OPEN case
+      let callCount = 0;
+      mockCaseSingleFn.mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve({ data: { client_id: 'user-1', status: 'DRAFT' }, error: null });
+        }
+        return Promise.resolve({ data: { id: 'case-1', status: 'OPEN' }, error: null });
       });
 
       const { POST } = await import('@/app/api/v1/cases/[id]/publish/route');
@@ -227,18 +263,16 @@ describe('Cases API Routes', () => {
   describe('POST /api/v1/cases/[id]/cancel', () => {
     it('should return 200 when cancelling a case', async () => {
       mockAuthenticatedUser();
-      mockEqFn.mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: {
-              id: 'case-1',
-              status: 'CANCELLED',
-              cancellation_reason: 'No longer needed',
-            },
-            error: null,
-          }),
-        }),
-        single: mockSingleFn,
+      let callCount = 0;
+      mockCaseSingleFn.mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve({ data: { client_id: 'user-1', status: 'OPEN' }, error: null });
+        }
+        return Promise.resolve({
+          data: { id: 'case-1', status: 'CANCELLED', cancellation_reason: 'No longer needed' },
+          error: null,
+        });
       });
 
       const { POST } = await import('@/app/api/v1/cases/[id]/cancel/route');

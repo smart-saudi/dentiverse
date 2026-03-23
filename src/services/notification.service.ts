@@ -88,11 +88,13 @@ export class NotificationService {
   async markAsRead(
     supabase: SupabaseClient<Database>,
     notificationId: string,
+    userId: string,
   ): Promise<NotificationRow> {
     const { data, error } = await supabase
       .from('notifications')
       .update({ is_read: true })
       .eq('id', notificationId)
+      .eq('user_id', userId)
       .select()
       .single();
 

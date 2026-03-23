@@ -89,6 +89,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       .from('cases')
       .update(parsed.data)
       .eq('id', id)
+      .eq('client_id', user.id)
       .select()
       .single();
 

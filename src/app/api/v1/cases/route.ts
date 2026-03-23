@@ -24,6 +24,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Only DENTIST and LAB users can create cases
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || !['DENTIST', 'LAB'].includes(profile.role)) {
+      return NextResponse.json(
+        { code: 'FORBIDDEN', message: 'Only dentists and labs can create cases' },
+        { status: 403 },
+      );
+    }
+
     const body = await request.json();
     const parsed = createCaseSchema.safeParse(body);
 

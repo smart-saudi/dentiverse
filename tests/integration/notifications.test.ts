@@ -26,8 +26,10 @@ const mockSelectFn = vi.fn().mockImplementation(() => ({
 }));
 const mockUpdateFn = vi.fn().mockReturnValue({
   eq: vi.fn().mockReturnValue({
+    eq: vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({ single: mockSingleFn }),
+    }),
     select: vi.fn().mockReturnValue({ single: mockSingleFn }),
-    eq: vi.fn(),
   }),
 });
 

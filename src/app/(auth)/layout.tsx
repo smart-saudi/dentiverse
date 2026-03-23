@@ -1,5 +1,7 @@
 import { APP_NAME } from '@/lib/constants';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Auth layout — centered card with no sidebar.
  * Used for login, register, forgot-password pages.
