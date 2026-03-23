@@ -8,7 +8,7 @@ vi.mock('next/navigation', () => ({
 
 // Mock Supabase browser client for useRealtime
 vi.mock('@/lib/supabase/client', () => ({
-  createBrowserSupabaseClient: vi.fn(() => ({
+  createClient: vi.fn(() => ({
     channel: vi.fn(() => ({
       on: vi.fn().mockReturnThis(),
       subscribe: vi.fn(),
