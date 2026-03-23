@@ -9,31 +9,43 @@ const mockAuth = {
   getUser: vi.fn(),
 };
 
-const mockSingleFn = vi.fn();
+const mockPaymentSingleFn = vi.fn();
 const mockRangeFn = vi.fn();
 const mockOrderFn = vi.fn().mockReturnValue({ range: mockRangeFn });
 const mockOrFn = vi.fn().mockReturnValue({ order: mockOrderFn, eq: vi.fn().mockReturnValue({ order: mockOrderFn }) });
 const mockEqFn = vi.fn().mockImplementation(() => ({
-  single: mockSingleFn,
+  single: mockPaymentSingleFn,
   order: mockOrderFn,
   or: mockOrFn,
 }));
 const mockSelectFn = vi.fn().mockImplementation(() => ({
   eq: mockEqFn,
   or: mockOrFn,
-  single: mockSingleFn,
+  single: mockPaymentSingleFn,
 }));
 const mockInsertFn = vi.fn().mockReturnValue({ select: mockSelectFn });
-const mockUpdateFn = vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockSingleFn }) }) });
+const mockUpdateFn = vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockPaymentSingleFn }) }) });
+
+// Proposal cross-validation mock chain
+const mockProposalSingleFn = vi.fn();
+const mockProposalEq3 = vi.fn().mockReturnValue({ single: mockProposalSingleFn });
+const mockProposalEq2 = vi.fn().mockReturnValue({ eq: mockProposalEq3 });
+const mockProposalEq1 = vi.fn().mockReturnValue({ eq: mockProposalEq2 });
+const mockProposalSelectFn = vi.fn().mockReturnValue({ eq: mockProposalEq1 });
 
 vi.mock('@/lib/supabase/server', () => ({
   createServerSupabaseClient: vi.fn(() => ({
     auth: mockAuth,
-    from: vi.fn(() => ({
-      insert: mockInsertFn,
-      update: mockUpdateFn,
-      select: mockSelectFn,
-    })),
+    from: vi.fn((table: string) => {
+      if (table === 'proposals') {
+        return { select: mockProposalSelectFn };
+      }
+      return {
+        insert: mockInsertFn,
+        update: mockUpdateFn,
+        select: mockSelectFn,
+      };
+    }),
   })),
 }));
 
@@ -79,7 +91,12 @@ describe('POST /api/v1/payments', () => {
 
   it('should create a payment (201)', async () => {
     mockAuth.getUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-    mockSingleFn.mockResolvedValue({ data: mockPayment, error: null });
+    // Mock proposal cross-validation: accepted proposal with matching price
+    mockProposalSingleFn.mockResolvedValue({
+      data: { price: 150, status: 'ACCEPTED', designer_id: 'user-2', case_id: 'c-1' },
+      error: null,
+    });
+    mockPaymentSingleFn.mockResolvedValue({ data: mockPayment, error: null });
 
     const { POST } = await import('@/app/api/v1/payments/route');
     const req = buildRequest({ case_id: 'c-1', designer_id: 'user-2', amount: 150 });

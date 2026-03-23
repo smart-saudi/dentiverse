@@ -26,6 +26,23 @@ export class PaymentService {
     clientId: string,
     input: CreatePaymentInput,
   ): Promise<PaymentRow> {
+    // Cross-validate: fetch the accepted proposal and verify the amount matches
+    const { data: proposal, error: proposalError } = await client
+      .from('proposals')
+      .select('price, status, designer_id, case_id')
+      .eq('case_id', input.case_id)
+      .eq('designer_id', input.designer_id)
+      .eq('status', 'ACCEPTED')
+      .single();
+
+    if (proposalError || !proposal) {
+      throw new Error('No accepted proposal found for this case and designer');
+    }
+
+    if (proposal.price !== input.amount) {
+      throw new Error('Payment amount must match the accepted proposal price');
+    }
+
     const platformFee = Math.round(input.amount * PLATFORM_FEE_PERCENT) / 100;
     const designerPayout = input.amount - platformFee;
 

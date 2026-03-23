@@ -105,8 +105,13 @@ export async function POST(req: NextRequest) {
         break;
     }
   } catch (err) {
-    // Log error but still return 200 to prevent Stripe retries
-    console.error('Webhook handler error:', err);
+    // Log error but still return 200 to prevent Stripe retries.
+    // In production, this should be sent to Sentry or a structured logging service.
+    console.error('Webhook handler error:', {
+      event_type: event.type,
+      event_id: event.id,
+      error: err instanceof Error ? err.message : String(err),
+    });
   }
 
   return NextResponse.json({ received: true });

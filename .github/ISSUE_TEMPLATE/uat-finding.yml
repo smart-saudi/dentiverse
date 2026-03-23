@@ -1,0 +1,108 @@
+name: UAT Finding
+description: Report an issue found during User Acceptance Testing
+title: "[UAT] "
+labels: ["uat", "bug"]
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How critical is this finding?
+      options:
+        - "Critical — Blocks release (data loss, security, payment)"
+        - "High — Must fix before launch (major flow broken)"
+        - "Medium — Should fix (degraded experience, workaround exists)"
+        - "Low — Nice to fix (cosmetic, minor UX)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: test-scenario
+    attributes:
+      label: Test Scenario
+      description: Which UAT scenario was being tested?
+      options:
+        - "S1: New user registration & email verification"
+        - "S2: Login / logout / password reset"
+        - "S3: Dentist creates and publishes a case"
+        - "S4: Designer browses and submits proposal"
+        - "S5: Dentist reviews and accepts proposal"
+        - "S6: Designer uploads design version"
+        - "S7: Dentist reviews design (approve/request revision)"
+        - "S8: Payment escrow — hold and release"
+        - "S9: Real-time messaging between participants"
+        - "S10: Notifications (in-app and email)"
+        - "S11: File upload (scans, designs, portfolio)"
+        - "S12: 3D viewer (STL rendering)"
+        - "S13: Designer profile & portfolio management"
+        - "S14: Settings & profile editing"
+        - "S15: Mobile responsiveness"
+        - "S16: Cross-browser compatibility"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tester-role
+    attributes:
+      label: Tester Role
+      description: Which role were you testing as?
+      options:
+        - "Dentist (client)"
+        - "Designer"
+        - "Lab"
+        - "Admin"
+        - "Public (not logged in)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      placeholder: "Describe what you observed vs. what you expected."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Log in as designer
+        2. Go to /cases
+        3. Click on an open case
+        4. Submit a proposal with price $500
+        5. See error
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Preview (vercel), Staging, Local dev"
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser & Device
+      placeholder: "Chrome 124 / macOS — Desktop 1440px"
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots / Console Errors / Network Requests
+      description: Attach any evidence that helps reproduce the issue.
+
+  - type: dropdown
+    id: blocking
+    attributes:
+      label: Is this a release blocker?
+      options:
+        - "Yes — cannot ship without fixing"
+        - "No — can ship, fix in next sprint"
+    validations:
+      required: true

@@ -41,21 +41,76 @@ describe('PaymentService', () => {
         status: 'PENDING',
       };
       const client = createMockClient();
-      const single = vi.fn().mockResolvedValue({ data: mockPayment, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      client.from.mockReturnValue({ insert });
+
+      // Mock proposal cross-validation query (from('proposals').select().eq().eq().eq().single())
+      const proposalSingle = vi.fn().mockResolvedValue({
+        data: { price: 100, status: 'ACCEPTED', designer_id: 'u-2', case_id: 'c-1' },
+        error: null,
+      });
+      const proposalEq3 = vi.fn().mockReturnValue({ single: proposalSingle });
+      const proposalEq2 = vi.fn().mockReturnValue({ eq: proposalEq3 });
+      const proposalEq1 = vi.fn().mockReturnValue({ eq: proposalEq2 });
+      const proposalSelect = vi.fn().mockReturnValue({ eq: proposalEq1 });
+
+      // Mock payment insert query (from('payments').insert().select().single())
+      const paymentSingle = vi.fn().mockResolvedValue({ data: mockPayment, error: null });
+      const paymentSelect = vi.fn().mockReturnValue({ single: paymentSingle });
+      const paymentInsert = vi.fn().mockReturnValue({ select: paymentSelect });
+
+      client.from.mockImplementation((table: string) => {
+        if (table === 'proposals') return { select: proposalSelect } as never;
+        if (table === 'payments') return { insert: paymentInsert } as never;
+        return {} as never;
+      });
 
       const result = await service.createPayment(client, 'u-1', input);
       expect(result.status).toBe('PENDING');
       expect(result.platform_fee).toBe(12);
       expect(result.designer_payout).toBe(88);
-      expect(insert).toHaveBeenCalledWith(expect.objectContaining({
+      expect(paymentInsert).toHaveBeenCalledWith(expect.objectContaining({
         client_id: 'u-1',
         amount: 100,
         platform_fee: 12,
         designer_payout: 88,
       }));
+    });
+
+    it('should throw if payment amount does not match proposal price', async () => {
+      const input = { case_id: 'c-1', designer_id: 'u-2', amount: 50, currency: 'USD' };
+      const client = createMockClient();
+
+      const proposalSingle = vi.fn().mockResolvedValue({
+        data: { price: 100, status: 'ACCEPTED', designer_id: 'u-2', case_id: 'c-1' },
+        error: null,
+      });
+      const proposalEq3 = vi.fn().mockReturnValue({ single: proposalSingle });
+      const proposalEq2 = vi.fn().mockReturnValue({ eq: proposalEq3 });
+      const proposalEq1 = vi.fn().mockReturnValue({ eq: proposalEq2 });
+      const proposalSelect = vi.fn().mockReturnValue({ eq: proposalEq1 });
+
+      client.from.mockReturnValue({ select: proposalSelect } as never);
+
+      await expect(service.createPayment(client, 'u-1', input))
+        .rejects.toThrow('Payment amount must match the accepted proposal price');
+    });
+
+    it('should throw if no accepted proposal exists', async () => {
+      const input = { case_id: 'c-1', designer_id: 'u-2', amount: 100, currency: 'USD' };
+      const client = createMockClient();
+
+      const proposalSingle = vi.fn().mockResolvedValue({
+        data: null,
+        error: { message: 'No rows found' },
+      });
+      const proposalEq3 = vi.fn().mockReturnValue({ single: proposalSingle });
+      const proposalEq2 = vi.fn().mockReturnValue({ eq: proposalEq3 });
+      const proposalEq1 = vi.fn().mockReturnValue({ eq: proposalEq2 });
+      const proposalSelect = vi.fn().mockReturnValue({ eq: proposalEq1 });
+
+      client.from.mockReturnValue({ select: proposalSelect } as never);
+
+      await expect(service.createPayment(client, 'u-1', input))
+        .rejects.toThrow('No accepted proposal found');
     });
   });
 
