@@ -1,0 +1,37 @@
+%% DentiVerse - Client User Flow (Dentist / Lab)
+%% How a dental client navigates the platform from signup to receiving completed design files.
+
+flowchart LR
+    A["Visit Landing Page"] --> B["Sign Up / Login"]
+    B --> C{"Select Role"}
+    C -->|"Dentist"| D["Complete Dentist Profile"]
+    C -->|"Lab"| E["Complete Lab Profile"]
+    D --> F["Dashboard"]
+    E --> F
+    F --> G["Create New Case"]
+    G --> H["Upload Dental Scans"]
+    H --> I["Specify Requirements"]
+    I --> J["Set Budget & Deadline"]
+    J --> K["Post Case"]
+    K --> L["Receive Proposals"]
+    L --> M["Review Designer Profiles"]
+    M --> N["Accept Proposal"]
+    N --> O["Payment Held in Escrow"]
+    O --> P["Designer Works on Case"]
+    P --> Q["Design Submitted"]
+    Q --> R["Review in 3D Viewer"]
+    R --> S{"Approve?"}
+    S -->|"Yes"| T["Approve Design"]
+    S -->|"Request Changes"| U["Submit Revision Notes"]
+    U --> P
+    T --> V["Payment Released to Designer"]
+    V --> W["Download Design Files"]
+    W --> X["Leave Review & Rating"]
+    X --> F
+
+    style A fill:#E8EFF8,stroke:#2E5090
+    style F fill:#E8EFF8,stroke:#2E5090
+    style O fill:#FFF3E0,stroke:#E65100
+    style T fill:#E8F5E9,stroke:#2D7D46
+    style V fill:#E8F5E9,stroke:#2D7D46
+    style W fill:#E8F5E9,stroke:#2D7D46

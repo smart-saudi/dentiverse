@@ -1,0 +1,36 @@
+%% DentiVerse - Designer User Flow
+%% How a dental CAD designer navigates the platform from signup through completing cases and receiving payment.
+
+flowchart LR
+    A["Visit Landing Page"] --> B["Sign Up / Login"]
+    B --> C["Select Designer Role"]
+    C --> D["Complete Profile"]
+    D --> E["Upload Portfolio"]
+    E --> F["Set Skills & Rates"]
+    F --> G["Identity Verification"]
+    G --> H["Connect Stripe for Payouts"]
+    H --> I["Designer Dashboard"]
+    I --> J["Browse Open Cases"]
+    J --> K["Filter by Type & Budget"]
+    K --> L["View Case Details & Scans"]
+    L --> M["Submit Proposal"]
+    M --> N["Wait for Client Decision"]
+    N --> O{"Accepted?"}
+    O -->|"Yes"| P["Case Assigned"]
+    O -->|"No"| J
+    P --> Q["Download Scan Files"]
+    Q --> R["Design in CAD Software"]
+    R --> S["Upload Completed Design"]
+    S --> T["Client Reviews in 3D"]
+    T --> U{"Approved?"}
+    U -->|"Revision"| V["Read Feedback Notes"]
+    V --> R
+    U -->|"Approved"| W["Payment Released"]
+    W --> X["Receive Payout via Stripe"]
+    X --> Y["Review Added to Profile"]
+    Y --> I
+
+    style I fill:#F3E5F5,stroke:#6A1B9A
+    style P fill:#E8F5E9,stroke:#2D7D46
+    style W fill:#E8F5E9,stroke:#2D7D46
+    style X fill:#E8F5E9,stroke:#2D7D46

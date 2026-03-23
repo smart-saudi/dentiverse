@@ -1,0 +1,33 @@
+%% DentiVerse — Payment & Escrow Flow
+%% Shows how money moves through the system from client to designer.
+
+sequenceDiagram
+    participant C as Client
+    participant DV as DentiVerse API
+    participant S as Stripe Connect
+    participant D as Designer
+
+    C->>DV: Accept proposal ($85)
+    DV->>S: Create PaymentIntent ($85)
+    S-->>DV: client_secret
+    DV-->>C: Show payment form
+
+    C->>S: Confirm payment (card)
+    S-->>DV: Webhook: payment_intent.succeeded
+    DV->>DV: Create Payment (status: HELD)
+    DV->>DV: Update case (status: ASSIGNED)
+    DV-->>D: Notification: "Case assigned"
+
+    Note over D: Designer works on design...
+
+    D->>DV: Upload design files
+    DV->>DV: Update case (status: REVIEW)
+    DV-->>C: Notification: "Design ready"
+
+    C->>DV: Approve design
+    DV->>DV: Update case (status: COMPLETED)
+    DV->>S: Create Transfer ($85 - 12% fee = $74.80)
+    S-->>D: Payout to designer bank
+    DV->>DV: Update Payment (status: RELEASED)
+    DV-->>C: Design files downloadable
+    DV-->>D: Notification: "Payment released"
