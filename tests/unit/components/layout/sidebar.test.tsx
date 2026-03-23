@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { usePathname } from 'next/navigation';
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
@@ -64,8 +65,7 @@ describe('Sidebar', () => {
   });
 
   it('should highlight the active link based on pathname', () => {
-    const { usePathname } = require('next/navigation');
-    usePathname.mockReturnValue('/cases');
+    vi.mocked(usePathname).mockReturnValue('/cases');
     render(<Sidebar />);
     const casesLink = screen.getByText('Cases').closest('a');
     expect(casesLink).toHaveAttribute('data-active', 'true');
