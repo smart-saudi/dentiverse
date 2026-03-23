@@ -13,7 +13,7 @@
 | M0: Project Setup | 8 | 8 | ██████████ 100% |
 | M1: Auth & Users | 10 | 10 | ██████████ 100% |
 | M2: Case Management | 12 | 12 | ██████████ 100% |
-| M3: Designer Marketplace | 8 | 0 | ░░░░░░░░░░ 0% |
+| M3: Designer Marketplace | 8 | 8 | ██████████ 100% |
 | M4: Proposals & Matching | 8 | 0 | ░░░░░░░░░░ 0% |
 | M5: Design Review & 3D | 6 | 0 | ░░░░░░░░░░ 0% |
 | M6: Payments & Escrow | 8 | 0 | ░░░░░░░░░░ 0% |
@@ -42,17 +42,6 @@
 ## ⬜ Up Next
 
 *(Prioritized backlog — work on these next, in order)*
-
-### M3: Designer Marketplace
-
-- [ ] **M3-1** `TEST:` Write tests for designer profile validation schemas
-- [ ] **M3-2** `IMPL:` Create designer profile service: `src/services/designer.service.ts`
-- [ ] **M3-3** `TEST:` Write integration tests for designer API routes
-- [ ] **M3-4** `IMPL:` Create API routes: `/api/v1/designers` (GET with search/filter), `/api/v1/designers/[id]`, `/api/v1/designers/me`
-- [ ] **M3-5** `IMPL:` Create `designer-card.tsx` with rating, skills, availability indicator
-- [ ] **M3-6** `IMPL:` Create `designer-search-filters.tsx` (software, specialization, rating, price, language)
-- [ ] **M3-7** `IMPL:` Create designer browse/search page
-- [ ] **M3-8** `IMPL:` Create designer public profile page (portfolio, reviews, stats)
 
 ### M4: Proposals & Matching
 
@@ -160,6 +149,16 @@
 - [x] **M2-11** `IMPL:` Multi-step case creation form (Details→Teeth→Budget→Review) — 2026-03-23
 - [x] **M2-12** `IMPL:` Case detail page with timeline, details, tooth chart, actions — 2026-03-23
 
+### M3: Designer Marketplace
+- [x] **M3-1** `TEST:` Designer validation schema tests (26 tests) — 2026-03-23
+- [x] **M3-2** `IMPL:` Zod schemas: `createDesignerProfileSchema`, `updateDesignerProfileSchema`, `designerSearchQuerySchema` — 2026-03-23
+- [x] **M3-3** `TEST:` Designer service tests (9 tests) — 2026-03-23
+- [x] **M3-4** `IMPL:` `DesignerService` class + API routes: GET /designers, GET /designers/[id], GET/PATCH /designers/me — 2026-03-23
+- [x] **M3-5** `IMPL:` `designer-card.tsx` with rating, skills, availability — 2026-03-23
+- [x] **M3-6** `IMPL:` `designer-search-filters.tsx` (specialization, software, sort) — 2026-03-23
+- [x] **M3-7** `IMPL:` Designer browse/search page with filters and pagination — 2026-03-23
+- [x] **M3-8** `IMPL:` Designer public profile page (bio, stats, skills, certifications, portfolio) — 2026-03-23
+
 ---
 
 ## 📝 Session Log
@@ -172,6 +171,7 @@
 | 2026-03-22 | #2 | M0-1 scaffolding, M0-2 shadcn/ui (14 components), M0-7 layout components, M0-8 Supabase clients + types | M0-6, M1 |
 | 2026-03-23 | #3 | M0-5/6 test infra + git hooks, M1-1 to M1-10 auth complete (82 tests passing). Created: auth schemas, service, 5 API routes, middleware, auth pages, useAuth hook, auth store, settings/profile pages, error classes, constants, utils | M2: Case Management |
 | 2026-03-23 | #4 | M2-1 to M2-12 case management complete (131 tests passing). Created: case Zod schemas, CaseService, 4 API routes, case-card, status-badge, status-timeline, tooth-chart, case list/create/detail pages | M3: Designer Marketplace |
+| 2026-03-23 | #5 | M3-1 to M3-8 designer marketplace complete (174 tests passing). Created: designer Zod schemas, DesignerService, 3 API routes, designer-card, search-filters, browse/search page, profile page | M4: Proposals & Matching |
 
 ---
 
