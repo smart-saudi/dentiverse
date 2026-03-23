@@ -70,12 +70,7 @@ export type CreateCaseInput = z.infer<typeof createCaseSchema>;
  * All fields are optional.
  */
 export const updateCaseSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1)
-    .max(255)
-    .optional(),
+  title: z.string().trim().min(1).max(255).optional(),
   description: z.string().optional(),
   budget_min: z.number().min(0, 'Budget cannot be negative').optional(),
   budget_max: z.number().min(0, 'Budget cannot be negative').optional(),
@@ -92,9 +87,7 @@ export type UpdateCaseInput = z.infer<typeof updateCaseSchema>;
 export const caseListQuerySchema = z.object({
   status: z.enum(CASE_STATUSES).optional(),
   case_type: z.enum(CASE_TYPES).optional(),
-  sort_by: z
-    .enum(['created_at', 'deadline', 'budget_max'])
-    .default('created_at'),
+  sort_by: z.enum(['created_at', 'deadline', 'budget_max']).default('created_at'),
   page: z.coerce.number().int().min(1).default(1),
   per_page: z.coerce.number().int().min(1).max(100).default(20),
 });

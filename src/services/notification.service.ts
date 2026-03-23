@@ -1,7 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/lib/database.types';
-import type { CreateNotificationInput, NotificationListQuery } from '@/lib/validations/notification';
+import type {
+  CreateNotificationInput,
+  NotificationListQuery,
+} from '@/lib/validations/notification';
 
 type NotificationRow = Database['public']['Tables']['notifications']['Row'];
 
@@ -50,7 +53,10 @@ export class NotificationService {
     supabase: SupabaseClient<Database>,
     userId: string,
     query: NotificationListQuery,
-  ): Promise<{ data: NotificationRow[]; meta: { page: number; per_page: number; total: number; total_pages: number } }> {
+  ): Promise<{
+    data: NotificationRow[];
+    meta: { page: number; per_page: number; total: number; total_pages: number };
+  }> {
     const { page, per_page, is_read } = query;
     const from = (page - 1) * per_page;
     const to = from + per_page - 1;
@@ -108,10 +114,7 @@ export class NotificationService {
    * @param supabase - Authenticated Supabase client
    * @param userId - The user's ID
    */
-  async markAllAsRead(
-    supabase: SupabaseClient<Database>,
-    userId: string,
-  ): Promise<void> {
+  async markAllAsRead(supabase: SupabaseClient<Database>, userId: string): Promise<void> {
     await supabase
       .from('notifications')
       .update({ is_read: true })

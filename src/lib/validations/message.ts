@@ -4,7 +4,11 @@ import { z } from 'zod';
  * Schema for creating a new message in a case thread.
  */
 export const createMessageSchema = z.object({
-  content: z.string().trim().min(1, 'Message cannot be empty').max(5000, 'Message too long'),
+  content: z
+    .string()
+    .trim()
+    .min(1, 'Message cannot be empty')
+    .max(5000, 'Message too long'),
   attachment_urls: z.array(z.string().url()).max(10).default([]),
 });
 

@@ -1,12 +1,7 @@
 import Link from 'next/link';
 import { Star, Clock, Monitor, Globe } from 'lucide-react';
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Database } from '@/lib/database.types';
 
@@ -30,15 +25,13 @@ export function DesignerCard({ designer }: DesignerCardProps) {
 
   return (
     <Link href={`/designers/${designer.id}`}>
-      <Card className="transition-colors hover:border-primary/50">
+      <Card className="hover:border-primary/50 transition-colors">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-base">
-                Designer
-              </CardTitle>
+              <CardTitle className="text-base">Designer</CardTitle>
               {designer.bio && (
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
                   {designer.bio}
                 </p>
               )}
@@ -64,7 +57,7 @@ export function DesignerCard({ designer }: DesignerCardProps) {
             )}
 
             {/* Meta info */}
-            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">
               <div className="flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
                 <span>{designer.years_experience}y exp</span>
@@ -89,7 +82,7 @@ export function DesignerCard({ designer }: DesignerCardProps) {
             </div>
 
             {/* Stats */}
-            <div className="flex gap-4 text-xs text-muted-foreground">
+            <div className="text-muted-foreground flex gap-4 text-xs">
               <span>{designer.completed_cases} completed</span>
               {designer.is_available ? (
                 <span className="text-green-600">Available</span>

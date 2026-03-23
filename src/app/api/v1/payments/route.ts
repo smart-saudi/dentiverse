@@ -14,16 +14,26 @@ const paymentService = new PaymentService();
  */
 export async function POST(req: NextRequest) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+      { status: 401 },
+    );
   }
 
   const body = await req.json();
   const parsed = createPaymentSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten().fieldErrors },
+      {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid input',
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }
@@ -33,7 +43,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ data: payment }, { status: 201 });
   } catch (err) {
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to create payment' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Failed to create payment',
+      },
       { status: 500 },
     );
   }
@@ -47,26 +60,43 @@ export async function POST(req: NextRequest) {
  */
 export async function GET(req: NextRequest) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+      { status: 401 },
+    );
   }
 
   const params = Object.fromEntries(req.nextUrl.searchParams.entries());
   const parsed = paymentListQuerySchema.safeParse(params);
   if (!parsed.success) {
     return NextResponse.json(
-      { code: 'VALIDATION_ERROR', message: 'Invalid query', details: parsed.error.flatten().fieldErrors },
+      {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid query',
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }
 
   try {
-    const result = await paymentService.listPaymentsByUser(supabase, user.id, parsed.data);
+    const result = await paymentService.listPaymentsByUser(
+      supabase,
+      user.id,
+      parsed.data,
+    );
     return NextResponse.json({ data: result.data, meta: result.meta });
   } catch (err) {
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to list payments' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Failed to list payments',
+      },
       { status: 500 },
     );
   }

@@ -19,15 +19,21 @@ import { useNotifications } from '@/hooks/use-notifications';
  * Bell icon with unread badge + dropdown showing recent notifications.
  */
 export function NotificationBell() {
-  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } =
+    useNotifications();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative"
+          aria-label="Notifications"
+        >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+            <span className="bg-destructive text-destructive-foreground absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -45,27 +51,34 @@ export function NotificationBell() {
         <DropdownMenuSeparator />
 
         {isLoading && (
-          <div className="p-4 text-center text-sm text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground p-4 text-center text-sm">Loading...</div>
         )}
 
         {!isLoading && notifications.length === 0 && (
-          <div className="p-4 text-center text-sm text-muted-foreground">No notifications</div>
+          <div className="text-muted-foreground p-4 text-center text-sm">
+            No notifications
+          </div>
         )}
 
         {notifications.slice(0, 8).map((notif) => (
           <DropdownMenuItem
             key={notif.id}
-            className={cn('flex flex-col items-start gap-1 cursor-pointer', !notif.is_read && 'bg-primary/5')}
-            onClick={() => { if (!notif.is_read) markAsRead(notif.id); }}
+            className={cn(
+              'flex cursor-pointer flex-col items-start gap-1',
+              !notif.is_read && 'bg-primary/5',
+            )}
+            onClick={() => {
+              if (!notif.is_read) markAsRead(notif.id);
+            }}
           >
             <div className="flex items-center gap-2">
-              {!notif.is_read && <span className="h-2 w-2 rounded-full bg-primary" />}
+              {!notif.is_read && <span className="bg-primary h-2 w-2 rounded-full" />}
               <span className="text-sm font-medium">{notif.title}</span>
             </div>
             {notif.body && (
-              <p className="text-xs text-muted-foreground line-clamp-2">{notif.body}</p>
+              <p className="text-muted-foreground line-clamp-2 text-xs">{notif.body}</p>
             )}
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-muted-foreground text-[10px]">
               {new Date(notif.created_at).toLocaleString()}
             </span>
           </DropdownMenuItem>

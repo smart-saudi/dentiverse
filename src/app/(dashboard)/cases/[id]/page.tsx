@@ -51,8 +51,10 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
   // Fetch current user ID for chat
   useEffect(() => {
     fetch('/api/v1/users/me')
-      .then((r) => r.ok ? r.json() : null)
-      .then((json) => { if (json?.data?.id) setCurrentUserId(json.data.id); })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => {
+        if (json?.data?.id) setCurrentUserId(json.data.id);
+      })
       .catch(() => {});
   }, []);
 
@@ -89,26 +91,36 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
     fetchProposals();
   }, [fetchCase, fetchProposals]);
 
-  const handleAcceptProposal = useCallback(async (proposalId: string) => {
-    try {
-      const res = await fetch(`/api/v1/proposals/${proposalId}/accept`, { method: 'POST' });
-      if (!res.ok) throw new Error('Failed to accept');
-      fetchProposals();
-      fetchCase();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Accept failed');
-    }
-  }, [fetchProposals, fetchCase]);
+  const handleAcceptProposal = useCallback(
+    async (proposalId: string) => {
+      try {
+        const res = await fetch(`/api/v1/proposals/${proposalId}/accept`, {
+          method: 'POST',
+        });
+        if (!res.ok) throw new Error('Failed to accept');
+        fetchProposals();
+        fetchCase();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Accept failed');
+      }
+    },
+    [fetchProposals, fetchCase],
+  );
 
-  const handleRejectProposal = useCallback(async (proposalId: string) => {
-    try {
-      const res = await fetch(`/api/v1/proposals/${proposalId}/reject`, { method: 'POST' });
-      if (!res.ok) throw new Error('Failed to reject');
-      fetchProposals();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Reject failed');
-    }
-  }, [fetchProposals]);
+  const handleRejectProposal = useCallback(
+    async (proposalId: string) => {
+      try {
+        const res = await fetch(`/api/v1/proposals/${proposalId}/reject`, {
+          method: 'POST',
+        });
+        if (!res.ok) throw new Error('Failed to reject');
+        fetchProposals();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Reject failed');
+      }
+    },
+    [fetchProposals],
+  );
 
   const handlePublish = useCallback(async () => {
     if (!caseId) return;
@@ -148,7 +160,10 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
   if (error || !caseData) {
     return (
       <div className="space-y-4">
-        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+        >
           {error ?? 'Case not found'}
         </div>
         <Link href="/cases">
@@ -173,7 +188,7 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
               <h1 className="text-2xl font-bold tracking-tight">{caseData.title}</h1>
               <CaseStatusBadge status={caseData.status} />
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {caseData.case_type} &middot; Created{' '}
               {new Date(caseData.created_at).toLocaleDateString()}
             </p>
@@ -204,25 +219,41 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
             {caseData.description && (
               <div>
                 <span className="font-medium">Description:</span>
-                <p className="mt-1 text-muted-foreground">{caseData.description}</p>
+                <p className="text-muted-foreground mt-1">{caseData.description}</p>
               </div>
             )}
             {caseData.material_preference && (
-              <div><span className="font-medium">Material:</span> {caseData.material_preference}</div>
+              <div>
+                <span className="font-medium">Material:</span>{' '}
+                {caseData.material_preference}
+              </div>
             )}
             {caseData.shade && (
-              <div><span className="font-medium">Shade:</span> {caseData.shade}</div>
+              <div>
+                <span className="font-medium">Shade:</span> {caseData.shade}
+              </div>
             )}
-            <div><span className="font-medium">Urgency:</span> {caseData.urgency}</div>
-            <div><span className="font-medium">Output Format:</span> {caseData.output_format}</div>
-            <div><span className="font-medium">Max Revisions:</span> {caseData.max_revisions}</div>
+            <div>
+              <span className="font-medium">Urgency:</span> {caseData.urgency}
+            </div>
+            <div>
+              <span className="font-medium">Output Format:</span> {caseData.output_format}
+            </div>
+            <div>
+              <span className="font-medium">Max Revisions:</span> {caseData.max_revisions}
+            </div>
             {caseData.software_required && (
-              <div><span className="font-medium">Software:</span> {caseData.software_required}</div>
+              <div>
+                <span className="font-medium">Software:</span>{' '}
+                {caseData.software_required}
+              </div>
             )}
             {caseData.special_instructions && (
               <div>
                 <span className="font-medium">Instructions:</span>
-                <p className="mt-1 text-muted-foreground">{caseData.special_instructions}</p>
+                <p className="text-muted-foreground mt-1">
+                  {caseData.special_instructions}
+                </p>
               </div>
             )}
           </CardContent>
@@ -244,12 +275,20 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
               </div>
             )}
             {caseData.agreed_price && (
-              <div><span className="font-medium">Agreed Price:</span> ${caseData.agreed_price}</div>
+              <div>
+                <span className="font-medium">Agreed Price:</span> $
+                {caseData.agreed_price}
+              </div>
             )}
             {caseData.deadline && (
-              <div><span className="font-medium">Deadline:</span> {new Date(caseData.deadline).toLocaleDateString()}</div>
+              <div>
+                <span className="font-medium">Deadline:</span>{' '}
+                {new Date(caseData.deadline).toLocaleDateString()}
+              </div>
             )}
-            <div><span className="font-medium">Currency:</span> {caseData.currency}</div>
+            <div>
+              <span className="font-medium">Currency:</span> {caseData.currency}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -269,7 +308,7 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">Proposals ({proposals.length})</h2>
         {proposals.length === 0 && caseData.status === 'OPEN' && (
-          <p className="text-sm text-muted-foreground">No proposals yet.</p>
+          <p className="text-muted-foreground text-sm">No proposals yet.</p>
         )}
         {proposals.map((p) => (
           <ProposalCard
@@ -286,7 +325,14 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
       </div>
 
       {/* Design Versions */}
-      {['ASSIGNED', 'IN_PROGRESS', 'REVIEW', 'REVISION', 'APPROVED', 'COMPLETED'].includes(caseData.status) && (
+      {[
+        'ASSIGNED',
+        'IN_PROGRESS',
+        'REVIEW',
+        'REVISION',
+        'APPROVED',
+        'COMPLETED',
+      ].includes(caseData.status) && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Design Versions</h2>
           <DesignVersionHistory
@@ -300,12 +346,20 @@ export default function CaseDetailPage({ params }: CaseDetailPageProps) {
       )}
 
       {/* Messages */}
-      {['ASSIGNED', 'IN_PROGRESS', 'REVIEW', 'REVISION', 'APPROVED', 'COMPLETED'].includes(caseData.status) && currentUserId && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Messages</h2>
-          <ChatThread caseId={caseData.id} currentUserId={currentUserId} />
-        </div>
-      )}
+      {[
+        'ASSIGNED',
+        'IN_PROGRESS',
+        'REVIEW',
+        'REVISION',
+        'APPROVED',
+        'COMPLETED',
+      ].includes(caseData.status) &&
+        currentUserId && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Messages</h2>
+            <ChatThread caseId={caseData.id} currentUserId={currentUserId} />
+          </div>
+        )}
     </div>
   );
 }

@@ -29,13 +29,11 @@ export function CaseCard({ caseData }: CaseCardProps) {
 
   return (
     <Link href={`/cases/${caseData.id}`}>
-      <Card className="transition-colors hover:border-primary/50">
+      <Card className="hover:border-primary/50 transition-colors">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <CardTitle className="truncate text-base">
-                {caseData.title}
-              </CardTitle>
+              <CardTitle className="truncate text-base">{caseData.title}</CardTitle>
               <CardDescription className="mt-1 line-clamp-2">
                 {caseData.description ?? 'No description'}
               </CardDescription>
@@ -44,16 +42,14 @@ export function CaseCard({ caseData }: CaseCardProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">
             <div className="flex items-center gap-1">
               <Wrench className="h-3.5 w-3.5" />
               <span>{caseData.case_type}</span>
             </div>
             {toothNumbers.length > 0 && (
               <div className="flex items-center gap-1">
-                <span>
-                  Teeth: {toothNumbers.join(', ')}
-                </span>
+                <span>Teeth: {toothNumbers.join(', ')}</span>
               </div>
             )}
             {(caseData.budget_min || caseData.budget_max) && (
@@ -71,9 +67,7 @@ export function CaseCard({ caseData }: CaseCardProps) {
             {caseData.deadline && (
               <div className="flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
-                <span>
-                  {new Date(caseData.deadline).toLocaleDateString()}
-                </span>
+                <span>{new Date(caseData.deadline).toLocaleDateString()}</span>
               </div>
             )}
           </div>

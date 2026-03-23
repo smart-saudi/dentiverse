@@ -4,17 +4,21 @@ import { useCallback, useEffect, useState } from 'react';
 import { DollarSign, ArrowUpRight, Clock, RefreshCw } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Database } from '@/lib/database.types';
 
 type PaymentRow = Database['public']['Tables']['payments']['Row'];
 
-const STATUS_CONFIG: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string; icon: typeof Clock }> = {
+const STATUS_CONFIG: Record<
+  string,
+  {
+    variant: 'default' | 'secondary' | 'destructive' | 'outline';
+    label: string;
+    icon: typeof Clock;
+  }
+> = {
   PENDING: { variant: 'outline', label: 'Pending', icon: Clock },
   HELD: { variant: 'secondary', label: 'In Escrow', icon: DollarSign },
   RELEASED: { variant: 'default', label: 'Released', icon: ArrowUpRight },
@@ -85,7 +89,10 @@ export default function PaymentsPage() {
 
       {/* Error */}
       {error && (
-        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+        >
           {error}
         </div>
       )}
@@ -102,7 +109,7 @@ export default function PaymentsPage() {
       {/* Empty state */}
       {!isLoading && !error && payments.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <DollarSign className="mb-2 h-8 w-8 text-muted-foreground" />
+          <DollarSign className="text-muted-foreground mb-2 h-8 w-8" />
           <p className="text-muted-foreground">No payments found</p>
         </div>
       )}
@@ -111,31 +118,45 @@ export default function PaymentsPage() {
       {!isLoading && payments.length > 0 && (
         <div className="space-y-3">
           {payments.map((payment) => {
-            const config = STATUS_CONFIG[payment.status] ?? { variant: 'outline' as const, label: 'Pending', icon: Clock };
+            const config = STATUS_CONFIG[payment.status] ?? {
+              variant: 'outline' as const,
+              label: 'Pending',
+              icon: Clock,
+            };
             const StatusIcon = config.icon;
 
             return (
               <Card key={payment.id}>
                 <CardContent className="flex items-center gap-4 py-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                    <StatusIcon className="h-5 w-5 text-muted-foreground" />
+                  <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
+                    <StatusIcon className="text-muted-foreground h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">${payment.amount}</span>
                       <Badge variant={config.variant}>{config.label}</Badge>
                     </div>
-                    <div className="mt-1 flex gap-4 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground mt-1 flex gap-4 text-xs">
                       <span>Fee: ${payment.platform_fee}</span>
                       <span>Payout: ${payment.designer_payout}</span>
                       <span>{payment.currency}</span>
                       <span>{new Date(payment.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  <div className="text-right text-xs text-muted-foreground">
-                    {payment.held_at && <div>Held: {new Date(payment.held_at).toLocaleDateString()}</div>}
-                    {payment.released_at && <div>Released: {new Date(payment.released_at).toLocaleDateString()}</div>}
-                    {payment.refunded_at && <div>Refunded: {new Date(payment.refunded_at).toLocaleDateString()}</div>}
+                  <div className="text-muted-foreground text-right text-xs">
+                    {payment.held_at && (
+                      <div>Held: {new Date(payment.held_at).toLocaleDateString()}</div>
+                    )}
+                    {payment.released_at && (
+                      <div>
+                        Released: {new Date(payment.released_at).toLocaleDateString()}
+                      </div>
+                    )}
+                    {payment.refunded_at && (
+                      <div>
+                        Refunded: {new Date(payment.refunded_at).toLocaleDateString()}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -155,7 +176,7 @@ export default function PaymentsPage() {
           >
             Previous
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             Page {page} of {totalPages}
           </span>
           <Button

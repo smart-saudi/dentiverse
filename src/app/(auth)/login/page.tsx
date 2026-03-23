@@ -64,7 +64,7 @@ function LoginForm() {
           {error && (
             <div
               role="alert"
-              className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
             >
               {error}
             </div>
@@ -90,7 +90,7 @@ function LoginForm() {
               </label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-primary hover:underline"
+                className="text-primary text-xs hover:underline"
               >
                 Forgot password?
               </Link>
@@ -110,7 +110,7 @@ function LoginForm() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Signing in...' : 'Sign in'}
           </Button>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-center text-sm">
             Don&apos;t have an account?{' '}
             <Link href="/register" className="text-primary hover:underline">
               Sign up

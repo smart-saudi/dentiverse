@@ -2,13 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 /** Routes that do not require authentication. */
-const PUBLIC_ROUTES = [
-  '/',
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-];
+const PUBLIC_ROUTES = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
 
 /** API routes that do not require authentication. */
 const PUBLIC_API_PREFIXES = [
@@ -41,9 +35,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
@@ -74,9 +66,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
-  const isAuthRoute = ['/login', '/register', '/forgot-password'].includes(
-    pathname,
-  );
+  const isAuthRoute = ['/login', '/register', '/forgot-password'].includes(pathname);
 
   // Redirect authenticated users away from auth pages → dashboard
   if (user && isAuthRoute) {

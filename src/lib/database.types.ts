@@ -744,12 +744,7 @@ export type Database = {
         | 'OTHER';
       proposal_status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN';
       design_version_status: 'SUBMITTED' | 'APPROVED' | 'REVISION_REQUESTED';
-      payment_status:
-        | 'PENDING'
-        | 'HELD'
-        | 'RELEASED'
-        | 'REFUNDED'
-        | 'DISPUTED';
+      payment_status: 'PENDING' | 'HELD' | 'RELEASED' | 'REFUNDED' | 'DISPUTED';
       notification_type:
         | 'NEW_PROPOSAL'
         | 'DESIGN_SUBMITTED'

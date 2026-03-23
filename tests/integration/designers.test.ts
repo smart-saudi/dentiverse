@@ -30,7 +30,13 @@ const mockSelectFn = vi.fn().mockImplementation(() => ({
   single: mockSingleFn,
 }));
 const mockInsertFn = vi.fn().mockReturnValue({ select: mockSelectFn });
-const mockUpdateFn = vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockSingleFn }) }) });
+const mockUpdateFn = vi
+  .fn()
+  .mockReturnValue({
+    eq: vi
+      .fn()
+      .mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockSingleFn }) }),
+  });
 
 vi.mock('@/lib/supabase/server', () => ({
   createServerSupabaseClient: vi.fn(() => ({
@@ -89,7 +95,11 @@ describe('GET /api/v1/designers', () => {
     mockRangeFn.mockResolvedValue({ data: [mockDesignerProfile], error: null, count: 1 });
 
     const { GET } = await import('@/app/api/v1/designers/route');
-    const req = buildRequest(null, 'GET', 'http://localhost:3000/api/v1/designers?page=1');
+    const req = buildRequest(
+      null,
+      'GET',
+      'http://localhost:3000/api/v1/designers?page=1',
+    );
     const res = await GET(req);
     const json = await res.json();
 
@@ -99,7 +109,10 @@ describe('GET /api/v1/designers', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { GET } = await import('@/app/api/v1/designers/route');
     const req = buildRequest(null, 'GET');
@@ -128,7 +141,10 @@ describe('GET /api/v1/designers/[id]', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { GET } = await import('@/app/api/v1/designers/[id]/route');
     const req = buildRequest(null, 'GET', 'http://localhost:3000/api/v1/designers/dp-1');
@@ -157,7 +173,10 @@ describe('GET /api/v1/designers/me', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { GET } = await import('@/app/api/v1/designers/me/route');
     const req = buildRequest(null, 'GET', 'http://localhost:3000/api/v1/designers/me');
@@ -180,7 +199,11 @@ describe('PATCH /api/v1/designers/me', () => {
     });
 
     const { PATCH } = await import('@/app/api/v1/designers/me/route');
-    const req = buildRequest({ bio: 'Updated bio' }, 'PATCH', 'http://localhost:3000/api/v1/designers/me');
+    const req = buildRequest(
+      { bio: 'Updated bio' },
+      'PATCH',
+      'http://localhost:3000/api/v1/designers/me',
+    );
     const res = await PATCH(req);
     const json = await res.json();
 
@@ -192,7 +215,11 @@ describe('PATCH /api/v1/designers/me', () => {
     mockAuth.getUser.mockResolvedValue({ data: { user: mockUser }, error: null });
 
     const { PATCH } = await import('@/app/api/v1/designers/me/route');
-    const req = buildRequest({ hourly_rate: -10 }, 'PATCH', 'http://localhost:3000/api/v1/designers/me');
+    const req = buildRequest(
+      { hourly_rate: -10 },
+      'PATCH',
+      'http://localhost:3000/api/v1/designers/me',
+    );
     const res = await PATCH(req);
 
     expect(res.status).toBe(400);

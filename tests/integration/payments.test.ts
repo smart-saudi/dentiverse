@@ -12,7 +12,12 @@ const mockAuth = {
 const mockSingleFn = vi.fn();
 const mockRangeFn = vi.fn();
 const mockOrderFn = vi.fn().mockReturnValue({ range: mockRangeFn });
-const mockOrFn = vi.fn().mockReturnValue({ order: mockOrderFn, eq: vi.fn().mockReturnValue({ order: mockOrderFn }) });
+const mockOrFn = vi
+  .fn()
+  .mockReturnValue({
+    order: mockOrderFn,
+    eq: vi.fn().mockReturnValue({ order: mockOrderFn }),
+  });
 const mockEqFn = vi.fn().mockImplementation(() => ({
   single: mockSingleFn,
   order: mockOrderFn,
@@ -24,7 +29,13 @@ const mockSelectFn = vi.fn().mockImplementation(() => ({
   single: mockSingleFn,
 }));
 const mockInsertFn = vi.fn().mockReturnValue({ select: mockSelectFn });
-const mockUpdateFn = vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockSingleFn }) }) });
+const mockUpdateFn = vi
+  .fn()
+  .mockReturnValue({
+    eq: vi
+      .fn()
+      .mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockSingleFn }) }),
+  });
 
 vi.mock('@/lib/supabase/server', () => ({
   createServerSupabaseClient: vi.fn(() => ({
@@ -91,7 +102,10 @@ describe('POST /api/v1/payments', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { POST } = await import('@/app/api/v1/payments/route');
     const req = buildRequest({ case_id: 'c-1', designer_id: 'user-2', amount: 150 });
@@ -131,7 +145,10 @@ describe('GET /api/v1/payments', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { GET } = await import('@/app/api/v1/payments/route');
     const req = buildRequest(null, 'GET');

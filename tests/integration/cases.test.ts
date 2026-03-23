@@ -157,9 +157,7 @@ describe('Cases API Routes', () => {
       mockAuthenticatedUser();
 
       const { POST } = await import('@/app/api/v1/cases/route');
-      const res = await POST(
-        buildRequest({ ...validBody, tooth_numbers: [99] }),
-      );
+      const res = await POST(buildRequest({ ...validBody, tooth_numbers: [99] }));
 
       expect(res.status).toBe(400);
     });
@@ -244,7 +242,10 @@ describe('Cases API Routes', () => {
       mockCaseSingleFn.mockImplementation(() => {
         callCount++;
         if (callCount === 1) {
-          return Promise.resolve({ data: { client_id: 'user-1', status: 'DRAFT' }, error: null });
+          return Promise.resolve({
+            data: { client_id: 'user-1', status: 'DRAFT' },
+            error: null,
+          });
         }
         return Promise.resolve({ data: { id: 'case-1', status: 'OPEN' }, error: null });
       });
@@ -267,10 +268,17 @@ describe('Cases API Routes', () => {
       mockCaseSingleFn.mockImplementation(() => {
         callCount++;
         if (callCount === 1) {
-          return Promise.resolve({ data: { client_id: 'user-1', status: 'OPEN' }, error: null });
+          return Promise.resolve({
+            data: { client_id: 'user-1', status: 'OPEN' },
+            error: null,
+          });
         }
         return Promise.resolve({
-          data: { id: 'case-1', status: 'CANCELLED', cancellation_reason: 'No longer needed' },
+          data: {
+            id: 'case-1',
+            status: 'CANCELLED',
+            cancellation_reason: 'No longer needed',
+          },
           error: null,
         });
       });

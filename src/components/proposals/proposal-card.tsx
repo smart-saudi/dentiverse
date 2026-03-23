@@ -1,18 +1,16 @@
 import { Clock, DollarSign } from 'lucide-react';
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { Database } from '@/lib/database.types';
 
 type ProposalRow = Database['public']['Tables']['proposals']['Row'];
 
-const STATUS_CONFIG: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
+const STATUS_CONFIG: Record<
+  string,
+  { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }
+> = {
   PENDING: { variant: 'outline', label: 'Pending' },
   ACCEPTED: { variant: 'default', label: 'Accepted' },
   REJECTED: { variant: 'destructive', label: 'Rejected' },
@@ -36,34 +34,40 @@ interface ProposalCardProps {
  * @param props.onReject - Callback when reject is clicked
  * @returns Proposal card with optional action buttons
  */
-export function ProposalCard({ proposal, showActions, onAccept, onReject }: ProposalCardProps) {
-  const config = STATUS_CONFIG[proposal.status] ?? { variant: 'outline' as const, label: proposal.status };
+export function ProposalCard({
+  proposal,
+  showActions,
+  onAccept,
+  onReject,
+}: ProposalCardProps) {
+  const config = STATUS_CONFIG[proposal.status] ?? {
+    variant: 'outline' as const,
+    label: proposal.status,
+  };
 
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base">
-            Proposal
-          </CardTitle>
+          <CardTitle className="text-base">Proposal</CardTitle>
           <Badge variant={config.variant}>{config.label}</Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex flex-wrap gap-4 text-sm">
           <div className="flex items-center gap-1">
-            <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+            <DollarSign className="text-muted-foreground h-3.5 w-3.5" />
             <span className="font-medium">${proposal.price}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+            <Clock className="text-muted-foreground h-3.5 w-3.5" />
             <span>{proposal.estimated_hours}h estimated</span>
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground">{proposal.message}</p>
+        <p className="text-muted-foreground text-sm">{proposal.message}</p>
 
-        <div className="text-xs text-muted-foreground">
+        <div className="text-muted-foreground text-xs">
           Submitted {new Date(proposal.created_at).toLocaleDateString()}
         </div>
 
@@ -75,7 +79,11 @@ export function ProposalCard({ proposal, showActions, onAccept, onReject }: Prop
               </Button>
             )}
             {onReject && (
-              <Button size="sm" variant="destructive" onClick={() => onReject(proposal.id)}>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => onReject(proposal.id)}
+              >
                 Reject
               </Button>
             )}

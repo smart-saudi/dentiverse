@@ -11,7 +11,12 @@ const mockAuth = {
 
 const mockSingleFn = vi.fn();
 const mockRangeFn = vi.fn();
-const mockOrderFn = vi.fn().mockReturnValue({ range: mockRangeFn, limit: vi.fn().mockReturnValue({ single: mockSingleFn }) });
+const mockOrderFn = vi
+  .fn()
+  .mockReturnValue({
+    range: mockRangeFn,
+    limit: vi.fn().mockReturnValue({ single: mockSingleFn }),
+  });
 const mockEqFn = vi.fn().mockImplementation(() => ({
   single: mockSingleFn,
   order: mockOrderFn,
@@ -21,7 +26,13 @@ const mockSelectFn = vi.fn().mockImplementation(() => ({
   single: mockSingleFn,
 }));
 const mockInsertFn = vi.fn().mockReturnValue({ select: mockSelectFn });
-const mockUpdateFn = vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockSingleFn }) }) });
+const mockUpdateFn = vi
+  .fn()
+  .mockReturnValue({
+    eq: vi
+      .fn()
+      .mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockSingleFn }) }),
+  });
 
 vi.mock('@/lib/supabase/server', () => ({
   createServerSupabaseClient: vi.fn(() => ({
@@ -80,7 +91,10 @@ describe('POST /api/v1/cases/[id]/design-versions', () => {
     mockSingleFn.mockResolvedValueOnce({ data: mockVersion, error: null });
 
     const { POST } = await import('@/app/api/v1/cases/[id]/design-versions/route');
-    const req = buildRequest({ file_urls: ['https://example.com/file.stl'], notes: 'First version' });
+    const req = buildRequest({
+      file_urls: ['https://example.com/file.stl'],
+      notes: 'First version',
+    });
     const res = await POST(req, { params: Promise.resolve({ id: 'c-1' }) });
     const json = await res.json();
 
@@ -89,7 +103,10 @@ describe('POST /api/v1/cases/[id]/design-versions', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { POST } = await import('@/app/api/v1/cases/[id]/design-versions/route');
     const req = buildRequest({ file_urls: ['https://example.com/file.stl'] });
@@ -136,7 +153,10 @@ describe('POST /api/v1/design-versions/[id]/review', () => {
 
   it('should approve a design version (200)', async () => {
     mockAuth.getUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-    mockSingleFn.mockResolvedValue({ data: { ...mockVersion, status: 'APPROVED' }, error: null });
+    mockSingleFn.mockResolvedValue({
+      data: { ...mockVersion, status: 'APPROVED' },
+      error: null,
+    });
 
     const { POST } = await import('@/app/api/v1/design-versions/[id]/review/route');
     const req = buildRequest({ status: 'APPROVED' });
@@ -150,12 +170,19 @@ describe('POST /api/v1/design-versions/[id]/review', () => {
   it('should request revision with feedback (200)', async () => {
     mockAuth.getUser.mockResolvedValue({ data: { user: mockUser }, error: null });
     mockSingleFn.mockResolvedValue({
-      data: { ...mockVersion, status: 'REVISION_REQUESTED', revision_feedback: 'Fix contacts' },
+      data: {
+        ...mockVersion,
+        status: 'REVISION_REQUESTED',
+        revision_feedback: 'Fix contacts',
+      },
       error: null,
     });
 
     const { POST } = await import('@/app/api/v1/design-versions/[id]/review/route');
-    const req = buildRequest({ status: 'REVISION_REQUESTED', revision_feedback: 'Fix contacts' });
+    const req = buildRequest({
+      status: 'REVISION_REQUESTED',
+      revision_feedback: 'Fix contacts',
+    });
     const res = await POST(req, { params: Promise.resolve({ id: 'dv-1' }) });
     const json = await res.json();
 

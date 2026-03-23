@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { createProposalSchema, proposalListQuerySchema } from '@/lib/validations/proposal';
+import {
+  createProposalSchema,
+  proposalListQuerySchema,
+} from '@/lib/validations/proposal';
 import { ProposalService } from '@/services/proposal.service';
 
 const proposalService = new ProposalService();
@@ -19,9 +22,15 @@ interface RouteContext {
  */
 export async function POST(req: NextRequest, context: RouteContext) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+      { status: 401 },
+    );
   }
 
   // Only DESIGNER users can submit proposals
@@ -43,17 +52,29 @@ export async function POST(req: NextRequest, context: RouteContext) {
   const parsed = createProposalSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten().fieldErrors },
+      {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid input',
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }
 
   try {
-    const proposal = await proposalService.createProposal(supabase, caseId, user.id, parsed.data);
+    const proposal = await proposalService.createProposal(
+      supabase,
+      caseId,
+      user.id,
+      parsed.data,
+    );
     return NextResponse.json({ data: proposal }, { status: 201 });
   } catch (err) {
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to create proposal' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Failed to create proposal',
+      },
       { status: 500 },
     );
   }
@@ -68,9 +89,15 @@ export async function POST(req: NextRequest, context: RouteContext) {
  */
 export async function GET(req: NextRequest, context: RouteContext) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+      { status: 401 },
+    );
   }
 
   const { id: caseId } = await context.params;
@@ -78,17 +105,28 @@ export async function GET(req: NextRequest, context: RouteContext) {
   const parsed = proposalListQuerySchema.safeParse(params);
   if (!parsed.success) {
     return NextResponse.json(
-      { code: 'VALIDATION_ERROR', message: 'Invalid query', details: parsed.error.flatten().fieldErrors },
+      {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid query',
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }
 
   try {
-    const result = await proposalService.listProposalsForCase(supabase, caseId, parsed.data);
+    const result = await proposalService.listProposalsForCase(
+      supabase,
+      caseId,
+      parsed.data,
+    );
     return NextResponse.json({ data: result.data, meta: result.meta });
   } catch (err) {
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to list proposals' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Failed to list proposals',
+      },
       { status: 500 },
     );
   }

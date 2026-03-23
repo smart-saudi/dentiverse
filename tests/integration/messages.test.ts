@@ -52,7 +52,11 @@ const mockMessage = {
   created_at: '2026-03-23T00:00:00Z',
 };
 
-function buildRequest(body: unknown, method = 'POST', url = 'http://localhost:3000/api/v1/cases/c-1/messages'): NextRequest {
+function buildRequest(
+  body: unknown,
+  method = 'POST',
+  url = 'http://localhost:3000/api/v1/cases/c-1/messages',
+): NextRequest {
   if (method === 'GET') return new NextRequest(url, { method });
   return new NextRequest(url, {
     method,
@@ -84,7 +88,10 @@ describe('POST /api/v1/cases/[id]/messages', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { POST } = await import('@/app/api/v1/cases/[id]/messages/route');
     const req = buildRequest({ content: 'Hello' });
@@ -122,7 +129,10 @@ describe('GET /api/v1/cases/[id]/messages', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { GET } = await import('@/app/api/v1/cases/[id]/messages/route');
     const req = buildRequest(null, 'GET');

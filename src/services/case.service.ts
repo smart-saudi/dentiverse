@@ -1,7 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/lib/database.types';
-import type { CreateCaseInput, UpdateCaseInput, CaseListQuery } from '@/lib/validations/case';
+import type {
+  CreateCaseInput,
+  UpdateCaseInput,
+  CaseListQuery,
+} from '@/lib/validations/case';
 
 type Client = SupabaseClient<Database>;
 type CaseRow = Database['public']['Tables']['cases']['Row'];
@@ -124,11 +128,7 @@ export class CaseService {
    * @returns The updated case row
    * @throws Error if cancellation fails
    */
-  async cancelCase(
-    client: Client,
-    caseId: string,
-    reason?: string,
-  ): Promise<CaseRow> {
+  async cancelCase(client: Client, caseId: string, reason?: string): Promise<CaseRow> {
     const { data, error } = await client
       .from('cases')
       .update({
@@ -159,9 +159,7 @@ export class CaseService {
     data: CaseRow[];
     meta: { page: number; per_page: number; total: number; total_pages: number };
   }> {
-    let builder = client
-      .from('cases')
-      .select('*', { count: 'exact' });
+    let builder = client.from('cases').select('*', { count: 'exact' });
 
     if (query.status) {
       builder = builder.eq('status', query.status);

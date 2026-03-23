@@ -19,9 +19,15 @@ interface RouteContext {
  */
 export async function POST(_req: NextRequest, context: RouteContext) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+      { status: 401 },
+    );
   }
 
   const { id: proposalId } = await context.params;
@@ -35,7 +41,10 @@ export async function POST(_req: NextRequest, context: RouteContext) {
       .single();
 
     if (proposalError || !proposal) {
-      return NextResponse.json({ code: 'NOT_FOUND', message: 'Proposal not found' }, { status: 404 });
+      return NextResponse.json(
+        { code: 'NOT_FOUND', message: 'Proposal not found' },
+        { status: 404 },
+      );
     }
 
     const { data: caseRow, error: caseError } = await supabase
@@ -45,18 +54,27 @@ export async function POST(_req: NextRequest, context: RouteContext) {
       .single();
 
     if (caseError || !caseRow) {
-      return NextResponse.json({ code: 'NOT_FOUND', message: 'Case not found' }, { status: 404 });
+      return NextResponse.json(
+        { code: 'NOT_FOUND', message: 'Case not found' },
+        { status: 404 },
+      );
     }
 
     if (caseRow.client_id !== user.id) {
-      return NextResponse.json({ code: 'FORBIDDEN', message: 'Only the case owner can accept proposals' }, { status: 403 });
+      return NextResponse.json(
+        { code: 'FORBIDDEN', message: 'Only the case owner can accept proposals' },
+        { status: 403 },
+      );
     }
 
     const accepted = await proposalService.acceptProposal(supabase, proposalId);
     return NextResponse.json({ data: accepted });
   } catch (err) {
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to accept proposal' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Failed to accept proposal',
+      },
       { status: 500 },
     );
   }

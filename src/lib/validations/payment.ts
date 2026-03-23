@@ -1,11 +1,6 @@
 import { z } from 'zod';
 
-export const PAYMENT_STATUSES = [
-  'PENDING',
-  'HELD',
-  'RELEASED',
-  'REFUNDED',
-] as const;
+export const PAYMENT_STATUSES = ['PENDING', 'HELD', 'RELEASED', 'REFUNDED'] as const;
 
 /**
  * Schema for creating a payment (hold in escrow).

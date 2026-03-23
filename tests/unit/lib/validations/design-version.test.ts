@@ -24,7 +24,10 @@ describe('createDesignVersionSchema', () => {
   });
 
   it('should validate file URLs are valid URLs', () => {
-    const result = createDesignVersionSchema.safeParse({ ...validInput, file_urls: ['not-a-url'] });
+    const result = createDesignVersionSchema.safeParse({
+      ...validInput,
+      file_urls: ['not-a-url'],
+    });
     expect(result.success).toBe(false);
   });
 

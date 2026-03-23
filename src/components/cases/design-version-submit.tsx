@@ -75,25 +75,27 @@ export function DesignVersionSubmit({ caseId, onSubmitted }: DesignVersionSubmit
       </CardHeader>
       <CardContent className="space-y-4">
         {error && (
-          <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <div
+            role="alert"
+            className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+          >
             {error}
           </div>
         )}
 
-        <FileUploader
-          bucket="design-files"
-          onFilesUploaded={setFiles}
-        />
+        <FileUploader bucket="design-files" onFilesUploaded={setFiles} />
 
         <div className="space-y-2">
-          <label htmlFor="version-notes" className="text-sm font-medium">Notes</label>
+          <label htmlFor="version-notes" className="text-sm font-medium">
+            Notes
+          </label>
           <textarea
             id="version-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Describe what changed in this version..."
             rows={3}
-            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="border-input bg-background flex w-full rounded-md border px-3 py-2 text-sm"
           />
         </div>
       </CardContent>

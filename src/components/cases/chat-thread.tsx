@@ -60,7 +60,10 @@ export function ChatThread({ caseId, currentUserId }: ChatThreadProps) {
 
   if (error) {
     return (
-      <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+      <div
+        role="alert"
+        className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+      >
         {error}
       </div>
     );
@@ -84,7 +87,9 @@ export function ChatThread({ caseId, currentUserId }: ChatThreadProps) {
 
         {!isLoading && messages.length === 0 && (
           <div className="flex flex-1 items-center justify-center py-8">
-            <p className="text-sm text-muted-foreground">No messages yet. Start the conversation!</p>
+            <p className="text-muted-foreground text-sm">
+              No messages yet. Start the conversation!
+            </p>
           </div>
         )}
 
@@ -98,18 +103,21 @@ export function ChatThread({ caseId, currentUserId }: ChatThreadProps) {
               <div
                 className={cn(
                   'max-w-[70%] rounded-lg px-3 py-2 text-sm',
-                  isOwn
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted',
+                  isOwn ? 'bg-primary text-primary-foreground' : 'bg-muted',
                   msg.is_system && 'bg-yellow-50 text-yellow-800 italic',
                 )}
               >
-                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                <span className={cn(
-                  'mt-1 block text-[10px]',
-                  isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground',
-                )}>
-                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <p className="break-words whitespace-pre-wrap">{msg.content}</p>
+                <span
+                  className={cn(
+                    'mt-1 block text-[10px]',
+                    isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground',
+                  )}
+                >
+                  {new Date(msg.created_at).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
                 </span>
               </div>
             </div>

@@ -1,7 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/lib/database.types';
-import type { RegisterInput, LoginInput, ForgotPasswordInput } from '@/lib/validations/auth';
+import type {
+  RegisterInput,
+  LoginInput,
+  ForgotPasswordInput,
+} from '@/lib/validations/auth';
 
 type Client = SupabaseClient<Database>;
 
@@ -18,10 +22,7 @@ export class AuthService {
    * @returns The created auth user and session
    * @throws Error if sign-up or user-row insert fails
    */
-  async register(
-    client: Client,
-    input: RegisterInput,
-  ) {
+  async register(client: Client, input: RegisterInput) {
     const { data, error } = await client.auth.signUp({
       email: input.email,
       password: input.password,

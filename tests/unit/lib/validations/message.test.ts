@@ -45,7 +45,10 @@ describe('createMessageSchema', () => {
 
   it('should reject more than 10 attachments', () => {
     const urls = Array.from({ length: 11 }, (_, i) => `https://example.com/file${i}.stl`);
-    const result = createMessageSchema.safeParse({ content: 'Hello', attachment_urls: urls });
+    const result = createMessageSchema.safeParse({
+      content: 'Hello',
+      attachment_urls: urls,
+    });
     expect(result.success).toBe(false);
   });
 });

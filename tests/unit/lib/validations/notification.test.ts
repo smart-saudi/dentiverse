@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 
-import { createNotificationSchema, notificationListQuerySchema } from '@/lib/validations/notification';
+import {
+  createNotificationSchema,
+  notificationListQuerySchema,
+} from '@/lib/validations/notification';
 
 describe('createNotificationSchema', () => {
   it('should accept valid notification', () => {
@@ -76,9 +79,14 @@ describe('createNotificationSchema', () => {
 
   it('should accept all valid notification types', () => {
     const types = [
-      'NEW_PROPOSAL', 'DESIGN_SUBMITTED', 'REVISION_REQUESTED',
-      'PAYMENT_RELEASED', 'NEW_MESSAGE', 'CASE_ASSIGNED',
-      'CASE_COMPLETED', 'REVIEW_RECEIVED',
+      'NEW_PROPOSAL',
+      'DESIGN_SUBMITTED',
+      'REVISION_REQUESTED',
+      'PAYMENT_RELEASED',
+      'NEW_MESSAGE',
+      'CASE_ASSIGNED',
+      'CASE_COMPLETED',
+      'REVIEW_RECEIVED',
     ];
     for (const type of types) {
       const result = createNotificationSchema.safeParse({

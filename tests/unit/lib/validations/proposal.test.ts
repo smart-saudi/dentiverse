@@ -39,7 +39,10 @@ describe('createProposalSchema', () => {
   });
 
   it('should trim message', () => {
-    const result = createProposalSchema.safeParse({ ...validInput, message: '  trimmed  ' });
+    const result = createProposalSchema.safeParse({
+      ...validInput,
+      message: '  trimmed  ',
+    });
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.message).toBe('trimmed');
@@ -47,7 +50,10 @@ describe('createProposalSchema', () => {
   });
 
   it('should reject message longer than 2000 characters', () => {
-    const result = createProposalSchema.safeParse({ ...validInput, message: 'x'.repeat(2001) });
+    const result = createProposalSchema.safeParse({
+      ...validInput,
+      message: 'x'.repeat(2001),
+    });
     expect(result.success).toBe(false);
   });
 

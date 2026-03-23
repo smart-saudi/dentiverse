@@ -73,7 +73,9 @@ export default function NotificationsPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
-          <p className="text-muted-foreground">Stay up to date with your cases and activity</p>
+          <p className="text-muted-foreground">
+            Stay up to date with your cases and activity
+          </p>
         </div>
         <Button variant="outline" size="sm" onClick={markAllAsRead}>
           <CheckCheck className="mr-2 h-4 w-4" />
@@ -101,7 +103,10 @@ export default function NotificationsPage() {
 
       {/* Error */}
       {error && (
-        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+        >
           {error}
         </div>
       )}
@@ -118,7 +123,7 @@ export default function NotificationsPage() {
       {/* Empty */}
       {!isLoading && !error && notifications.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <Bell className="mb-2 h-8 w-8 text-muted-foreground" />
+          <Bell className="text-muted-foreground mb-2 h-8 w-8" />
           <p className="text-muted-foreground">
             {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
           </p>
@@ -136,8 +141,8 @@ export default function NotificationsPage() {
                 !notif.is_read && 'bg-primary/5 border-primary/20',
               )}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                <Bell className="h-5 w-5 text-muted-foreground" />
+              <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
+                <Bell className="text-muted-foreground h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
@@ -147,14 +152,12 @@ export default function NotificationsPage() {
                   <Badge variant="outline" className="text-[10px]">
                     {TYPE_LABELS[notif.type] ?? notif.type}
                   </Badge>
-                  {!notif.is_read && (
-                    <span className="h-2 w-2 rounded-full bg-primary" />
-                  )}
+                  {!notif.is_read && <span className="bg-primary h-2 w-2 rounded-full" />}
                 </div>
                 {notif.body && (
-                  <p className="mt-1 text-sm text-muted-foreground">{notif.body}</p>
+                  <p className="text-muted-foreground mt-1 text-sm">{notif.body}</p>
                 )}
-                <span className="mt-1 block text-xs text-muted-foreground">
+                <span className="text-muted-foreground mt-1 block text-xs">
                   {new Date(notif.created_at).toLocaleString()}
                 </span>
               </div>
@@ -185,7 +188,7 @@ export default function NotificationsPage() {
           >
             Previous
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             Page {meta.page} of {meta.total_pages}
           </span>
           <Button

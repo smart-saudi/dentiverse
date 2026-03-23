@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const ALLOWED_TYPES = new Set([
-  'application/octet-stream',         // STL binary
-  'model/stl',                         // STL
-  'model/obj',                         // OBJ
-  'application/x-ply',                // PLY
+  'application/octet-stream', // STL binary
+  'model/stl', // STL
+  'model/obj', // OBJ
+  'application/x-ply', // PLY
   'image/png',
   'image/jpeg',
   'image/webp',
@@ -16,7 +16,12 @@ const ALLOWED_TYPES = new Set([
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 
-const ALLOWED_BUCKETS = new Set(['dental-scans', 'design-files', 'avatars', 'portfolios']);
+const ALLOWED_BUCKETS = new Set([
+  'dental-scans',
+  'design-files',
+  'avatars',
+  'portfolios',
+]);
 
 /**
  * POST /api/v1/files — Upload a file to Supabase Storage.
@@ -29,9 +34,15 @@ const ALLOWED_BUCKETS = new Set(['dental-scans', 'design-files', 'avatars', 'por
  */
 export async function POST(req: NextRequest) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+      { status: 401 },
+    );
   }
 
   const formData = await req.formData();
@@ -40,23 +51,36 @@ export async function POST(req: NextRequest) {
 
   if (!ALLOWED_BUCKETS.has(bucket)) {
     return NextResponse.json(
-      { code: 'VALIDATION_ERROR', message: `Invalid bucket. Allowed: ${[...ALLOWED_BUCKETS].join(', ')}` },
+      {
+        code: 'VALIDATION_ERROR',
+        message: `Invalid bucket. Allowed: ${[...ALLOWED_BUCKETS].join(', ')}`,
+      },
       { status: 400 },
     );
   }
 
   if (!file) {
-    return NextResponse.json({ code: 'VALIDATION_ERROR', message: 'No file provided' }, { status: 400 });
-  }
-
-  if (file.size > MAX_FILE_SIZE) {
     return NextResponse.json(
-      { code: 'VALIDATION_ERROR', message: `File too large. Max size is ${MAX_FILE_SIZE / 1024 / 1024}MB` },
+      { code: 'VALIDATION_ERROR', message: 'No file provided' },
       { status: 400 },
     );
   }
 
-  if (!ALLOWED_TYPES.has(file.type) && !file.name.endsWith('.stl') && !file.name.endsWith('.obj')) {
+  if (file.size > MAX_FILE_SIZE) {
+    return NextResponse.json(
+      {
+        code: 'VALIDATION_ERROR',
+        message: `File too large. Max size is ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+      },
+      { status: 400 },
+    );
+  }
+
+  if (
+    !ALLOWED_TYPES.has(file.type) &&
+    !file.name.endsWith('.stl') &&
+    !file.name.endsWith('.obj')
+  ) {
     return NextResponse.json(
       { code: 'VALIDATION_ERROR', message: 'File type not allowed' },
       { status: 400 },
@@ -78,19 +102,25 @@ export async function POST(req: NextRequest) {
 
     const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
 
-    return NextResponse.json({
-      data: {
-        url: urlData.publicUrl,
-        path,
-        bucket,
-        name: file.name,
-        size: file.size,
-        type: file.type,
+    return NextResponse.json(
+      {
+        data: {
+          url: urlData.publicUrl,
+          path,
+          bucket,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        },
       },
-    }, { status: 201 });
+      { status: 201 },
+    );
   } catch (err) {
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Upload failed' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Upload failed',
+      },
       { status: 500 },
     );
   }

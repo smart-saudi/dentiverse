@@ -211,9 +211,7 @@ describe('Auth API Routes', () => {
         error: null,
       });
 
-      const { POST } = await import(
-        '@/app/api/v1/auth/forgot-password/route'
-      );
+      const { POST } = await import('@/app/api/v1/auth/forgot-password/route');
       const req = buildRequest({ email: 'anyone@example.com' });
       const res = await POST(req);
 
@@ -221,9 +219,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 400 on invalid email', async () => {
-      const { POST } = await import(
-        '@/app/api/v1/auth/forgot-password/route'
-      );
+      const { POST } = await import('@/app/api/v1/auth/forgot-password/route');
       const req = buildRequest({ email: 'not-valid' });
       const res = await POST(req);
 
@@ -239,9 +235,7 @@ describe('Auth API Routes', () => {
         error: null,
       });
 
-      const { POST } = await import(
-        '@/app/api/v1/auth/reset-password/route'
-      );
+      const { POST } = await import('@/app/api/v1/auth/reset-password/route');
       const req = buildRequest({
         token: 'valid-token',
         password: 'NewSecure1!',
@@ -252,9 +246,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 400 on weak password', async () => {
-      const { POST } = await import(
-        '@/app/api/v1/auth/reset-password/route'
-      );
+      const { POST } = await import('@/app/api/v1/auth/reset-password/route');
       const req = buildRequest({ token: 'valid-token', password: 'weak' });
       const res = await POST(req);
 
@@ -262,9 +254,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 400 on missing token', async () => {
-      const { POST } = await import(
-        '@/app/api/v1/auth/reset-password/route'
-      );
+      const { POST } = await import('@/app/api/v1/auth/reset-password/route');
       const req = buildRequest({ password: 'NewSecure1!' });
       const res = await POST(req);
 
@@ -277,9 +267,7 @@ describe('Auth API Routes', () => {
         error: { message: 'Token expired' },
       });
 
-      const { POST } = await import(
-        '@/app/api/v1/auth/reset-password/route'
-      );
+      const { POST } = await import('@/app/api/v1/auth/reset-password/route');
       const req = buildRequest({
         token: 'expired-token',
         password: 'NewSecure1!',

@@ -77,7 +77,10 @@ export default function DesignersPage() {
 
       {/* Error */}
       {error && (
-        <div role="alert" className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="bg-destructive/10 text-destructive rounded-md px-4 py-3 text-sm"
+        >
           {error}
         </div>
       )}
@@ -94,7 +97,9 @@ export default function DesignersPage() {
       {/* Empty state */}
       {!isLoading && !error && designers.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <p className="text-muted-foreground">No designers found matching your criteria</p>
+          <p className="text-muted-foreground">
+            No designers found matching your criteria
+          </p>
         </div>
       )}
 
@@ -118,7 +123,7 @@ export default function DesignersPage() {
           >
             Previous
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             Page {page} of {totalPages}
           </span>
           <Button

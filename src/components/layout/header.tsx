@@ -35,7 +35,7 @@ export function Header({ className }: HeaderProps) {
   return (
     <header
       className={cn(
-        'flex h-16 items-center gap-4 border-b border-border px-4 md:px-6',
+        'border-border flex h-16 items-center gap-4 border-b px-4 md:px-6',
         className,
       )}
     >
@@ -53,7 +53,7 @@ export function Header({ className }: HeaderProps) {
       {/* Search */}
       <div className="flex-1">
         <div className="relative max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
           <Input
             type="search"
             placeholder="Search cases, designers..."

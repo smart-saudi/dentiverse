@@ -8,7 +8,11 @@ interface UseRealtimeOptions {
   table: string;
   filter?: string;
   event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*';
-  onEvent: (payload: { new: Record<string, unknown>; old: Record<string, unknown>; eventType: string }) => void;
+  onEvent: (payload: {
+    new: Record<string, unknown>;
+    old: Record<string, unknown>;
+    eventType: string;
+  }) => void;
 }
 
 /**
@@ -34,7 +38,11 @@ export function useRealtime({ table, filter, event = '*', onEvent }: UseRealtime
           table,
           ...(filter ? { filter } : {}),
         },
-        (payload: { new: Record<string, unknown>; old: Record<string, unknown>; eventType: string }) => {
+        (payload: {
+          new: Record<string, unknown>;
+          old: Record<string, unknown>;
+          eventType: string;
+        }) => {
           callbackRef.current({
             new: payload.new,
             old: payload.old,

@@ -47,16 +47,15 @@ export function Sidebar({ className }: SidebarProps) {
 
   return (
     <aside className={cn('flex h-full flex-col', className)}>
-      <div className="flex h-16 items-center border-b border-border px-6">
-        <Link href="/" className="font-heading text-lg font-bold text-brand-600">
+      <div className="border-border flex h-16 items-center border-b px-6">
+        <Link href="/" className="font-heading text-brand-600 text-lg font-bold">
           DentiVerse
         </Link>
       </div>
 
       <nav className="flex-1 space-y-1 p-4" aria-label="Main navigation">
         {navItems.map(({ label, href, icon: Icon }) => {
-          const isActive =
-            href === '/' ? pathname === '/' : pathname.startsWith(href);
+          const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
 
           return (
             <Link

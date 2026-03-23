@@ -14,9 +14,15 @@ const designerService = new DesignerService();
  */
 export async function GET(_req: NextRequest) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+      { status: 401 },
+    );
   }
 
   try {
@@ -24,10 +30,16 @@ export async function GET(_req: NextRequest) {
     return NextResponse.json({ data: profile });
   } catch (err) {
     if (err instanceof Error && err.message.includes('not found')) {
-      return NextResponse.json({ code: 'NOT_FOUND', message: 'Designer profile not found' }, { status: 404 });
+      return NextResponse.json(
+        { code: 'NOT_FOUND', message: 'Designer profile not found' },
+        { status: 404 },
+      );
     }
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to fetch profile' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Failed to fetch profile',
+      },
       { status: 500 },
     );
   }
@@ -41,16 +53,26 @@ export async function GET(_req: NextRequest) {
  */
 export async function PATCH(req: NextRequest) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+      { status: 401 },
+    );
   }
 
   const body = await req.json();
   const parsed = updateDesignerProfileSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten().fieldErrors },
+      {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid input',
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }
@@ -60,7 +82,10 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ data: profile });
   } catch (err) {
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to update profile' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Failed to update profile',
+      },
       { status: 500 },
     );
   }

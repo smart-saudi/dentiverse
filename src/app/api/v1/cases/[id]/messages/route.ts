@@ -19,9 +19,15 @@ interface RouteContext {
  */
 export async function POST(req: NextRequest, context: RouteContext) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+      { status: 401 },
+    );
   }
 
   const { id: caseId } = await context.params;
@@ -30,17 +36,29 @@ export async function POST(req: NextRequest, context: RouteContext) {
   const parsed = createMessageSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten().fieldErrors },
+      {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid input',
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }
 
   try {
-    const message = await messageService.sendMessage(supabase, caseId, user.id, parsed.data);
+    const message = await messageService.sendMessage(
+      supabase,
+      caseId,
+      user.id,
+      parsed.data,
+    );
     return NextResponse.json({ data: message }, { status: 201 });
   } catch (err) {
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to send message' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Failed to send message',
+      },
       { status: 500 },
     );
   }
@@ -55,9 +73,15 @@ export async function POST(req: NextRequest, context: RouteContext) {
  */
 export async function GET(req: NextRequest, context: RouteContext) {
   const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated' },
+      { status: 401 },
+    );
   }
 
   const { id: caseId } = await context.params;
@@ -66,7 +90,11 @@ export async function GET(req: NextRequest, context: RouteContext) {
   const parsed = messageListQuerySchema.safeParse(params);
   if (!parsed.success) {
     return NextResponse.json(
-      { code: 'VALIDATION_ERROR', message: 'Invalid query', details: parsed.error.flatten().fieldErrors },
+      {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid query',
+        details: parsed.error.flatten().fieldErrors,
+      },
       { status: 400 },
     );
   }
@@ -78,7 +106,10 @@ export async function GET(req: NextRequest, context: RouteContext) {
     return NextResponse.json({ data: result.data, meta: result.meta });
   } catch (err) {
     return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to list messages' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: err instanceof Error ? err.message : 'Failed to list messages',
+      },
       { status: 500 },
     );
   }

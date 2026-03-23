@@ -22,17 +22,13 @@ describe('Supabase Server Client', () => {
   });
 
   it('should export a createServerSupabaseClient function', async () => {
-    const { createServerSupabaseClient } = await import(
-      '@/lib/supabase/server'
-    );
+    const { createServerSupabaseClient } = await import('@/lib/supabase/server');
     expect(createServerSupabaseClient).toBeDefined();
     expect(typeof createServerSupabaseClient).toBe('function');
   });
 
   it('should return a Supabase client instance', async () => {
-    const { createServerSupabaseClient } = await import(
-      '@/lib/supabase/server'
-    );
+    const { createServerSupabaseClient } = await import('@/lib/supabase/server');
     const client = await createServerSupabaseClient();
     expect(client).toBeDefined();
     expect(client.auth).toBeDefined();
@@ -41,9 +37,7 @@ describe('Supabase Server Client', () => {
 
   it('should call createServerClient from @supabase/ssr', async () => {
     const { createServerClient } = await import('@supabase/ssr');
-    const { createServerSupabaseClient } = await import(
-      '@/lib/supabase/server'
-    );
+    const { createServerSupabaseClient } = await import('@/lib/supabase/server');
     await createServerSupabaseClient();
     expect(createServerClient).toHaveBeenCalledWith(
       expect.any(String),

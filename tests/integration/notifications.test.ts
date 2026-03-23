@@ -83,7 +83,10 @@ describe('GET /api/v1/notifications', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { GET } = await import('@/app/api/v1/notifications/route');
     const req = new NextRequest('http://localhost:3000/api/v1/notifications');
@@ -98,10 +101,15 @@ describe('POST /api/v1/notifications/[id]/read', () => {
 
   it('should mark notification as read', async () => {
     mockAuth.getUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-    mockSingleFn.mockResolvedValue({ data: { ...mockNotification, is_read: true }, error: null });
+    mockSingleFn.mockResolvedValue({
+      data: { ...mockNotification, is_read: true },
+      error: null,
+    });
 
     const { POST } = await import('@/app/api/v1/notifications/[id]/read/route');
-    const req = new NextRequest('http://localhost:3000/api/v1/notifications/n-1/read', { method: 'POST' });
+    const req = new NextRequest('http://localhost:3000/api/v1/notifications/n-1/read', {
+      method: 'POST',
+    });
     const res = await POST(req, { params: Promise.resolve({ id: 'n-1' }) });
     const json = await res.json();
 
@@ -110,10 +118,15 @@ describe('POST /api/v1/notifications/[id]/read', () => {
   });
 
   it('should return 401 for unauthenticated users', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: null }, error: { message: 'No session' } });
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'No session' },
+    });
 
     const { POST } = await import('@/app/api/v1/notifications/[id]/read/route');
-    const req = new NextRequest('http://localhost:3000/api/v1/notifications/n-1/read', { method: 'POST' });
+    const req = new NextRequest('http://localhost:3000/api/v1/notifications/n-1/read', {
+      method: 'POST',
+    });
     const res = await POST(req, { params: Promise.resolve({ id: 'n-1' }) });
 
     expect(res.status).toBe(401);
@@ -127,7 +140,9 @@ describe('POST /api/v1/notifications/read-all', () => {
     mockAuth.getUser.mockResolvedValue({ data: { user: mockUser }, error: null });
 
     const { POST } = await import('@/app/api/v1/notifications/read-all/route');
-    const req = new NextRequest('http://localhost:3000/api/v1/notifications/read-all', { method: 'POST' });
+    const req = new NextRequest('http://localhost:3000/api/v1/notifications/read-all', {
+      method: 'POST',
+    });
     const res = await POST(req);
     const json = await res.json();
 
