@@ -1,4 +1,6 @@
-import type { UserRole } from '@/lib/constants';
+import type { Database } from '@/lib/database.types';
+
+type UserRole = Database['public']['Enums']['user_role'];
 
 /** User profile as returned from the API */
 export interface User {

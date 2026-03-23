@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  typedRoutes: true,
+  // typedRoutes: true, // Disabled — causes issues with dynamic hrefs
 };
 
 export default nextConfig;

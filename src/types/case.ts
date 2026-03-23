@@ -1,4 +1,7 @@
-import type { CaseStatus, CaseType } from '@/lib/constants';
+import type { CASE_STATUSES, CASE_TYPES } from '@/lib/validations/case';
+
+type CaseStatus = (typeof CASE_STATUSES)[number];
+type CaseType = (typeof CASE_TYPES)[number];
 
 /** Dental case as returned from the API */
 export interface Case {

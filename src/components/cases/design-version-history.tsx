@@ -95,7 +95,7 @@ export function DesignVersionHistory({ caseId, canReview, canSubmit }: DesignVer
   return (
     <div className="space-y-4">
       {versions.map((version) => {
-        const config = STATUS_CONFIG[version.status] ?? STATUS_CONFIG.SUBMITTED;
+        const config = STATUS_CONFIG[version.status] ?? { icon: Clock, variant: 'outline' as const, label: 'Submitted' };
         const StatusIcon = config.icon;
         const fileUrls = (version.file_urls as string[]) ?? [];
         const stlFile = fileUrls.find((u) => u.endsWith('.stl') || u.endsWith('.obj'));

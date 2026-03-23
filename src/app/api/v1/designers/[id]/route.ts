@@ -16,7 +16,7 @@ interface RouteContext {
  * @param context - Route context with designer profile ID
  * @returns The designer profile
  */
-export async function GET(req: NextRequest, context: RouteContext) {
+export async function GET(_req: NextRequest, context: RouteContext) {
   const supabase = await createServerSupabaseClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

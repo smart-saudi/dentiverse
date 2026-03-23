@@ -1,4 +1,6 @@
-import type { PaymentStatus } from '@/lib/constants';
+import type { PAYMENT_STATUSES } from '@/lib/validations/payment';
+
+type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 /** Payment record for a case */
 export interface Payment {

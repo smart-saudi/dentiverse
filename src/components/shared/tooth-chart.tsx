@@ -14,7 +14,7 @@ const QUADRANTS = [
   { id: 2, teeth: [21, 22, 23, 24, 25, 26, 27, 28], label: 'Upper Left' },
   { id: 3, teeth: [38, 37, 36, 35, 34, 33, 32, 31], label: 'Lower Right' },
   { id: 4, teeth: [41, 42, 43, 44, 45, 46, 47, 48], label: 'Lower Left' },
-];
+] as const;
 
 interface ToothChartProps {
   /** Currently selected tooth numbers. */

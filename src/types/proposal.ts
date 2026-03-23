@@ -1,4 +1,6 @@
-import type { ProposalStatus } from '@/lib/constants';
+import type { PROPOSAL_STATUSES } from '@/lib/validations/proposal';
+
+type ProposalStatus = (typeof PROPOSAL_STATUSES)[number];
 
 /** Proposal submitted by a designer for a case */
 export interface Proposal {

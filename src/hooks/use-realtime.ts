@@ -24,8 +24,8 @@ export function useRealtime({ table, filter, event = '*', onEvent }: UseRealtime
     const supabase = createClient();
     const channelName = `realtime-${table}-${filter ?? 'all'}`;
 
-    const channel = supabase
-      .channel(channelName)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const channel = (supabase.channel(channelName) as any)
       .on(
         'postgres_changes',
         {
@@ -34,10 +34,10 @@ export function useRealtime({ table, filter, event = '*', onEvent }: UseRealtime
           table,
           ...(filter ? { filter } : {}),
         },
-        (payload) => {
+        (payload: { new: Record<string, unknown>; old: Record<string, unknown>; eventType: string }) => {
           callbackRef.current({
-            new: payload.new as Record<string, unknown>,
-            old: payload.old as Record<string, unknown>,
+            new: payload.new,
+            old: payload.old,
             eventType: payload.eventType,
           });
         },

@@ -77,7 +77,7 @@ export function StlViewer({ url, className }: StlViewerProps) {
     const projected: number[] = [];
 
     for (let i = 0; i < vertices.length; i += 3) {
-      const x = vertices[i], y = vertices[i + 1], z = vertices[i + 2];
+      const x = vertices[i]!, y = vertices[i + 1]!, z = vertices[i + 2]!;
       // Rotate Y then X
       const x1 = x * cosY + z * sinY;
       const z1 = -x * sinY + z * cosY;
@@ -103,12 +103,12 @@ export function StlViewer({ url, className }: StlViewerProps) {
     ctx.beginPath();
 
     for (let i = 0; i < projected.length; i += 6) {
-      const x0 = w / 2 + (projected[i] - cx) * scale;
-      const y0 = h / 2 - (projected[i + 1] - cy) * scale;
-      const x1 = w / 2 + (projected[i + 2] - cx) * scale;
-      const y1 = h / 2 - (projected[i + 3] - cy) * scale;
-      const x2 = w / 2 + (projected[i + 4] - cx) * scale;
-      const y2 = h / 2 - (projected[i + 5] - cy) * scale;
+      const x0 = w / 2 + (projected[i]! - cx) * scale;
+      const y0 = h / 2 - (projected[i + 1]! - cy) * scale;
+      const x1 = w / 2 + (projected[i + 2]! - cx) * scale;
+      const y1 = h / 2 - (projected[i + 3]! - cy) * scale;
+      const x2 = w / 2 + (projected[i + 4]! - cx) * scale;
+      const y2 = h / 2 - (projected[i + 5]! - cy) * scale;
 
       ctx.moveTo(x0, y0);
       ctx.lineTo(x1, y1);
