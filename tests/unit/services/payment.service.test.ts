@@ -42,11 +42,27 @@ describe('PaymentService', () => {
         fee_percentage: 12,
         status: 'PENDING',
       };
+
+      // Proposal cross-validation chain
+      const proposalSingle = vi.fn().mockResolvedValue({
+        data: { price: 100, status: 'ACCEPTED', designer_id: 'u-2', case_id: 'c-1' },
+        error: null,
+      });
+      const proposalEq3 = vi.fn().mockReturnValue({ single: proposalSingle });
+      const proposalEq2 = vi.fn().mockReturnValue({ eq: proposalEq3 });
+      const proposalEq1 = vi.fn().mockReturnValue({ eq: proposalEq2 });
+      const proposalSelect = vi.fn().mockReturnValue({ eq: proposalEq1 });
+
+      // Payment insert chain
+      const paymentSingle = vi.fn().mockResolvedValue({ data: mockPayment, error: null });
+      const paymentSelectAfterInsert = vi.fn().mockReturnValue({ single: paymentSingle });
+      const insert = vi.fn().mockReturnValue({ select: paymentSelectAfterInsert });
+
       const client = createMockClient();
-      const single = vi.fn().mockResolvedValue({ data: mockPayment, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      client.from.mockReturnValue({ insert });
+      client.from.mockImplementation((table: string) => {
+        if (table === 'proposals') return { select: proposalSelect };
+        return { insert };
+      });
 
       const result = await service.createPayment(client, 'u-1', input);
       expect(result.status).toBe('PENDING');

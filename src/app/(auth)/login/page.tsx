@@ -32,7 +32,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const rawRedirect = searchParams.get('redirectTo') ?? '/';
   // Prevent open redirect: only allow relative paths
-  const redirectTo = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
+  const redirectTo =
+    rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
