@@ -71,7 +71,7 @@ dentiverse/
 │   │   │
 │   │   ├── (dashboard)/               # Authenticated route group (with sidebar)
 │   │   │   ├── layout.tsx             # Dashboard shell (sidebar + header)
-│   │   │   ├── page.tsx               # Dashboard home
+│   │   │   ├── dashboard/page.tsx     # Dashboard home (/dashboard)
 │   │   │   ├── cases/
 │   │   │   │   ├── page.tsx           # Case list
 │   │   │   │   ├── new/page.tsx       # Create case form

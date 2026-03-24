@@ -49,6 +49,7 @@ Before any sensitive manual intervention:
 4. Smoke test:
    - landing page (`/`)
    - login/register
+   - authenticated redirect to `/dashboard`
    - designer browse shell (`/designers`)
    - at least one data-backed route, for example `/api/v1/designers`
    - signed file access for authenticated users
@@ -69,7 +70,7 @@ Preview rehearsal notes:
 2. Watch the push-triggered `Deploy` workflow.
 3. Confirm `Deploy Production` succeeds.
 4. Smoke test production:
-   - auth
+   - auth, including redirect to `/dashboard`
    - case list/create flow
    - payment create-intent route
    - signed URL route
