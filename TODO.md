@@ -188,7 +188,8 @@ _(Completed tasks â€” move here when finished with date)_
 | 2026-03-24 | #11     | Gap map remediation â€” closed API contract drift. Implemented 8 missing OpenAPI endpoints: approve design, request revision, signed-url, create-intent, dashboard stats, auth refresh, public user profile, mark-messages-read. Added review system (validation, service, 2 routes). All checks green (294 tests).                                                                               | Audit log writes, frontend stack (Three.js/Uppy)                |
 | 2026-03-24 | #12     | Audit log writes â€” AuditService with admin client, extractRequestMeta helper, audit writes on 10 critical actions (case publish/cancel/approve/revision, proposal accept/reject, payment create/intent, review create, design version submit). 6 new tests, 300 total passing.                                                                                                                  | Frontend stack (Three.js STL viewer, Uppy file upload)          |
 | 2026-03-24 | #13     | Verified `main` regressions were already resolved (`npm.cmd run check`, payment tests, full suite all green), then refined GAP-2 after PR #2 by upgrading the STL viewer controls/loading flow and marking the backlog accordingly.                                                                                                                                                               | GAP-3 Uppy uploader                                             |
-| 2026-03-24 | #14     | GAP-3 frontend stack maturity complete. Installed Uppy packages, replaced the custom drag-drop uploader with an inline Uppy Dashboard, added root Uppy styles, and kept uploads wired to the existing `/api/v1/files` flow with optional Tus support for future resumable endpoints. All checks green, 300 tests passing.                                                                         | GAP-4 integration tests                                         |
+
+| 2026-03-24 | #15 | GAP-4 integration coverage complete. Added 6 focused integration test files covering auth refresh, case approve/request-revision, files signed-url, messages read, payment create-intent, and users dashboard/profile routes. Full repo health is green at 313 tests passing. | Monitor remaining file-reference follow-up |
 
 ---
 
@@ -199,7 +200,7 @@ _(Prioritized backlog â€” remaining gaps)_
 - [x] **GAP-1** Audit log writes â€” AuditService + 10 critical action audit points â€” 2026-03-24
 - [x] **GAP-2** Frontend stack maturity â€” installed `three`, `@react-three/fiber`, `@react-three/drei`; upgraded `stl-viewer.tsx` to React Three Fiber + STLLoader â€” 2026-03-24
 - [x] **GAP-3** Frontend stack maturity â€” installed `@uppy/core`, `@uppy/dashboard`, `@uppy/tus`; upgraded `file-uploader.tsx` to Uppy.js with Dashboard UI and optional Tus support â€” 2026-03-24
-- [ ] **GAP-4** Integration tests for new API routes (approve, request-revision, signed-url, create-intent, dashboard, auth/refresh, users/[id], messages/read)
+- [x] **GAP-4** Integration tests for new API routes (approve, request-revision, signed-url, create-intent, dashboard, auth/refresh, users/[id], messages/read) â€” 2026-03-24
 
 ---
 
@@ -218,4 +219,5 @@ _(Prioritized backlog â€” remaining gaps)_
 | 7   | Issue    | npm not available in worktree sandbox   | Hand-craft components instead of `npx shadcn`                               |
 | 8   | Issue    | Merge conflicts on add/add              | Main repo has placeholder files from M0-1; resolve by taking branch version |
 | 9   | Learning | Tailwind CSS v4 uses `@theme` directive | Use CSS custom properties in globals.css, not tailwind.config.js theme      |
-| 10  | Learning | Next.js 15 async params                 | Dynamic route params are `Promise<{id: string}>`, must `await`              |
+
+| 11 | Issue | Uploaded design files still flow through expiring signed URLs | Follow up by storing stable bucket/path references and minting signed URLs on read |
