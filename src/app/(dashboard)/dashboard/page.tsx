@@ -16,7 +16,7 @@ export default function DashboardPage() {
           (label) => (
             <div key={label} className="border-border bg-card rounded-lg border p-6">
               <p className="text-muted-foreground text-sm">{label}</p>
-              <p className="mt-2 text-2xl font-bold">—</p>
+              <p className="mt-2 text-2xl font-bold">-</p>
             </div>
           ),
         )}

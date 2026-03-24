@@ -21,7 +21,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Cases', href: '/cases', icon: FileText },
   { label: 'Designers', href: '/designers', icon: Palette },
   { label: 'Proposals', href: '/proposals', icon: Send },
@@ -48,14 +48,15 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <aside className={cn('flex h-full flex-col', className)}>
       <div className="border-border flex h-16 items-center border-b px-6">
-        <Link href="/" className="font-heading text-brand-600 text-lg font-bold">
+        <Link href="/dashboard" className="font-heading text-brand-600 text-lg font-bold">
           DentiVerse
         </Link>
       </div>
 
       <nav className="flex-1 space-y-1 p-4" aria-label="Main navigation">
         {navItems.map(({ label, href, icon: Icon }) => {
-          const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
+          const isActive =
+            href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href);
 
           return (
             <Link
