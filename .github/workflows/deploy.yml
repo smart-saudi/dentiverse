@@ -131,6 +131,12 @@ jobs:
             exit 1
           fi
 
+      - name: Pull preview project settings
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
       - name: Build preview deployment
         run: vercel build --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -208,6 +214,12 @@ jobs:
           if [ "$missing" -ne 0 ]; then
             exit 1
           fi
+
+      - name: Pull production project settings
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Build production deployment
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
