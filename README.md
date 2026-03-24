@@ -144,17 +144,17 @@ docs: update README
 
 ## Tech Stack
 
-| Layer       | Technology                                                |
-| ----------- | --------------------------------------------------------- |
-| Frontend    | Next.js 15, React 19, TypeScript, Tailwind CSS, shadcn/ui |
-| 3D Viewer   | Three.js / React Three Fiber                              |
-| Backend     | Supabase + Next.js API Routes                             |
-| Database    | PostgreSQL 16 (Supabase)                                  |
-| Payments    | Stripe Connect (escrow)                                   |
-| Auth        | Supabase Auth                                             |
-| File Upload | Uppy.js → Supabase Storage                                |
-| Hosting     | Vercel + Supabase Cloud                                   |
-| Testing     | Vitest + Playwright                                       |
+| Layer       | Technology                                                    |
+| ----------- | ------------------------------------------------------------- |
+| Frontend    | Next.js 15, React 19, TypeScript, Tailwind CSS, shadcn/ui     |
+| 3D Viewer   | Three.js / React Three Fiber                                  |
+| Backend     | Supabase + Next.js API Routes                                 |
+| Database    | PostgreSQL 16 (Supabase)                                      |
+| Payments    | Stripe Connect (escrow)                                       |
+| Auth        | Supabase Auth (email/password + password reset for v1 launch) |
+| File Upload | Uppy.js → Supabase Storage                                    |
+| Hosting     | Vercel + Supabase Cloud                                       |
+| Testing     | Vitest + Playwright                                           |
 
 ---
 

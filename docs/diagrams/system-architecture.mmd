@@ -22,7 +22,7 @@ flowchart TD
     end
 
     subgraph Backend["Backend Tier — Supabase"]
-        AUTH["Supabase Auth\nJWT, OAuth, RLS"]
+        AUTH["Supabase Auth\nEmail/Password, JWT, RLS"]
         EDGE["Edge Functions\nMatching, Validation"]
         RT["Supabase Realtime\nWebSocket Events"]
     end

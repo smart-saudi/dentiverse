@@ -12,6 +12,7 @@ please report it responsibly.
 Instead, please email: **security@dentiverse.com**
 
 Include:
+
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
@@ -19,16 +20,17 @@ Include:
 
 ### What to Expect
 
-| Timeframe | Action |
-|-----------|--------|
-| **24 hours** | We acknowledge receipt of your report |
-| **72 hours** | We provide an initial assessment and severity rating |
-| **7 days** | We aim to have a fix deployed for critical/high issues |
-| **30 days** | We aim to have a fix deployed for medium/low issues |
+| Timeframe    | Action                                                 |
+| ------------ | ------------------------------------------------------ |
+| **24 hours** | We acknowledge receipt of your report                  |
+| **72 hours** | We provide an initial assessment and severity rating   |
+| **7 days**   | We aim to have a fix deployed for critical/high issues |
+| **30 days**  | We aim to have a fix deployed for medium/low issues    |
 
 ### Scope
 
 The following are **in scope**:
+
 - `app.dentiverse.com` (production web application)
 - `api.dentiverse.com/api/v1/*` (REST API)
 - Authentication and authorization flaws
@@ -40,6 +42,7 @@ The following are **in scope**:
 - Server-side request forgery (SSRF)
 
 The following are **out of scope**:
+
 - Social engineering attacks
 - Denial of service (DoS/DDoS) attacks
 - Issues in third-party services (Supabase, Stripe, Vercel)
@@ -49,6 +52,7 @@ The following are **out of scope**:
 ### Safe Harbor
 
 We will not pursue legal action against researchers who:
+
 - Report vulnerabilities through the process above
 - Do not access, modify, or delete other users' data
 - Do not disclose the vulnerability publicly before we've addressed it
@@ -56,11 +60,11 @@ We will not pursue legal action against researchers who:
 
 ### Supported Versions
 
-| Version | Supported |
-|---------|-----------|
-| Latest (production) | Yes |
-| Staging/preview | Best effort |
-| Local development | Not applicable |
+| Version             | Supported      |
+| ------------------- | -------------- |
+| Latest (production) | Yes            |
+| Staging/preview     | Best effort    |
+| Local development   | Not applicable |
 
 ### Recognition
 
@@ -68,12 +72,12 @@ We appreciate the security research community. Reporters of valid vulnerabilitie
 will be credited in our security acknowledgments (with permission) and may be
 eligible for a reward based on severity:
 
-| Severity | Reward |
-|----------|--------|
-| Critical | $500–$2,000 |
-| High | $200–$500 |
-| Medium | $50–$200 |
-| Low | Acknowledgment |
+| Severity | Reward         |
+| -------- | -------------- |
+| Critical | $500–$2,000    |
+| High     | $200–$500      |
+| Medium   | $50–$200       |
+| Low      | Acknowledgment |
 
 Rewards are at our discretion and depend on the quality and impact of the report.
 
@@ -86,6 +90,7 @@ Rewards are at our discretion and depend on the quality and impact of the report
 All secrets are stored in environment variables, never in code. See `.env.example` for the complete list.
 
 **Critical secrets (rotate quarterly):**
+
 - `SUPABASE_SERVICE_ROLE_KEY` — Bypasses RLS. Server-side only.
 - `STRIPE_SECRET_KEY` — Stripe API access. Server-side only.
 - `STRIPE_WEBHOOK_SECRET` — Webhook signature verification.
@@ -106,10 +111,10 @@ All secrets are stored in environment variables, never in code. See `.env.exampl
 ### Authentication
 
 - Supabase Auth with email verification required
+- v1 launch scope: email/password plus password reset only
 - JWT access tokens (1hr expiry) + refresh token rotation
 - Rate limiting on auth endpoints (5 attempts per 15 minutes)
 - Account lockout after 10 failed attempts
-- Optional: Google OAuth, Magic Link
 
 ### Authorization
 
@@ -136,21 +141,22 @@ A comprehensive threat model using the STRIDE methodology is maintained at [`doc
 
 All secrets are managed via environment variables. See [`.env.example`](.env.example) for the complete template.
 
-| Variable | Required | Scope | Rotation | Description |
-|----------|----------|-------|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Public | Never | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Public | On compromise | Supabase anonymous (public) key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | **Server only** | Quarterly | Bypasses RLS — never expose to client |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Yes | Public | On compromise | Stripe publishable key (pk_test/pk_live) |
-| `STRIPE_SECRET_KEY` | Yes | **Server only** | Quarterly | Stripe secret API key |
-| `STRIPE_WEBHOOK_SECRET` | Yes | **Server only** | On endpoint change | Stripe webhook signature secret |
-| `RESEND_API_KEY` | Yes | **Server only** | Annually | Resend email API key |
-| `NEXT_PUBLIC_SENTRY_DSN` | No | Public | Never | Sentry error tracking DSN |
-| `SENTRY_AUTH_TOKEN` | No | **Server only** | Annually | Sentry release/sourcemap upload |
-| `NEXT_PUBLIC_APP_URL` | Yes | Public | Never | Application base URL |
-| `NEXT_PUBLIC_APP_NAME` | Yes | Public | Never | Application display name |
+| Variable                             | Required | Scope           | Rotation           | Description                              |
+| ------------------------------------ | -------- | --------------- | ------------------ | ---------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | Yes      | Public          | Never              | Supabase project URL                     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | Yes      | Public          | On compromise      | Supabase anonymous (public) key          |
+| `SUPABASE_SERVICE_ROLE_KEY`          | Yes      | **Server only** | Quarterly          | Bypasses RLS — never expose to client    |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Yes      | Public          | On compromise      | Stripe publishable key (pk_test/pk_live) |
+| `STRIPE_SECRET_KEY`                  | Yes      | **Server only** | Quarterly          | Stripe secret API key                    |
+| `STRIPE_WEBHOOK_SECRET`              | Yes      | **Server only** | On endpoint change | Stripe webhook signature secret          |
+| `RESEND_API_KEY`                     | Yes      | **Server only** | Annually           | Resend email API key                     |
+| `NEXT_PUBLIC_SENTRY_DSN`             | No       | Public          | Never              | Sentry error tracking DSN                |
+| `SENTRY_AUTH_TOKEN`                  | No       | **Server only** | Annually           | Sentry release/sourcemap upload          |
+| `NEXT_PUBLIC_APP_URL`                | Yes      | Public          | Never              | Application base URL                     |
+| `NEXT_PUBLIC_APP_NAME`               | Yes      | Public          | Never              | Application display name                 |
 
 **Rules:**
+
 - Variables prefixed `NEXT_PUBLIC_` are embedded in the client bundle — never put secrets in them
 - Server-only variables are accessible only in API routes, server components, and middleware
 - Rotate critical secrets (service role key, Stripe secret) quarterly or on any suspected compromise

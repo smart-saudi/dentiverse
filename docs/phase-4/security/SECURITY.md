@@ -111,17 +111,18 @@ All secrets are stored in environment variables, never in code. See `.env.exampl
 ### Authentication
 
 - Supabase Auth with email verification required
+- v1 launch scope: email/password plus password reset only
 - JWT access tokens (1hr expiry) + refresh token rotation
 - App-route auth abuse protection on `login`, `forgot-password`, and `refresh`
 - Request throttling defaults to 5 attempts per 15 minutes per client fingerprint
 - Failed email/password logins trigger account lockout after 10 attempts
 - Lockout duration defaults to 30 minutes and is configurable through `.env`
-- Optional: Google OAuth, Magic Link
 
 Current implementation notes:
 
 - The launch candidate enforces auth abuse protection in the Next.js route layer via [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts).
 - Client fingerprints combine the forwarded client IP with a normalized request identifier (email or refresh token hash).
+- Google OAuth and Magic Link are intentionally out of v1 launch scope; revisit them only after `LR-09` and `LR-10` if product priorities change.
 - This is the current v1 launch enforcement layer; if DentiVerse moves to multi-region or high-horizontal-scale auth traffic, migrate the counters to an external shared store.
 
 ### Authorization

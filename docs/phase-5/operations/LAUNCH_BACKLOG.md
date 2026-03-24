@@ -52,7 +52,7 @@ Owner labels:
 | Gate                          | Current State        | Last Evidence                                                                                                                                                                                                                    |
 | ----------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                                                               |
-| `npm test`                    | Passing              | `npm.cmd test` passed with `328` tests green on 2026-03-24                                                                                                                                                                       |
+| `npm test`                    | Passing              | `npm.cmd test` passed with `334` tests green on 2026-03-24                                                                                                                                                                       |
 | `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; non-fatal OpenTelemetry dependency warnings from `@sentry/nextjs` and the standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remain               |
 | `npm run test:e2e`            | Passing              | `npm.cmd run test:e2e` passed with `11` Chromium specs on 2026-03-24 using the dedicated Playwright server at `http://127.0.0.1:3100`; CI now installs browsers and runs the suite in `.github/workflows/deploy.yml`             |
 | Release candidate cleanliness | Passing              | Completed launch-readiness work is committed on `main`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains in the workspace during active development                                                              |
@@ -103,7 +103,7 @@ DentiVerse is launch-ready only when all of the following are true:
 | ------- | ---------------------------------------------- | -------- | ------- | ------ | ---------- | ----------------------------------------------------------------------- |
 | `LR-06` | Define and implement the admin operating model | `P1`     | Shared  | `DONE` | `LR-02`    | Support, refunds, and moderation have an owned operational path         |
 | `LR-07` | Implement transactional email                  | `P2`     | App     | `DONE` | `LR-02`    | Proposal, design, and payment email flows work in non-local envs        |
-| `LR-08` | Resolve auth scope drift                       | `P2`     | Product | `TODO` | `LR-02`    | OAuth/Magic Link are either implemented or explicitly de-scoped in docs |
+| `LR-08` | Resolve auth scope drift                       | `P2`     | Product | `DONE` | `LR-02`    | OAuth/Magic Link are either implemented or explicitly de-scoped in docs |
 
 ### Wave 4: Go-Live Validation
 
@@ -300,11 +300,26 @@ Objective:
 
 - align the launch promise with the shipped auth surface
 
+Evidence:
+
+- The active contributor docs in [AGENTS.md](../../../AGENTS.md) and [CLAUDE.md](../../../CLAUDE.md) now define the v1 launch auth surface as Supabase Auth with email/password plus password reset only.
+- The public-facing stack summary in [README.md](../../../README.md), the security posture in [SECURITY.md](../../../SECURITY.md) and [docs/phase-4/security/SECURITY.md](../../phase-4/security/SECURITY.md), and the architecture diagram in [docs/diagrams/system-architecture.mmd](../../diagrams/system-architecture.mmd) no longer promise Google OAuth or Magic Link for the current launch candidate.
+- The product and launch trackers in [TODO.md](../../../TODO.md) and this document now record the decision to de-scope Google OAuth and Magic Link from v1 launch.
+
 Tasks:
 
-- `LR-08a` Product decision: keep email/password only for launch, or add Google OAuth and/or Magic Link.
-- `LR-08b` If de-scoped, update product, security, and architecture docs.
-- `LR-08c` If in scope, implement and test the missing auth flows.
+- [x] `LR-08a` Product decision: keep email/password only for launch, or add Google OAuth and/or Magic Link.
+- [x] `LR-08b` If de-scoped, update product, security, and architecture docs.
+- [x] `LR-08c` If in scope, implement and test the missing auth flows.
+
+Decision:
+
+- DentiVerse v1 launch scope is email/password plus password reset only.
+- Google OAuth and Magic Link are intentionally de-scoped until a later product milestone reintroduces them.
+
+Recommended commit sequence:
+
+1. `docs: align launch auth scope`
 
 ### `LR-09` Run Preview Smoke Tests And Rollback Drill
 
@@ -340,7 +355,7 @@ Tasks:
 | ------ | ---------------------------------------------------- | ------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `D-01` | Where auth rate limiting should live                 | Shared  | `DONE` | Current launch candidate uses an app-route wrapper with an in-memory store; move to an external shared store before broader horizontal scale |
 | `D-02` | Whether launch needs a real admin UI                 | Shared  | `DONE` | Chosen v1 path is manual ops for a controlled launch; no in-product admin UI ships before launch                                             |
-| `D-03` | Whether Google OAuth and Magic Link are launch scope | Product | `TODO` | Current runtime is email/password only                                                                                                       |
+| `D-03` | Whether Google OAuth and Magic Link are launch scope | Product | `DONE` | Chosen v1 path is email/password plus password reset only; Google OAuth and Magic Link are explicitly de-scoped from launch                  |
 
 ---
 
@@ -413,3 +428,10 @@ These are the core files that justified the current backlog:
   - `npm.cmd run test:e2e`
   - `npm.cmd run build`
 - `LR-07` result: transactional email is now part of the launch candidate, all release gates remain green, and the next blocker is `LR-08` for the launch auth-scope decision.
+- Completed `LR-08`: de-scoped Google OAuth and Magic Link from the v1 launch candidate, updated the active contributor, security, and architecture docs to email/password plus password reset only, and closed decision `D-03`.
+- `LR-08` verification commands:
+  - `npm.cmd run check`
+  - `npm.cmd test`
+  - `npm.cmd run test:e2e`
+  - `npm.cmd run build`
+- `LR-08` result: launch-facing auth docs now match the shipped runtime auth surface, and the next blocker is `LR-09` for preview smoke tests and rollback rehearsal.
