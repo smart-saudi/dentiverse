@@ -7,9 +7,11 @@ import {
 } from '@/lib/validations/design-version';
 import { AuditService, extractRequestMeta } from '@/services/audit.service';
 import { DesignVersionService } from '@/services/design-version.service';
+import { EmailService } from '@/services/email.service';
 
 const designVersionService = new DesignVersionService();
 const audit = new AuditService();
+const emailService = new EmailService();
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -69,6 +71,12 @@ export async function POST(req: NextRequest, context: RouteContext) {
       entityId: version.id,
       newData: { case_id: caseId, version_number: nextVersion },
       ...meta,
+    });
+    await emailService.sendDesignSubmittedEmail({
+      caseId,
+      designVersionId: version.id,
+      designerId: user.id,
+      versionNumber: version.version_number,
     });
 
     return NextResponse.json({ data: version }, { status: 201 });

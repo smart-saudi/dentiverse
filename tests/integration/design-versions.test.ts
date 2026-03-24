@@ -9,6 +9,7 @@ const mockAuth = {
   getUser: vi.fn(),
 };
 const mockCreateSignedUrl = vi.fn();
+const mockSendDesignSubmittedEmail = vi.fn();
 
 const mockSingleFn = vi.fn();
 const mockRangeFn = vi.fn();
@@ -44,6 +45,12 @@ vi.mock('@/lib/supabase/server', () => ({
         createSignedUrl: mockCreateSignedUrl,
       })),
     },
+  })),
+}));
+
+vi.mock('@/services/email.service', () => ({
+  EmailService: vi.fn().mockImplementation(() => ({
+    sendDesignSubmittedEmail: mockSendDesignSubmittedEmail,
   })),
 }));
 
@@ -97,6 +104,7 @@ const mockVersion = {
 describe('POST /api/v1/cases/[id]/design-versions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSendDesignSubmittedEmail.mockResolvedValue({ status: 'sent' });
   });
 
   it('should create a design version (201)', async () => {
@@ -124,6 +132,12 @@ describe('POST /api/v1/cases/[id]/design-versions', () => {
 
     expect(res.status).toBe(201);
     expect(json.data.status).toBe('SUBMITTED');
+    expect(mockSendDesignSubmittedEmail).toHaveBeenCalledWith({
+      caseId: 'c-1',
+      designVersionId: 'dv-1',
+      designerId: 'user-1',
+      versionNumber: 1,
+    });
   });
 
   it('should return 401 for unauthenticated users', async () => {

@@ -5,9 +5,11 @@ import {
   createProposalSchema,
   proposalListQuerySchema,
 } from '@/lib/validations/proposal';
+import { EmailService } from '@/services/email.service';
 import { ProposalService } from '@/services/proposal.service';
 
 const proposalService = new ProposalService();
+const emailService = new EmailService();
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -68,6 +70,13 @@ export async function POST(req: NextRequest, context: RouteContext) {
       user.id,
       parsed.data,
     );
+    await emailService.sendProposalReceivedEmail({
+      caseId,
+      proposalId: proposal.id,
+      designerId: user.id,
+      estimatedHours: proposal.estimated_hours,
+      price: proposal.price,
+    });
     return NextResponse.json({ data: proposal }, { status: 201 });
   } catch (err) {
     return NextResponse.json(

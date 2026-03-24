@@ -175,7 +175,7 @@ dentiverse/
 │   │   ├── review.service.ts
 │   │   ├── message.service.ts
 │   │   ├── notification.service.ts
-│   │   └── file.service.ts
+│   │   └── email.service.ts
 │   │
 │   ├── stores/                        # Zustand stores (client-side state)
 │   │   ├── auth-store.ts
@@ -470,6 +470,8 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 # Resend (email)
 RESEND_API_KEY=re_...
+EMAIL_FROM_ADDRESS=DentiVerse <notifications@example.com>
+EMAIL_REPLY_TO=support@example.com
 
 # Sentry
 NEXT_PUBLIC_SENTRY_DSN=https://...@sentry.io/...

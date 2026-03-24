@@ -8,6 +8,7 @@ import { NextRequest } from 'next/server';
 const mockAuth = {
   getUser: vi.fn(),
 };
+const mockSendProposalReceivedEmail = vi.fn();
 
 const mockProposalSingleFn = vi.fn();
 const mockRangeFn = vi.fn();
@@ -24,15 +25,11 @@ const mockSelectFn = vi.fn().mockImplementation(() => ({
   single: mockProposalSingleFn,
 }));
 const mockInsertFn = vi.fn().mockReturnValue({ select: mockSelectFn });
-const mockUpdateFn = vi
-  .fn()
-  .mockReturnValue({
-    eq: vi
-      .fn()
-      .mockReturnValue({
-        select: vi.fn().mockReturnValue({ single: mockProposalSingleFn }),
-      }),
-  });
+const mockUpdateFn = vi.fn().mockReturnValue({
+  eq: vi.fn().mockReturnValue({
+    select: vi.fn().mockReturnValue({ single: mockProposalSingleFn }),
+  }),
+});
 
 // Users table mock (for role checks)
 const mockUserSingleFn = vi.fn();
@@ -61,6 +58,12 @@ vi.mock('@/lib/supabase/server', () => ({
         select: mockSelectFn,
       };
     }),
+  })),
+}));
+
+vi.mock('@/services/email.service', () => ({
+  EmailService: vi.fn().mockImplementation(() => ({
+    sendProposalReceivedEmail: mockSendProposalReceivedEmail,
   })),
 }));
 
@@ -101,6 +104,7 @@ const mockProposal = {
 describe('POST /api/v1/cases/[id]/proposals', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSendProposalReceivedEmail.mockResolvedValue({ status: 'sent' });
     mockUserEqFn.mockReturnValue({ single: mockUserSingleFn });
     mockUserSelectFn.mockReturnValue({ eq: mockUserEqFn });
   });
@@ -121,6 +125,13 @@ describe('POST /api/v1/cases/[id]/proposals', () => {
 
     expect(res.status).toBe(201);
     expect(json.data.status).toBe('PENDING');
+    expect(mockSendProposalReceivedEmail).toHaveBeenCalledWith({
+      caseId: 'c-1',
+      proposalId: 'p-1',
+      designerId: 'user-1',
+      estimatedHours: 8,
+      price: 150,
+    });
   });
 
   it('should return 401 for unauthenticated users', async () => {

@@ -49,17 +49,17 @@ Owner labels:
 
 ## Current Snapshot
 
-| Gate                          | Current State        | Last Evidence                                                                                                                                                                                                        |
-| ----------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                                                   |
-| `npm test`                    | Passing              | `npm.cmd test` passed with `328` tests green on 2026-03-24                                                                                                                                                           |
-| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; non-fatal OpenTelemetry dependency warnings from `@sentry/nextjs` and the standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remain   |
-| `npm run test:e2e`            | Passing              | `npm.cmd run test:e2e` passed with `11` Chromium specs on 2026-03-24 using the dedicated Playwright server at `http://127.0.0.1:3100`; CI now installs browsers and runs the suite in `.github/workflows/deploy.yml` |
-| Release candidate cleanliness | Passing              | Completed launch-readiness work is committed on `main`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains in the workspace during active development                                                  |
-| Observability wiring          | Passing              | Sentry runtime init and structured server logging are active in the launch candidate, with coverage in `tests/unit/lib/observability/server.test.ts`                                                                 |
-| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts`                             |
-| Admin operations model        | Passing              | v1 launch now uses the documented manual-ops model in `docs/phase-5/operations/ADMIN_OPERATING_MODEL.md`, and the system architecture diagram no longer promises an in-product admin panel                           |
-| Transactional email           | Incomplete           | `resend` dependency exists, no runtime usage under `src/`                                                                                                                                                            |
+| Gate                          | Current State        | Last Evidence                                                                                                                                                                                                                    |
+| ----------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                                                               |
+| `npm test`                    | Passing              | `npm.cmd test` passed with `328` tests green on 2026-03-24                                                                                                                                                                       |
+| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; non-fatal OpenTelemetry dependency warnings from `@sentry/nextjs` and the standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remain               |
+| `npm run test:e2e`            | Passing              | `npm.cmd run test:e2e` passed with `11` Chromium specs on 2026-03-24 using the dedicated Playwright server at `http://127.0.0.1:3100`; CI now installs browsers and runs the suite in `.github/workflows/deploy.yml`             |
+| Release candidate cleanliness | Passing              | Completed launch-readiness work is committed on `main`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains in the workspace during active development                                                              |
+| Observability wiring          | Passing              | Sentry runtime init and structured server logging are active in the launch candidate, with coverage in `tests/unit/lib/observability/server.test.ts`                                                                             |
+| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts`                                         |
+| Admin operations model        | Passing              | v1 launch now uses the documented manual-ops model in `docs/phase-5/operations/ADMIN_OPERATING_MODEL.md`, and the system architecture diagram no longer promises an in-product admin panel                                       |
+| Transactional email           | Passing              | Resend-backed delivery now lives in [src/services/email.service.ts](../../../src/services/email.service.ts), with proposal/design hooks and webhook-triggered payment emails covered by unit and integration tests on 2026-03-24 |
 
 ---
 
@@ -102,7 +102,7 @@ DentiVerse is launch-ready only when all of the following are true:
 | ID      | Title                                          | Priority | Owner   | Status | Depends On | Success Signal                                                          |
 | ------- | ---------------------------------------------- | -------- | ------- | ------ | ---------- | ----------------------------------------------------------------------- |
 | `LR-06` | Define and implement the admin operating model | `P1`     | Shared  | `DONE` | `LR-02`    | Support, refunds, and moderation have an owned operational path         |
-| `LR-07` | Implement transactional email                  | `P2`     | App     | `TODO` | `LR-02`    | Proposal, design, and payment email flows work in non-local envs        |
+| `LR-07` | Implement transactional email                  | `P2`     | App     | `DONE` | `LR-02`    | Proposal, design, and payment email flows work in non-local envs        |
 | `LR-08` | Resolve auth scope drift                       | `P2`     | Product | `TODO` | `LR-02`    | OAuth/Magic Link are either implemented or explicitly de-scoped in docs |
 
 ### Wave 4: Go-Live Validation
@@ -273,12 +273,26 @@ Objective:
 
 - deliver critical marketplace state changes outside the browser
 
+Evidence:
+
+- Resend delivery now lives in [src/services/email.service.ts](../../../src/services/email.service.ts), which sends proposal-received, design-submitted, payment-confirmed, and payment-released emails without blocking the primary workflow.
+- Proposal and design-submission hooks now call the email service from [src/app/api/v1/cases/[id]/proposals/route.ts](../../../src/app/api/v1/cases/%5Bid%5D/proposals/route.ts) and [src/app/api/v1/cases/[id]/design-versions/route.ts](../../../src/app/api/v1/cases/%5Bid%5D/design-versions/route.ts).
+- Stripe payment lifecycle emails now trigger from [src/app/api/v1/webhooks/stripe/route.ts](../../../src/app/api/v1/webhooks/stripe/route.ts), with duplicate-send protection based on `stripe_charge_id` and `stripe_transfer_id`.
+- Coverage was added in [tests/unit/services/email.service.test.ts](../../../tests/unit/services/email.service.test.ts), [tests/integration/proposals.test.ts](../../../tests/integration/proposals.test.ts), [tests/integration/design-versions.test.ts](../../../tests/integration/design-versions.test.ts), and [tests/integration/stripe-webhook.test.ts](../../../tests/integration/stripe-webhook.test.ts).
+- Operational fallback behavior is documented in [docs/phase-5/operations/RUNBOOK.md](./RUNBOOK.md), and the required sender env vars are documented in [.env.example](../../../.env.example), [AGENTS.md](../../../AGENTS.md), and [CLAUDE.md](../../../CLAUDE.md).
+
 Tasks:
 
-- `LR-07a` Define the minimum launch event set: proposal received, design submitted, payment confirmed/released.
-- `LR-07b` Add a small email service around Resend.
-- `LR-07c` Trigger emails from the relevant business events with failure-safe logging.
-- `LR-07d` Add tests and runbook notes for disabled-email fallback behavior.
+- [x] `LR-07a` Define the minimum launch event set: proposal received, design submitted, payment confirmed/released.
+- [x] `LR-07b` Add a small email service around Resend.
+- [x] `LR-07c` Trigger emails from the relevant business events with failure-safe logging.
+- [x] `LR-07d` Add tests and runbook notes for disabled-email fallback behavior.
+
+Recommended commit sequence:
+
+1. `test: add transactional email coverage`
+2. `feat: send transactional marketplace emails`
+3. `docs: record launch email operations`
 
 ### `LR-08` Resolve Auth Scope Drift
 
@@ -392,3 +406,10 @@ These are the core files that justified the current backlog:
   - `npm.cmd run test:e2e`
   - `npm.cmd run build`
 - `LR-06` result: support, refund, and moderation operations now have an explicit owner model and runbook path; the next launch blocker is `LR-07` for transactional email.
+- Completed `LR-07`: added Resend-backed transactional delivery for proposal-received, design-submitted, payment-confirmed, and payment-released events, plus safe skip/failure logging and duplicate-send guards in the Stripe webhook flow.
+- `LR-07` verification commands:
+  - `npm.cmd run check`
+  - `npm.cmd test`
+  - `npm.cmd run test:e2e`
+  - `npm.cmd run build`
+- `LR-07` result: transactional email is now part of the launch candidate, all release gates remain green, and the next blocker is `LR-08` for the launch auth-scope decision.

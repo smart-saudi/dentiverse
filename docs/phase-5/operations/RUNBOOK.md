@@ -104,6 +104,14 @@ Before any sensitive manual intervention:
 - Confirm runtime keys are current.
 - Review recent changes to file upload and design-version flows.
 
+### Transactional Email Disabled Or Failing
+
+- Confirm `RESEND_API_KEY` and `EMAIL_FROM_ADDRESS` are set in the target environment. `EMAIL_REPLY_TO` is optional but recommended.
+- When either required value is missing, DentiVerse intentionally skips transactional email and records a structured info log instead of blocking the marketplace flow.
+- Proposal, design-submission, and payment lifecycle changes still continue in-app even when email delivery is disabled.
+- Review Sentry and runtime logs for `provider: resend` if delivery failures are reported.
+- Before preview or production sign-off, verify at least one real proposal, design-submitted, payment-confirmed, and payment-released email lands in the configured inboxes.
+
 ### Manual Admin Action Needed
 
 - Use [ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md) as the source of truth.

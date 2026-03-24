@@ -7,6 +7,9 @@ import {
 } from '@/lib/observability/server';
 import { constructWebhookEvent } from '@/lib/stripe/webhooks';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { EmailService } from '@/services/email.service';
+
+const emailService = new EmailService();
 
 /**
  * POST /api/v1/webhooks/stripe — Handle Stripe webhook events.
@@ -75,6 +78,12 @@ export async function POST(req: NextRequest) {
         const intent = event.data.object;
         const paymentId = intent.metadata?.payment_id;
         if (paymentId) {
+          const { data: existingPayment } = await supabase
+            .from('payments')
+            .select('stripe_charge_id')
+            .eq('id', paymentId)
+            .single();
+
           await supabase
             .from('payments')
             .update({
@@ -85,6 +94,10 @@ export async function POST(req: NextRequest) {
               updated_at: new Date().toISOString(),
             })
             .eq('id', paymentId);
+
+          if (!existingPayment?.stripe_charge_id) {
+            await emailService.sendPaymentConfirmedEmail({ paymentId });
+          }
         }
         break;
       }
@@ -108,6 +121,12 @@ export async function POST(req: NextRequest) {
         const transfer = event.data.object;
         const paymentId = transfer.metadata?.payment_id;
         if (paymentId) {
+          const { data: existingPayment } = await supabase
+            .from('payments')
+            .select('stripe_transfer_id')
+            .eq('id', paymentId)
+            .single();
+
           await supabase
             .from('payments')
             .update({
@@ -117,6 +136,10 @@ export async function POST(req: NextRequest) {
               updated_at: new Date().toISOString(),
             })
             .eq('id', paymentId);
+
+          if (!existingPayment?.stripe_transfer_id) {
+            await emailService.sendPaymentReleasedEmail({ paymentId });
+          }
         }
         break;
       }
