@@ -7,6 +7,10 @@ import {
   recordFailedLoginAttempt,
   resetLoginFailures,
 } from '@/lib/auth-abuse';
+import {
+  buildRequestLogContext,
+  captureServerException,
+} from '@/lib/observability/server';
 import { loginSchema } from '@/lib/validations/auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
@@ -20,6 +24,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
  * @returns 200 with user, access_token, refresh_token, expires_at
  */
 export async function POST(request: NextRequest) {
+  const requestContext = buildRequestLogContext(request, '/api/v1/auth/login');
+
   try {
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
@@ -62,9 +68,21 @@ export async function POST(request: NextRequest) {
         /invalid login credentials/i.test(error.message);
 
       if (!isCredentialError) {
+        captureServerException(error, 'Login auth provider error', {
+          request: requestContext,
+          context: {
+            provider: 'supabase-auth',
+          },
+        });
+
         return NextResponse.json(
           { code: 'INTERNAL_ERROR', message: 'Authentication service unavailable' },
-          { status: 500 },
+          {
+            status: 500,
+            headers: {
+              'X-Request-Id': requestContext.requestId,
+            },
+          },
         );
       }
 
@@ -93,10 +111,19 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 },
     );
-  } catch {
+  } catch (error) {
+    captureServerException(error, 'Unhandled login route error', {
+      request: requestContext,
+    });
+
     return NextResponse.json(
       { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
-      { status: 500 },
+      {
+        status: 500,
+        headers: {
+          'X-Request-Id': requestContext.requestId,
+        },
+      },
     );
   }
 }

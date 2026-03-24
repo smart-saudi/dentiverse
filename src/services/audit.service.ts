@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 
 import type { Database, Json } from '@/lib/database.types';
+import { captureServerException } from '@/lib/observability/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export interface AuditLogEntry {
@@ -66,12 +67,15 @@ export class AuditService {
         user_agent: entry.userAgent ?? null,
       };
       await admin.from('audit_log').insert(row);
-    } catch {
+    } catch (error) {
       // Audit logging must never break the primary operation.
-      // In production, this would go to Sentry or a structured logger.
-      console.error(
-        `[audit] Failed to log: ${entry.action} on ${entry.entityType}/${entry.entityId}`,
-      );
+      captureServerException(error, 'Audit log write failed', {
+        context: {
+          action: entry.action,
+          entity_type: entry.entityType,
+          entity_id: entry.entityId,
+        },
+      });
     }
   }
 }

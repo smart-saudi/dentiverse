@@ -30,6 +30,9 @@ This runbook documents how to deploy, verify, and roll back DentiVerse safely.
    - login/register
    - designer browse
    - signed file access for authenticated users
+5. Observability smoke test on preview:
+   - Client path: open the preview in a browser, then run `setTimeout(() => { throw new Error('Sentry client smoke test'); }, 0)` in DevTools and confirm a client event lands in Sentry.
+   - Server path: send an invalid Stripe webhook request to the preview deployment and confirm a server event lands in Sentry with the route tag `/api/v1/webhooks/stripe`.
 
 ### Production
 
@@ -41,6 +44,7 @@ This runbook documents how to deploy, verify, and roll back DentiVerse safely.
    - case list/create flow
    - payment create-intent route
    - signed URL route
+5. Confirm no unexpected P1/P2 Sentry alerts fired during rollout.
 
 ## Rollback
 
@@ -83,6 +87,24 @@ This runbook documents how to deploy, verify, and roll back DentiVerse safely.
 - Check the Stripe dashboard logs.
 - Verify `STRIPE_WEBHOOK_SECRET`.
 - Replay failed events after the fix is deployed.
+- Use the request ID from the webhook response or runtime logs to correlate the failure across Vercel logs and Sentry.
+
+### Observability Validation
+
+- Client smoke test:
+  - Open the deployment in a browser.
+  - In DevTools, run `setTimeout(() => { throw new Error('Sentry client smoke test'); }, 0)`.
+  - Confirm the event appears in Sentry tagged as client-side.
+- Server smoke test:
+  - Run:
+    ```bash
+    curl -X POST "$DEPLOY_URL/api/v1/webhooks/stripe" \
+      -H "Content-Type: application/json" \
+      -H "stripe-signature: invalid" \
+      -d '{}'
+    ```
+  - Confirm the response includes `X-Request-Id`.
+  - Confirm the matching server event appears in Sentry and the structured runtime log includes the same request ID.
 
 ### Supabase Outage
 

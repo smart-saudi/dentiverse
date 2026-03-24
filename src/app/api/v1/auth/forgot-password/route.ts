@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { consumeAuthRateLimit, createAuthAbuseResponse } from '@/lib/auth-abuse';
+import {
+  buildRequestLogContext,
+  captureServerException,
+} from '@/lib/observability/server';
 import { forgotPasswordSchema } from '@/lib/validations/auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
@@ -15,6 +19,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
  * @returns 200 always (except validation error)
  */
 export async function POST(request: NextRequest) {
+  const requestContext = buildRequestLogContext(request, '/api/v1/auth/forgot-password');
+
   try {
     const body = await request.json();
     const parsed = forgotPasswordSchema.safeParse(body);
@@ -46,10 +52,19 @@ export async function POST(request: NextRequest) {
       { data: { message: 'If that email exists, a reset link has been sent' } },
       { status: 200 },
     );
-  } catch {
+  } catch (error) {
+    captureServerException(error, 'Unhandled forgot-password route error', {
+      request: requestContext,
+    });
+
     return NextResponse.json(
       { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
-      { status: 500 },
+      {
+        status: 500,
+        headers: {
+          'X-Request-Id': requestContext.requestId,
+        },
+      },
     );
   }
 }

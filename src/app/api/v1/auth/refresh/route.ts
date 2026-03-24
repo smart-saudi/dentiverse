@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { consumeAuthRateLimit, createAuthAbuseResponse } from '@/lib/auth-abuse';
+import {
+  buildRequestLogContext,
+  captureServerException,
+} from '@/lib/observability/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const refreshSchema = z.object({
@@ -15,6 +19,8 @@ const refreshSchema = z.object({
  * @returns New session with access and refresh tokens
  */
 export async function POST(req: NextRequest) {
+  const requestContext = buildRequestLogContext(req, '/api/v1/auth/refresh');
+
   try {
     const body = await req.json();
     const parsed = refreshSchema.safeParse(body);
@@ -60,10 +66,19 @@ export async function POST(req: NextRequest) {
         expires_at: data.session.expires_at,
       },
     });
-  } catch {
+  } catch (error) {
+    captureServerException(error, 'Unhandled refresh route error', {
+      request: requestContext,
+    });
+
     return NextResponse.json(
       { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
-      { status: 500 },
+      {
+        status: 500,
+        headers: {
+          'X-Request-Id': requestContext.requestId,
+        },
+      },
     );
   }
 }

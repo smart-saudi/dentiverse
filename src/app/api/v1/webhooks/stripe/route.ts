@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  buildRequestLogContext,
+  captureServerException,
+  logServerEvent,
+} from '@/lib/observability/server';
 import { constructWebhookEvent } from '@/lib/stripe/webhooks';
 import { createAdminClient } from '@/lib/supabase/admin';
 
@@ -13,13 +18,26 @@ import { createAdminClient } from '@/lib/supabase/admin';
  * @returns Acknowledgment response
  */
 export async function POST(req: NextRequest) {
+  const requestContext = buildRequestLogContext(req, '/api/v1/webhooks/stripe');
   const body = await req.text();
   const signature = req.headers.get('stripe-signature');
 
   if (!signature) {
+    logServerEvent('warn', 'Stripe webhook missing signature header', {
+      request: requestContext,
+      context: {
+        provider: 'stripe',
+      },
+    });
+
     return NextResponse.json(
       { code: 'BAD_REQUEST', message: 'Missing stripe-signature header' },
-      { status: 400 },
+      {
+        status: 400,
+        headers: {
+          'X-Request-Id': requestContext.requestId,
+        },
+      },
     );
   }
 
@@ -27,12 +45,24 @@ export async function POST(req: NextRequest) {
   try {
     event = constructWebhookEvent(body, signature);
   } catch (err) {
+    captureServerException(err, 'Stripe webhook verification failed', {
+      request: requestContext,
+      context: {
+        provider: 'stripe',
+      },
+    });
+
     return NextResponse.json(
       {
         code: 'BAD_REQUEST',
         message: err instanceof Error ? err.message : 'Webhook verification failed',
       },
-      { status: 400 },
+      {
+        status: 400,
+        headers: {
+          'X-Request-Id': requestContext.requestId,
+        },
+      },
     );
   }
 
@@ -109,18 +139,33 @@ export async function POST(req: NextRequest) {
       }
 
       default:
-        // Unhandled event type — acknowledge receipt
+        logServerEvent('info', 'Stripe webhook event acknowledged without handler', {
+          request: requestContext,
+          context: {
+            provider: 'stripe',
+            event_id: event.id,
+            event_type: event.type,
+          },
+        });
         break;
     }
   } catch (err) {
-    // Log error but still return 200 to prevent Stripe retries.
-    // In production, this should be sent to Sentry or a structured logging service.
-    console.error('Webhook handler error:', {
-      event_type: event.type,
-      event_id: event.id,
-      error: err instanceof Error ? err.message : String(err),
+    captureServerException(err, 'Stripe webhook handler error', {
+      request: requestContext,
+      context: {
+        provider: 'stripe',
+        event_id: event.id,
+        event_type: event.type,
+      },
     });
   }
 
-  return NextResponse.json({ received: true });
+  return NextResponse.json(
+    { received: true },
+    {
+      headers: {
+        'X-Request-Id': requestContext.requestId,
+      },
+    },
+  );
 }

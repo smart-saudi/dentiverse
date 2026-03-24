@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  buildRequestLogContext,
+  captureServerException,
+} from '@/lib/observability/server';
 import { resetPasswordSchema } from '@/lib/validations/auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
@@ -14,6 +18,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
  * @returns 200 on success
  */
 export async function POST(request: NextRequest) {
+  const requestContext = buildRequestLogContext(request, '/api/v1/auth/reset-password');
+
   try {
     const body = await request.json();
     const parsed = resetPasswordSchema.safeParse(body);
@@ -45,10 +51,19 @@ export async function POST(request: NextRequest) {
       { data: { message: 'Password updated successfully' } },
       { status: 200 },
     );
-  } catch {
+  } catch (error) {
+    captureServerException(error, 'Unhandled reset-password route error', {
+      request: requestContext,
+    });
+
     return NextResponse.json(
       { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
-      { status: 500 },
+      {
+        status: 500,
+        headers: {
+          'X-Request-Id': requestContext.requestId,
+        },
+      },
     );
   }
 }

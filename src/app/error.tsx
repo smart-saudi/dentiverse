@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 
+import { captureClientException } from '@/lib/observability/client';
 import { Button } from '@/components/ui/button';
 
 interface ErrorPageProps {
@@ -17,8 +18,10 @@ interface ErrorPageProps {
  */
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   useEffect(() => {
-    // Log to error tracking service (Sentry when configured)
-    console.error('Unhandled error:', error);
+    captureClientException(error, {
+      source: 'global-error-boundary',
+      error_digest: error.digest,
+    });
   }, [error]);
 
   return (

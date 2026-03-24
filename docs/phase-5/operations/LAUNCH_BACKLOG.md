@@ -49,17 +49,17 @@ Owner labels:
 
 ## Current Snapshot
 
-| Gate                          | Current State        | Last Evidence                                                                                                                                                                            |
-| ----------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                       |
-| `npm test`                    | Passing              | `npm.cmd test` passed with `322` tests green on 2026-03-24                                                                                                                               |
-| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remains non-fatal                                      |
-| `npm run test:e2e`            | Failing              | Playwright timed out because port `3000` was already occupied                                                                                                                            |
-| Release candidate cleanliness | Passing              | Launch-ready changes were committed in `0dae88681d4ae0fabd811e9c708735c251606752`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains                                      |
-| Observability wiring          | Incomplete           | Docs present, Sentry runtime integration absent                                                                                                                                          |
-| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts` |
-| Admin operations model        | Incomplete           | Diagram mentions admin panel, app has no admin surface                                                                                                                                   |
-| Transactional email           | Incomplete           | `resend` dependency exists, no runtime usage under `src/`                                                                                                                                |
+| Gate                          | Current State        | Last Evidence                                                                                                                                                                                                      |
+| ----------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                                                 |
+| `npm test`                    | Passing              | `npm.cmd test` passed with `325` tests green on 2026-03-24                                                                                                                                                         |
+| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; non-fatal OpenTelemetry dependency warnings from `@sentry/nextjs` and the standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remain |
+| `npm run test:e2e`            | Failing              | Playwright timed out because port `3000` was already occupied                                                                                                                                                      |
+| Release candidate cleanliness | Passing              | Launch-ready changes were committed in `0dae88681d4ae0fabd811e9c708735c251606752`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains                                                                |
+| Observability wiring          | Passing              | Sentry runtime init and structured server logging are active in the launch candidate, with coverage in `tests/unit/lib/observability/server.test.ts`                                                               |
+| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts`                           |
+| Admin operations model        | Incomplete           | Diagram mentions admin panel, app has no admin surface                                                                                                                                                             |
+| Transactional email           | Incomplete           | `resend` dependency exists, no runtime usage under `src/`                                                                                                                                                          |
 
 ---
 
@@ -94,7 +94,7 @@ DentiVerse is launch-ready only when all of the following are true:
 | ID      | Title                         | Priority | Owner  | Status | Depends On | Success Signal                                                  |
 | ------- | ----------------------------- | -------- | ------ | ------ | ---------- | --------------------------------------------------------------- |
 | `LR-03` | Add auth abuse protection     | `P1`     | App    | `DONE` | `LR-01`    | Login, forgot-password, and refresh are rate-limited and tested |
-| `LR-04` | Wire production observability | `P1`     | Shared | `TODO` | `LR-01`    | Sentry and structured logs receive real runtime errors          |
+| `LR-04` | Wire production observability | `P1`     | Shared | `DONE` | `LR-01`    | Sentry and structured logs receive real runtime errors          |
 | `LR-05` | Make E2E validation reliable  | `P1`     | App    | `TODO` | `LR-01`    | Playwright runs clean locally and in CI                         |
 
 ### Wave 3: Operational Launch Gaps
@@ -199,13 +199,20 @@ Objective:
 
 - make failures visible before public launch
 
+Evidence:
+
+- Sentry runtime initialization now lives in [instrumentation.ts](../../../instrumentation.ts), [instrumentation-client.ts](../../../instrumentation-client.ts), [sentry.server.config.ts](../../../sentry.server.config.ts), and [sentry.edge.config.ts](../../../sentry.edge.config.ts).
+- Structured server logging and exception capture now live in [src/lib/observability/server.ts](../../../src/lib/observability/server.ts), with client-side error capture in [src/lib/observability/client.ts](../../../src/lib/observability/client.ts).
+- High-value runtime paths now report through the shared observability layer in [src/app/error.tsx](../../../src/app/error.tsx), [src/app/api/v1/webhooks/stripe/route.ts](../../../src/app/api/v1/webhooks/stripe/route.ts), [src/services/audit.service.ts](../../../src/services/audit.service.ts), and the auth routes under [src/app/api/v1/auth](../../../src/app/api/v1/auth).
+- Coverage was added in [tests/unit/lib/observability/server.test.ts](../../../tests/unit/lib/observability/server.test.ts), and the auth/audit regressions remain covered by [tests/integration/auth.test.ts](../../../tests/integration/auth.test.ts), [tests/integration/auth-refresh.test.ts](../../../tests/integration/auth-refresh.test.ts), and [tests/unit/services/audit.service.test.ts](../../../tests/unit/services/audit.service.test.ts).
+
 Tasks:
 
-- `LR-04a` Install and configure Sentry for Next.js runtime paths.
-- `LR-04b` Add a small structured logger utility for API routes and webhooks.
-- `LR-04c` Replace raw `console.error` fallback paths where runtime observability is required.
-- `LR-04d` Add request correlation metadata for route and webhook failures.
-- `LR-04e` Update the runbook with smoke-test steps for Sentry validation.
+- [x] `LR-04a` Install and configure Sentry for Next.js runtime paths.
+- [x] `LR-04b` Add a small structured logger utility for API routes and webhooks.
+- [x] `LR-04c` Replace raw `console.error` fallback paths where runtime observability is required.
+- [x] `LR-04d` Add request correlation metadata for route and webhook failures.
+- [x] `LR-04e` Update the runbook with smoke-test steps for Sentry validation.
 
 Recommended commit sequence:
 
@@ -348,3 +355,10 @@ These are the core files that justified the current backlog:
   - `npm.cmd test`
   - `npm.cmd run build`
 - `LR-03` result: auth abuse protection is now active and verified. `check`, `test`, and `build` all pass; the pre-existing non-fatal Next standalone traced-file copy warning remains unchanged.
+- Completed `LR-04`: wired Sentry runtime initialization, structured server logging, and request-correlated error reporting across auth routes, the Stripe webhook, the global error boundary, and audit fallback paths.
+- `LR-04` verification commands:
+  - `npm.cmd test -- tests/unit/lib/observability/server.test.ts tests/unit/services/audit.service.test.ts tests/integration/auth.test.ts tests/integration/auth-refresh.test.ts`
+  - `npm.cmd run check`
+  - `npm.cmd test`
+  - `npm.cmd run build`
+- `LR-04` result: observability wiring is now active and verified. `check`, `test`, and `build` all pass; `npm run build` now also emits non-fatal `@sentry/nextjs` OpenTelemetry warnings alongside the pre-existing standalone traced-file copy warning.

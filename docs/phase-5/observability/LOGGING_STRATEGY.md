@@ -77,3 +77,10 @@ Log only IDs and compact metadata:
 - Add request correlation metadata to route and webhook failures.
 - Wire Sentry before public launch when `NEXT_PUBLIC_SENTRY_DSN` is present.
 - Treat audit logging and observability logging as separate systems with different purposes.
+
+Current launch-candidate wiring:
+
+- Sentry runtime init lives in `instrumentation-client.ts`, `instrumentation.ts`, `sentry.server.config.ts`, and `sentry.edge.config.ts`.
+- Structured JSON server logs live in `src/lib/observability/server.ts`.
+- Request IDs are attached to route/webhook failure logs and echoed on selected error responses.
+- Current high-value captured paths include the global app error boundary, auth route failures, Stripe webhook failures, and audit-log write failures.
