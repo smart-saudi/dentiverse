@@ -24,10 +24,10 @@ resource "vercel_project" "dentiverse" {
     production_branch = var.production_branch
   }
 
-  install_command = "npm ci"
-  build_command   = "npm run build"
+  install_command  = "npm ci"
+  build_command    = "npm run build"
   output_directory = ".next"
-  dev_command     = "npm run dev"
+  dev_command      = "npm run dev"
 }
 
 resource "vercel_project_environment_variable" "shared" {
