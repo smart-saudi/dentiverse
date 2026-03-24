@@ -2,7 +2,9 @@
 
 > **Read this at the start of every Claude Code session.**
 > Move tasks between sections as work progresses.
-> Last updated: 2026-03-23
+> Last updated: 2026-03-24
+
+> Launch-readiness work is now tracked in [docs/phase-5/operations/LAUNCH_BACKLOG.md](docs/phase-5/operations/LAUNCH_BACKLOG.md). Read that file after this one whenever the goal is release readiness.
 
 ---
 
@@ -19,6 +21,7 @@
 | M6: Payments & Escrow         | 8     | 8    | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 100% |
 | M7: Messaging & Notifications | 6     | 6    | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 100% |
 | M8: Polish & Launch           | 6     | 6    | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 100% |
+| M9: Launch Readiness          | 10    | 2    | 20%                                 |
 
 ---
 
@@ -43,7 +46,9 @@ _(none)_
 
 _(Prioritized backlog â€” work on these next, in order)_
 
-_(All tasks completed!)_
+- **M9-LR-02** Commit a clean release candidate now that `npm run check`, `npm test`, and `npm run build` are green.
+- **M9-LR-03** Add auth abuse protection.
+- **M9-LR-04** Wire observability runtime support and then stabilize the E2E gate.
 
 ---
 
@@ -67,6 +72,26 @@ _(Completed tasks â€” move here when finished with date)_
 - [x] **P2-4** Design System (colors, typography, components) â€” 2026-03-22
 - [x] **P2-5** Payment/Escrow Flow Diagram â€” 2026-03-22
 - [x] **P2-6** Dashboard Wireframes (client + designer) â€” 2026-03-22
+
+### Phase 5: Deployment & Operations
+
+- [x] **P5-1** Infrastructure as Code â€” Dockerfile, docker-compose, Terraform, GitHub Actions deploy pipeline â€” 2026-03-24
+- [x] **P5-2** Observability â€” logging strategy and SLA/SLO documents â€” 2026-03-24
+- [x] **P5-3** Deployment & Launch â€” runbook and rollback playbook â€” 2026-03-24
+
+### Phase 6: Launch Readiness
+
+- [x] **M9-LR-00** Create launch-readiness backlog and verification flow â€” 2026-03-24
+- [x] **M9-LR-01** Fix Supabase typing regression and restore green `check`/`build` - 2026-03-24
+- [ ] **M9-LR-02** Cut a clean, committed release candidate
+- [ ] **M9-LR-03** Add auth abuse protection
+- [ ] **M9-LR-04** Wire Sentry and structured runtime logging
+- [ ] **M9-LR-05** Make Playwright E2E validation reliable
+- [ ] **M9-LR-06** Define and implement the admin operating model
+- [ ] **M9-LR-07** Implement transactional email
+- [ ] **M9-LR-08** Resolve Google OAuth / Magic Link scope drift
+- [ ] **M9-LR-09** Run preview smoke tests and rollback rehearsal
+- [ ] **M9-LR-10** Final launch sign-off and doc lock
 
 ### M0: Project Setup
 
@@ -190,6 +215,10 @@ _(Completed tasks â€” move here when finished with date)_
 | 2026-03-24 | #13     | Verified `main` regressions were already resolved (`npm.cmd run check`, payment tests, full suite all green), then refined GAP-2 after PR #2 by upgrading the STL viewer controls/loading flow and marking the backlog accordingly.                                                                                                                                                               | GAP-3 Uppy uploader                                             |
 
 | 2026-03-24 | #15 | GAP-4 integration coverage complete. Added 6 focused integration test files covering auth refresh, case approve/request-revision, files signed-url, messages read, payment create-intent, and users dashboard/profile routes. Full repo health is green at 313 tests passing. | Monitor remaining file-reference follow-up |
+| 2026-03-24 | #16 | Design version file references hardened end-to-end. Design version submissions now store stable `{ bucket, path, name, size, type }` references instead of expiring signed URLs, and design version reads mint fresh signed URLs on demand while preserving backward compatibility for older rows. Refreshed local dependencies after syncing `main`. Full repo health is green at 315 tests passing. | No remaining backlog from the signed-URL follow-up |
+| 2026-03-24 | #17 | Phase 5 deployment and operations assets added. Created Dockerfile, docker-compose, Terraform scaffolding, GitHub Actions deploy workflow, observability docs, SLA/SLO, and a production runbook. Verified `npm.cmd run check`, `npm.cmd test`, `npm.cmd run build`, `docker compose config`, and a Docker image smoke test with local runtime env. | Optional next step: wire Sentry SDK into runtime and add Terraform validation to local tooling |
+| 2026-03-24 | #18 | Re-audited launch readiness against the current workspace, found the repo is not launch-ready, and created `docs/phase-5/operations/LAUNCH_BACKLOG.md` as the living tracker for blockers, owners, sequence, and evidence. Recorded the next required task as `LR-01`: restore green release health by fixing the Supabase typing regression. | Start `LR-01` and update the launch backlog as each commit-sized task lands |
+| 2026-03-24 | #19 | Completed `LR-01` launch recovery. Regenerated `src/lib/database.types.ts`, introduced the shared `src/lib/supabase/types.ts` contract, normalized Supabase factory and service typing, fixed the last nullable designer rating call sites, and restored green `npm.cmd run check`, `npm.cmd test`, and `npm.cmd run build`. | Start `LR-02` by cutting a clean, committed release candidate |
 
 ---
 
@@ -201,6 +230,8 @@ _(Prioritized backlog â€” remaining gaps)_
 - [x] **GAP-2** Frontend stack maturity â€” installed `three`, `@react-three/fiber`, `@react-three/drei`; upgraded `stl-viewer.tsx` to React Three Fiber + STLLoader â€” 2026-03-24
 - [x] **GAP-3** Frontend stack maturity â€” installed `@uppy/core`, `@uppy/dashboard`, `@uppy/tus`; upgraded `file-uploader.tsx` to Uppy.js with Dashboard UI and optional Tus support â€” 2026-03-24
 - [x] **GAP-4** Integration tests for new API routes (approve, request-revision, signed-url, create-intent, dashboard, auth/refresh, users/[id], messages/read) â€” 2026-03-24
+- [ ] **M9-LR-02** Commit a clean release candidate now that release gates are green
+- [ ] **M9-LR-03** Complete the remaining launch blockers through `M9-LR-10` in backlog order
 
 ---
 
@@ -208,16 +239,17 @@ _(Prioritized backlog â€” remaining gaps)_
 
 > Track architectural decisions and known issues here.
 
-| #   | Type     | Description                             | Decision/Status                                                             |
-| --- | -------- | --------------------------------------- | --------------------------------------------------------------------------- |
-| 1   | Decision | Auth provider                           | Supabase Auth (email + Google OAuth + Magic Link)                           |
-| 2   | Decision | Payment model                           | 12% platform fee, Stripe Connect escrow                                     |
-| 3   | Decision | File storage                            | Supabase Storage (S3-compatible), private buckets                           |
-| 4   | Decision | 3D viewer                               | Three.js via React Three Fiber                                              |
-| 5   | Decision | State management                        | Zustand (client) + TanStack Query (server state)                            |
-| 6   | Decision | Testing                                 | Vitest (unit/integration) + Playwright (E2E), TDD approach                  |
-| 7   | Issue    | npm not available in worktree sandbox   | Hand-craft components instead of `npx shadcn`                               |
-| 8   | Issue    | Merge conflicts on add/add              | Main repo has placeholder files from M0-1; resolve by taking branch version |
-| 9   | Learning | Tailwind CSS v4 uses `@theme` directive | Use CSS custom properties in globals.css, not tailwind.config.js theme      |
-
-| 11 | Issue | Uploaded design files still flow through expiring signed URLs | Follow up by storing stable bucket/path references and minting signed URLs on read |
+| #   | Type     | Description                                                                                                   | Decision/Status                                                                                                                                  |
+| --- | -------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Decision | Auth provider                                                                                                 | Supabase Auth (email + Google OAuth + Magic Link)                                                                                                |
+| 2   | Decision | Payment model                                                                                                 | 12% platform fee, Stripe Connect escrow                                                                                                          |
+| 3   | Decision | File storage                                                                                                  | Supabase Storage (S3-compatible), private buckets                                                                                                |
+| 4   | Decision | 3D viewer                                                                                                     | Three.js via React Three Fiber                                                                                                                   |
+| 5   | Decision | State management                                                                                              | Zustand (client) + TanStack Query (server state)                                                                                                 |
+| 6   | Decision | Testing                                                                                                       | Vitest (unit/integration) + Playwright (E2E), TDD approach                                                                                       |
+| 7   | Issue    | npm not available in worktree sandbox                                                                         | Hand-craft components instead of `npx shadcn`                                                                                                    |
+| 8   | Issue    | Merge conflicts on add/add                                                                                    | Main repo has placeholder files from M0-1; resolve by taking branch version                                                                      |
+| 9   | Learning | Tailwind CSS v4 uses `@theme` directive                                                                       | Use CSS custom properties in globals.css, not tailwind.config.js theme                                                                           |
+| 10  | Issue    | Next.js standalone build emits a traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` | Docker image still builds and boots with real env vars; monitor first production deploy and revisit if runtime issues appear                     |
+| 11  | Issue    | Launch readiness is still incomplete                                                                          | `npm run check`, `npm test`, and `npm run build` are green again; continue from `M9-LR-02` onward in `docs/phase-5/operations/LAUNCH_BACKLOG.md` |
+| 12  | Issue    | Launch docs previously drifted from runtime status                                                            | Use `LAUNCH_BACKLOG.md` as the living source of truth and mirror only top-level status here                                                      |

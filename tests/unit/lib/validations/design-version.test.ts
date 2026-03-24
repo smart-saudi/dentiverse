@@ -9,7 +9,15 @@ import {
 
 describe('createDesignVersionSchema', () => {
   const validInput = {
-    file_urls: ['https://storage.example.com/file1.stl'],
+    files: [
+      {
+        bucket: 'design-files',
+        path: 'designer-1/file1.stl',
+        name: 'file1.stl',
+        size: 2048,
+        type: 'model/stl',
+      },
+    ],
     notes: 'Initial submission with full arch.',
   };
 
@@ -18,15 +26,15 @@ describe('createDesignVersionSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('should require at least one file URL', () => {
-    const result = createDesignVersionSchema.safeParse({ ...validInput, file_urls: [] });
+  it('should require at least one stored file reference', () => {
+    const result = createDesignVersionSchema.safeParse({ ...validInput, files: [] });
     expect(result.success).toBe(false);
   });
 
-  it('should validate file URLs are valid URLs', () => {
+  it('should reject malformed file references', () => {
     const result = createDesignVersionSchema.safeParse({
       ...validInput,
-      file_urls: ['not-a-url'],
+      files: [{ bucket: '', path: '', name: '', size: -1, type: '' }],
     });
     expect(result.success).toBe(false);
   });
@@ -49,7 +57,15 @@ describe('createDesignVersionSchema', () => {
 
   it('should make notes optional', () => {
     const result = createDesignVersionSchema.safeParse({
-      file_urls: ['https://storage.example.com/file.stl'],
+      files: [
+        {
+          bucket: 'design-files',
+          path: 'designer-1/file.stl',
+          name: 'file.stl',
+          size: 1024,
+          type: 'model/stl',
+        },
+      ],
     });
     expect(result.success).toBe(true);
   });

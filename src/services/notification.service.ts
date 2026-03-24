@@ -1,6 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import type { Database } from '@/lib/database.types';
+import type { AppSupabaseClient } from '@/lib/supabase/types';
 import type {
   CreateNotificationInput,
   NotificationListQuery,
@@ -21,7 +20,7 @@ export class NotificationService {
    * @throws Error if insert fails
    */
   async createNotification(
-    supabase: SupabaseClient<Database>,
+    supabase: AppSupabaseClient,
     input: CreateNotificationInput,
   ): Promise<NotificationRow> {
     const { data, error } = await supabase
@@ -50,7 +49,7 @@ export class NotificationService {
    * @returns Paginated notifications and meta
    */
   async listNotifications(
-    supabase: SupabaseClient<Database>,
+    supabase: AppSupabaseClient,
     userId: string,
     query: NotificationListQuery,
   ): Promise<{
@@ -92,7 +91,7 @@ export class NotificationService {
    * @throws Error if not found or update fails
    */
   async markAsRead(
-    supabase: SupabaseClient<Database>,
+    supabase: AppSupabaseClient,
     notificationId: string,
     userId: string,
   ): Promise<NotificationRow> {
@@ -114,7 +113,7 @@ export class NotificationService {
    * @param supabase - Authenticated Supabase client
    * @param userId - The user's ID
    */
-  async markAllAsRead(supabase: SupabaseClient<Database>, userId: string): Promise<void> {
+  async markAllAsRead(supabase: AppSupabaseClient, userId: string): Promise<void> {
     await supabase
       .from('notifications')
       .update({ is_read: true })
@@ -129,10 +128,7 @@ export class NotificationService {
    * @param userId - The user's ID
    * @returns The unread count
    */
-  async getUnreadCount(
-    supabase: SupabaseClient<Database>,
-    userId: string,
-  ): Promise<number> {
+  async getUnreadCount(supabase: AppSupabaseClient, userId: string): Promise<number> {
     const { count, error } = await supabase
       .from('notifications')
       .select('*', { count: 'exact', head: true })

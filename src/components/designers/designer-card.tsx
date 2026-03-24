@@ -22,6 +22,7 @@ export function DesignerCard({ designer }: DesignerCardProps) {
   const specializations = (designer.specializations as string[]) ?? [];
   const softwareSkills = (designer.software_skills as string[]) ?? [];
   const languages = (designer.languages as string[]) ?? [];
+  const avgRating = designer.avg_rating ?? 0;
 
   return (
     <Link href={`/designers/${designer.id}`}>
@@ -38,7 +39,7 @@ export function DesignerCard({ designer }: DesignerCardProps) {
             </div>
             <div className="flex items-center gap-1 text-sm font-medium">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span>{designer.avg_rating.toFixed(1)}</span>
+              <span>{avgRating.toFixed(1)}</span>
               <span className="text-muted-foreground">({designer.total_reviews})</span>
             </div>
           </div>

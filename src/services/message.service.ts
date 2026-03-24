@@ -1,6 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import type { Database } from '@/lib/database.types';
+import type { AppSupabaseClient } from '@/lib/supabase/types';
 import type { CreateMessageInput, MessageListQuery } from '@/lib/validations/message';
 
 type MessageRow = Database['public']['Tables']['messages']['Row'];
@@ -20,7 +19,7 @@ export class MessageService {
    * @throws Error if insert fails
    */
   async sendMessage(
-    supabase: SupabaseClient<Database>,
+    supabase: AppSupabaseClient,
     caseId: string,
     senderId: string,
     input: CreateMessageInput,
@@ -49,7 +48,7 @@ export class MessageService {
    * @returns Paginated messages and meta
    */
   async listMessages(
-    supabase: SupabaseClient<Database>,
+    supabase: AppSupabaseClient,
     caseId: string,
     query: MessageListQuery,
   ): Promise<{
@@ -84,7 +83,7 @@ export class MessageService {
    * @param userId - The current user (only marks messages NOT sent by them)
    */
   async markAsRead(
-    supabase: SupabaseClient<Database>,
+    supabase: AppSupabaseClient,
     caseId: string,
     userId: string,
   ): Promise<void> {

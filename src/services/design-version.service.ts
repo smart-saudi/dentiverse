@@ -1,6 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import type { Database } from '@/lib/database.types';
+import type { AppSupabaseClient } from '@/lib/supabase/types';
 import type {
   CreateDesignVersionInput,
   ReviewDesignVersionInput,
@@ -8,8 +7,75 @@ import type {
 } from '@/lib/validations/design-version';
 import { NotFoundError } from '@/lib/errors';
 
-type Client = SupabaseClient<Database>;
+type Client = AppSupabaseClient;
 type DesignVersionRow = Database['public']['Tables']['design_versions']['Row'];
+
+interface StoredDesignVersionFile {
+  bucket: string;
+  path: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
+interface ResolvedDesignVersionFile extends StoredDesignVersionFile {
+  expires_at: string | null;
+  url: string;
+}
+
+export interface DesignVersionListItem extends Omit<DesignVersionRow, 'file_urls'> {
+  file_urls: string[];
+  files: ResolvedDesignVersionFile[];
+}
+
+/**
+ * Check whether a JSON value matches the stored file reference shape.
+ *
+ * @param value - Unknown JSON value
+ * @returns Whether the value is a stored design-version file reference
+ */
+function isStoredDesignVersionFile(value: unknown): value is StoredDesignVersionFile {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'bucket' in value &&
+    typeof value.bucket === 'string' &&
+    'path' in value &&
+    typeof value.path === 'string' &&
+    'name' in value &&
+    typeof value.name === 'string' &&
+    'size' in value &&
+    typeof value.size === 'number' &&
+    'type' in value &&
+    typeof value.type === 'string'
+  );
+}
+
+/**
+ * Extract a readable filename from a storage path.
+ *
+ * @param path - Storage path
+ * @returns The decoded filename
+ */
+function getFileNameFromPath(path: string): string {
+  const segments = path.split('/');
+  return decodeURIComponent(segments[segments.length - 1] ?? path);
+}
+
+/**
+ * Extract a readable filename from a URL.
+ *
+ * @param url - File URL
+ * @returns The decoded filename
+ */
+function getFileNameFromUrl(url: string): string {
+  try {
+    const pathname = new URL(url).pathname;
+    return getFileNameFromPath(pathname);
+  } catch {
+    return url;
+  }
+}
 
 /**
  * Service for design version operations (submit, review, list).
@@ -38,7 +104,7 @@ export class DesignVersionService {
         case_id: caseId,
         designer_id: designerId,
         version_number: versionNumber,
-        file_urls: input.file_urls,
+        file_urls: input.files,
         thumbnail_url: input.thumbnail_url ?? null,
         preview_model_url: input.preview_model_url ?? null,
         notes: input.notes ?? null,
@@ -107,6 +173,74 @@ export class DesignVersionService {
         total,
         total_pages: Math.ceil(total / query.per_page),
       },
+    };
+  }
+
+  /**
+   * Resolve stored file references into fresh signed URLs for API responses.
+   *
+   * Supports both the new stored `{ bucket, path, ... }` format and legacy rows
+   * that still contain raw URLs.
+   *
+   * @param client - Supabase client
+   * @param version - Stored design version row
+   * @param expiresIn - Signed URL lifetime in seconds
+   * @returns Design version response with resolved file URLs
+   */
+  async resolveVersionFiles(
+    client: Client,
+    version: DesignVersionRow,
+    expiresIn = 3600,
+  ): Promise<DesignVersionListItem> {
+    const rawFiles = Array.isArray(version.file_urls) ? version.file_urls : [];
+
+    const files = await Promise.all(
+      rawFiles.map(async (rawFile) => {
+        if (typeof rawFile === 'string') {
+          return {
+            bucket: 'legacy',
+            path: rawFile,
+            name: getFileNameFromUrl(rawFile),
+            size: 0,
+            type: 'application/octet-stream',
+            expires_at: null,
+            url: rawFile,
+          } satisfies ResolvedDesignVersionFile;
+        }
+
+        if (!isStoredDesignVersionFile(rawFile)) {
+          return null;
+        }
+
+        const { data, error } = await client.storage
+          .from(rawFile.bucket)
+          .createSignedUrl(rawFile.path, expiresIn);
+
+        if (error || !data?.signedUrl) {
+          return null;
+        }
+
+        return {
+          bucket: rawFile.bucket,
+          path: rawFile.path,
+          name: rawFile.name || getFileNameFromPath(rawFile.path),
+          size: rawFile.size,
+          type: rawFile.type,
+          expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
+          url: data.signedUrl,
+        } satisfies ResolvedDesignVersionFile;
+      }),
+    );
+
+    const resolvedFiles = files.filter(
+      (file: ResolvedDesignVersionFile | null): file is ResolvedDesignVersionFile =>
+        file !== null,
+    );
+
+    return {
+      ...version,
+      file_urls: resolvedFiles.map((file) => file.url),
+      files: resolvedFiles,
     };
   }
 

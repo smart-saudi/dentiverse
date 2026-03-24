@@ -1,6 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import type { Database } from '@/lib/database.types';
+import type { AppSupabaseClient } from '@/lib/supabase/types';
 import type {
   CreateDesignerProfileInput,
   UpdateDesignerProfileInput,
@@ -8,7 +7,7 @@ import type {
 } from '@/lib/validations/designer';
 import { NotFoundError } from '@/lib/errors';
 
-type Client = SupabaseClient<Database>;
+type Client = AppSupabaseClient;
 type DesignerProfileRow = Database['public']['Tables']['designer_profiles']['Row'];
 
 /**

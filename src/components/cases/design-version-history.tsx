@@ -7,9 +7,31 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StlViewer } from '@/components/viewer/stl-viewer';
-import type { Database } from '@/lib/database.types';
 
-type DesignVersionRow = Database['public']['Tables']['design_versions']['Row'];
+interface LegacyDesignVersionFile {
+  name: string;
+  url: string;
+}
+
+interface ResolvedDesignVersionFile extends LegacyDesignVersionFile {
+  bucket: string;
+  expires_at: string | null;
+  path: string;
+  size: number;
+  type: string;
+}
+
+interface DesignVersionListItem {
+  id: string;
+  version_number: number;
+  status: string;
+  notes: string | null;
+  revision_feedback: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  file_urls: string[];
+  files: ResolvedDesignVersionFile[];
+}
 
 const STATUS_CONFIG: Record<
   string,
@@ -35,6 +57,22 @@ interface DesignVersionHistoryProps {
 }
 
 /**
+ * Derive a readable file name from a URL when older rows do not have stored metadata.
+ *
+ * @param url - File URL
+ * @returns A best-effort display name
+ */
+function getLegacyFileName(url: string): string {
+  try {
+    const pathname = new URL(url).pathname;
+    const segments = pathname.split('/');
+    return decodeURIComponent(segments[segments.length - 1] ?? url);
+  } catch {
+    return url;
+  }
+}
+
+/**
  * Design version history showing all submissions with review actions.
  *
  * @param props - Component props
@@ -48,7 +86,7 @@ export function DesignVersionHistory({
   canReview,
   canSubmit,
 }: DesignVersionHistoryProps) {
-  const [versions, setVersions] = useState<DesignVersionRow[]>([]);
+  const [versions, setVersions] = useState<DesignVersionListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [feedback, setFeedback] = useState('');
   const [reviewingId, setReviewingId] = useState<string | null>(null);
@@ -58,7 +96,7 @@ export function DesignVersionHistory({
       const res = await fetch(`/api/v1/cases/${caseId}/design-versions`);
       if (res.ok) {
         const json = await res.json();
-        setVersions(json.data);
+        setVersions(json.data as DesignVersionListItem[]);
       }
     } catch {
       // silently ignore
@@ -118,8 +156,16 @@ export function DesignVersionHistory({
           label: 'Submitted',
         };
         const StatusIcon = config.icon;
-        const fileUrls = (version.file_urls as string[]) ?? [];
-        const stlFile = fileUrls.find((u) => u.endsWith('.stl') || u.endsWith('.obj'));
+        const legacyFiles = (version.file_urls ?? []).map((url) => ({
+          name: getLegacyFileName(url),
+          url,
+        })) satisfies LegacyDesignVersionFile[];
+        const files = version.files.length > 0 ? version.files : legacyFiles;
+        const stlFile = files.find(
+          (file) =>
+            file.name.toLowerCase().endsWith('.stl') ||
+            file.name.toLowerCase().endsWith('.obj'),
+        );
 
         return (
           <Card key={version.id}>
@@ -141,22 +187,22 @@ export function DesignVersionHistory({
 
               {/* File list */}
               <div className="space-y-1">
-                {fileUrls.map((url, i) => (
+                {files.map((file, i) => (
                   <a
                     key={i}
-                    href={url}
+                    href={file.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary flex items-center gap-2 text-sm hover:underline"
                   >
                     <FileIcon className="h-3.5 w-3.5" />
-                    {url.split('/').pop()}
+                    {file.name}
                   </a>
                 ))}
               </div>
 
               {/* 3D preview */}
-              {stlFile && <StlViewer url={stlFile} className="h-64" />}
+              {stlFile && <StlViewer url={stlFile.url} className="h-64" />}
 
               {/* Revision feedback */}
               {version.revision_feedback && (

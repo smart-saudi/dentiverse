@@ -1,12 +1,12 @@
 import type Stripe from 'stripe';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/lib/database.types';
+import type { AppSupabaseClient } from '@/lib/supabase/types';
 import type { CreatePaymentInput, PaymentListQuery } from '@/lib/validations/payment';
 import { PLATFORM_FEE_PERCENT } from '@/lib/constants';
 import { NotFoundError } from '@/lib/errors';
 
-type Client = SupabaseClient<Database>;
+type Client = AppSupabaseClient;
 type PaymentRow = Database['public']['Tables']['payments']['Row'];
 
 /**

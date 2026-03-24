@@ -41,7 +41,13 @@ export function DesignVersionSubmit({ caseId, onSubmitted }: DesignVersionSubmit
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          file_urls: files.map((f) => f.url),
+          files: files.map((file) => ({
+            bucket: file.bucket,
+            path: file.path,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          })),
           notes: notes.trim() || undefined,
         }),
       });

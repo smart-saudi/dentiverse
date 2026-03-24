@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 import type { Database } from '@/lib/database.types';
+import type { AppSupabaseClient, SupabaseCookieToSet } from '@/lib/supabase/types';
 
 /**
  * Create a Supabase client for use in Server Components, Server Actions,
@@ -9,7 +10,7 @@ import type { Database } from '@/lib/database.types';
  *
  * @returns Supabase server client instance
  */
-export async function createServerSupabaseClient() {
+export async function createServerSupabaseClient(): Promise<AppSupabaseClient> {
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
@@ -20,7 +21,7 @@ export async function createServerSupabaseClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: SupabaseCookieToSet[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options),
@@ -33,5 +34,5 @@ export async function createServerSupabaseClient() {
         },
       },
     },
-  );
+  ) as unknown as AppSupabaseClient;
 }

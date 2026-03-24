@@ -1,13 +1,11 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
-import type { Database } from '@/lib/database.types';
+import type { AppSupabaseClient } from '@/lib/supabase/types';
 import type {
   RegisterInput,
   LoginInput,
   ForgotPasswordInput,
 } from '@/lib/validations/auth';
 
-type Client = SupabaseClient<Database>;
+type Client = AppSupabaseClient;
 
 /**
  * Service layer for authentication operations.

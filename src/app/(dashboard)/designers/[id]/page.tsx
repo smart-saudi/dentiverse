@@ -79,6 +79,7 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
   const languages = (designer.languages as string[]) ?? [];
   const certifications = (designer.certifications as string[]) ?? [];
   const portfolioUrls = (designer.portfolio_urls as string[]) ?? [];
+  const avgRating = designer.avg_rating ?? 0;
 
   return (
     <div className="space-y-6">
@@ -100,7 +101,7 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
           </div>
           <div className="text-muted-foreground mt-1 flex items-center gap-2 text-sm">
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="font-medium">{designer.avg_rating.toFixed(1)}</span>
+            <span className="font-medium">{avgRating.toFixed(1)}</span>
             <span>({designer.total_reviews} reviews)</span>
             <span>&middot;</span>
             <span>{designer.years_experience} years experience</span>

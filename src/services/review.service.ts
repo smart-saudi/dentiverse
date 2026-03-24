@@ -1,10 +1,9 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import type { Database } from '@/lib/database.types';
+import type { AppSupabaseClient } from '@/lib/supabase/types';
 import type { CreateReviewInput, ReviewListQuery } from '@/lib/validations/review';
 import { NotFoundError } from '@/lib/errors';
 
-type Client = SupabaseClient<Database>;
+type Client = AppSupabaseClient;
 type ReviewRow = Database['public']['Tables']['reviews']['Row'];
 
 /**

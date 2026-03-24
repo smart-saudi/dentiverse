@@ -123,7 +123,13 @@ export async function GET(req: NextRequest, context: RouteContext) {
       caseId,
       parsed.data,
     );
-    return NextResponse.json({ data: result.data, meta: result.meta });
+    const versions = await Promise.all(
+      result.data.map((version) =>
+        designVersionService.resolveVersionFiles(supabase, version),
+      ),
+    );
+
+    return NextResponse.json({ data: versions, meta: result.meta });
   } catch (err) {
     return NextResponse.json(
       {

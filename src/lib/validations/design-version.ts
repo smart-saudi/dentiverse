@@ -6,11 +6,19 @@ export const DESIGN_VERSION_STATUSES = [
   'REVISION_REQUESTED',
 ] as const;
 
+export const designVersionFileSchema = z.object({
+  bucket: z.string().trim().min(1).max(100),
+  path: z.string().trim().min(1).max(500),
+  name: z.string().trim().min(1).max(255),
+  size: z.number().int().nonnegative(),
+  type: z.string().trim().min(1).max(255),
+});
+
 /**
  * Schema for creating a design version submission.
  */
 export const createDesignVersionSchema = z.object({
-  file_urls: z.array(z.string().url()).min(1),
+  files: z.array(designVersionFileSchema).min(1),
   thumbnail_url: z.string().url().optional(),
   preview_model_url: z.string().url().optional(),
   notes: z.string().trim().max(2000).optional(),

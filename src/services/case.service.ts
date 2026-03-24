@@ -1,13 +1,12 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import type { Database } from '@/lib/database.types';
+import type { AppSupabaseClient } from '@/lib/supabase/types';
 import type {
   CreateCaseInput,
   UpdateCaseInput,
   CaseListQuery,
 } from '@/lib/validations/case';
 
-type Client = SupabaseClient<Database>;
+type Client = AppSupabaseClient;
 type CaseRow = Database['public']['Tables']['cases']['Row'];
 
 /**

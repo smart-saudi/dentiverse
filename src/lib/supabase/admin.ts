@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/lib/database.types';
+import type { AppSupabaseClient } from '@/lib/supabase/types';
 
 /**
  * Create a Supabase admin client using the service role key.
@@ -10,7 +11,7 @@ import type { Database } from '@/lib/database.types';
  *
  * @returns Supabase admin client instance
  */
-export function createAdminClient() {
+export function createAdminClient(): AppSupabaseClient {
   return createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -20,5 +21,5 @@ export function createAdminClient() {
         persistSession: false,
       },
     },
-  );
+  ) as AppSupabaseClient;
 }

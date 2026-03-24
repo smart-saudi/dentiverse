@@ -16,12 +16,12 @@ interface UppyMeta extends Record<string, string> {
 type UppyBody = Record<string, never>;
 
 export interface UploadedFile {
-  url: string;
+  bucket: string;
   name: string;
+  path: string;
   size: number;
   type: string;
-  path?: string;
-  bucket?: string;
+  url: string;
 }
 
 interface FileUploaderProps {
@@ -69,10 +69,14 @@ function isUploadResponseBody(value: unknown): value is UploadResponseBody {
   }
 
   return (
+    'bucket' in data &&
+    typeof data.bucket === 'string' &&
     'url' in data &&
     typeof data.url === 'string' &&
     'name' in data &&
     typeof data.name === 'string' &&
+    'path' in data &&
+    typeof data.path === 'string' &&
     'size' in data &&
     typeof data.size === 'number' &&
     'type' in data &&

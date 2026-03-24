@@ -115,13 +115,14 @@ This project uses **Test-Driven Development (TDD)**:
 
 ### Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start dev server |
-| `pnpm test` | Run all tests |
-| `pnpm test -- path/to/file` | Run single test |
-| `pnpm run check` | Lint + typecheck + format |
-| `pnpm build` | Production build |
+| Command                                       | Description                           |
+| --------------------------------------------- | ------------------------------------- |
+| `pnpm dev`                                    | Start dev server                      |
+| `docker compose --env-file .env.local up web` | Run the app in Docker with hot reload |
+| `pnpm test`                                   | Run all tests                         |
+| `pnpm test -- path/to/file`                   | Run single test                       |
+| `pnpm run check`                              | Lint + typecheck + format             |
+| `pnpm build`                                  | Production build                      |
 
 ### Before Every Commit
 
@@ -143,17 +144,17 @@ docs: update README
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS, shadcn/ui |
-| 3D Viewer | Three.js / React Three Fiber |
-| Backend | Supabase + Next.js API Routes |
-| Database | PostgreSQL 16 (Supabase) |
-| Payments | Stripe Connect (escrow) |
-| Auth | Supabase Auth |
-| File Upload | Uppy.js → Supabase Storage |
-| Hosting | Vercel + Supabase Cloud |
-| Testing | Vitest + Playwright |
+| Layer       | Technology                                                |
+| ----------- | --------------------------------------------------------- |
+| Frontend    | Next.js 15, React 19, TypeScript, Tailwind CSS, shadcn/ui |
+| 3D Viewer   | Three.js / React Three Fiber                              |
+| Backend     | Supabase + Next.js API Routes                             |
+| Database    | PostgreSQL 16 (Supabase)                                  |
+| Payments    | Stripe Connect (escrow)                                   |
+| Auth        | Supabase Auth                                             |
+| File Upload | Uppy.js → Supabase Storage                                |
+| Hosting     | Vercel + Supabase Cloud                                   |
+| Testing     | Vitest + Playwright                                       |
 
 ---
 
@@ -161,10 +162,13 @@ docs: update README
 
 All planning and specification documents live in the `docs/` directory:
 
-| Phase | Documents |
-|-------|----------|
-| **Phase 1** | PRD, User Personas, Tech Spec |
+| Phase       | Documents                                                      |
+| ----------- | -------------------------------------------------------------- |
+| **Phase 1** | PRD, User Personas, Tech Spec                                  |
 | **Phase 2** | Schema SQL, OpenAPI spec, Design System, Architecture diagrams |
+| **Phase 3** | AI workflow, task tracker, developer onboarding                |
+| **Phase 4** | Security, QA, performance, release checklists                  |
+| **Phase 5** | Infrastructure as code, observability, deployment runbook      |
 
 For Claude Code users: read `CLAUDE.md` for all coding standards and conventions.
 
