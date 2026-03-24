@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { AuditService, extractRequestMeta } from '@/services/audit.service';
+
+const audit = new AuditService();
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -120,6 +123,17 @@ export async function POST(req: NextRequest, context: RouteContext) {
 
     if (updateError || !updated)
       throw new Error(updateError?.message ?? 'Failed to request revision');
+
+    const meta = extractRequestMeta(req);
+    audit.log({
+      userId: user.id,
+      action: 'case.revision_requested',
+      entityType: 'case',
+      entityId: caseId,
+      oldData: { status: 'REVIEW', revision_count: caseRow.revision_count },
+      newData: { status: 'REVISION', revision_count: (caseRow.revision_count ?? 0) + 1 },
+      ...meta,
+    });
 
     return NextResponse.json({ data: updated });
   } catch (err) {

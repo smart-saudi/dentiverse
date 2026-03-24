@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createPaymentSchema, paymentListQuerySchema } from '@/lib/validations/payment';
+import { AuditService, extractRequestMeta } from '@/services/audit.service';
 import { PaymentService } from '@/services/payment.service';
 
 const paymentService = new PaymentService();
+const audit = new AuditService();
 
 /**
  * POST /api/v1/payments — Create a payment record (escrow hold initiation).
@@ -40,6 +42,21 @@ export async function POST(req: NextRequest) {
 
   try {
     const payment = await paymentService.createPayment(supabase, user.id, parsed.data);
+
+    const meta = extractRequestMeta(req);
+    audit.log({
+      userId: user.id,
+      action: 'payment.created',
+      entityType: 'payment',
+      entityId: payment.id,
+      newData: {
+        amount: payment.amount,
+        currency: payment.currency,
+        status: payment.status,
+      },
+      ...meta,
+    });
+
     return NextResponse.json({ data: payment }, { status: 201 });
   } catch (err) {
     return NextResponse.json(
