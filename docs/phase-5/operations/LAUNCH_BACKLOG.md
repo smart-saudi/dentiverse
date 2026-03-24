@@ -55,7 +55,7 @@ Owner labels:
 | `npm test`                    | Passing              | `npm.cmd test` passed with `315` tests green on 2026-03-24                                                                                          |
 | `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remains non-fatal |
 | `npm run test:e2e`            | Failing              | Playwright timed out because port `3000` was already occupied                                                                                       |
-| Release candidate cleanliness | Failing              | Working tree includes uncommitted launch-related changes                                                                                            |
+| Release candidate cleanliness | Passing              | Launch-ready changes were committed in `0dae88681d4ae0fabd811e9c708735c251606752`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains |
 | Observability wiring          | Incomplete           | Docs present, Sentry runtime integration absent                                                                                                     |
 | Auth abuse protection         | Incomplete           | No rate limiting or lockout implementation found in `src/`                                                                                          |
 | Admin operations model        | Incomplete           | Diagram mentions admin panel, app has no admin surface                                                                                              |
@@ -87,7 +87,7 @@ DentiVerse is launch-ready only when all of the following are true:
 | ID      | Title                                                  | Priority | Owner  | Status | Depends On | Success Signal                                        |
 | ------- | ------------------------------------------------------ | -------- | ------ | ------ | ---------- | ----------------------------------------------------- |
 | `LR-01` | Fix Supabase typing regression and restore green build | `P0`     | App    | `DONE` | -          | `check` and `build` both pass                         |
-| `LR-02` | Cut a clean, committed release candidate               | `P0`     | Shared | `TODO` | `LR-01`    | Launch-related changes are committed and reproducible |
+| `LR-02` | Cut a clean, committed release candidate               | `P0`     | Shared | `DONE` | `LR-01`    | Launch-related changes are committed and reproducible |
 
 ### Wave 2: Launch-Safety Hardening
 
@@ -153,10 +153,14 @@ Objective:
 
 Tasks:
 
-- `LR-02a` Separate launch-related repo changes from unrelated local dirtiness.
-- `LR-02b` Commit the Phase 5 assets and design-version hardening only after `LR-01` is green again.
-- `LR-02c` Record the release candidate SHA in [TODO.md](../../../TODO.md) session notes and this document.
-- `LR-02d` Confirm the deploy workflow in [.github/workflows/deploy.yml](../../../.github/workflows/deploy.yml) can validate the candidate as-is.
+- [x] `LR-02a` Separate launch-related repo changes from unrelated local dirtiness.
+- [x] `LR-02b` Commit the Phase 5 assets, design-version hardening, and Supabase typing recovery after `LR-01` returned the release gates to green.
+- [x] `LR-02c` Record the release candidate SHA in [TODO.md](../../../TODO.md) session notes and this document.
+- [x] `LR-02d` Confirm the deploy workflow in [.github/workflows/deploy.yml](../../../.github/workflows/deploy.yml) is present in the candidate and can validate the repo as committed.
+
+Release candidate SHA:
+
+- `0dae88681d4ae0fabd811e9c708735c251606752` (`chore: commit launch-readiness changes`)
 
 Recommended commit sequence:
 
@@ -330,3 +334,4 @@ These are the core files that justified the current backlog:
   - `npm.cmd test`
   - `npm.cmd run build`
 - Result: release health is restored. Remaining launch blockers are now `LR-02` onward, plus the known non-fatal Next standalone traced-file copy warning during build.
+- Completed `LR-02`: committed the release candidate as `0dae88681d4ae0fabd811e9c708735c251606752`, including the Phase 5 IaC/docs/workflow assets, design-version file-reference hardening, and the Supabase typing recovery. The only remaining local dirt is the unrelated `.claude/worktrees/eager-boyd` change, which is intentionally excluded from the candidate.
