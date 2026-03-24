@@ -49,17 +49,17 @@ Owner labels:
 
 ## Current Snapshot
 
-| Gate                          | Current State        | Last Evidence                                                                                                                                                                                                      |
-| ----------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                                                 |
-| `npm test`                    | Passing              | `npm.cmd test` passed with `325` tests green on 2026-03-24                                                                                                                                                         |
-| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; non-fatal OpenTelemetry dependency warnings from `@sentry/nextjs` and the standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remain |
-| `npm run test:e2e`            | Failing              | Playwright timed out because port `3000` was already occupied                                                                                                                                                      |
-| Release candidate cleanliness | Passing              | Launch-ready changes were committed in `0dae88681d4ae0fabd811e9c708735c251606752`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains                                                                |
-| Observability wiring          | Passing              | Sentry runtime init and structured server logging are active in the launch candidate, with coverage in `tests/unit/lib/observability/server.test.ts`                                                               |
-| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts`                           |
-| Admin operations model        | Incomplete           | Diagram mentions admin panel, app has no admin surface                                                                                                                                                             |
-| Transactional email           | Incomplete           | `resend` dependency exists, no runtime usage under `src/`                                                                                                                                                          |
+| Gate                          | Current State        | Last Evidence                                                                                                                                                                                                        |
+| ----------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                                                   |
+| `npm test`                    | Passing              | `npm.cmd test` passed with `328` tests green on 2026-03-24                                                                                                                                                           |
+| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; non-fatal OpenTelemetry dependency warnings from `@sentry/nextjs` and the standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remain   |
+| `npm run test:e2e`            | Passing              | `npm.cmd run test:e2e` passed with `11` Chromium specs on 2026-03-24 using the dedicated Playwright server at `http://127.0.0.1:3100`; CI now installs browsers and runs the suite in `.github/workflows/deploy.yml` |
+| Release candidate cleanliness | Passing              | Completed launch-readiness work is committed on `main`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains in the workspace during active development                                                  |
+| Observability wiring          | Passing              | Sentry runtime init and structured server logging are active in the launch candidate, with coverage in `tests/unit/lib/observability/server.test.ts`                                                                 |
+| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts`                             |
+| Admin operations model        | Incomplete           | Diagram mentions admin panel, app has no admin surface                                                                                                                                                               |
+| Transactional email           | Incomplete           | `resend` dependency exists, no runtime usage under `src/`                                                                                                                                                            |
 
 ---
 
@@ -95,7 +95,7 @@ DentiVerse is launch-ready only when all of the following are true:
 | ------- | ----------------------------- | -------- | ------ | ------ | ---------- | --------------------------------------------------------------- |
 | `LR-03` | Add auth abuse protection     | `P1`     | App    | `DONE` | `LR-01`    | Login, forgot-password, and refresh are rate-limited and tested |
 | `LR-04` | Wire production observability | `P1`     | Shared | `DONE` | `LR-01`    | Sentry and structured logs receive real runtime errors          |
-| `LR-05` | Make E2E validation reliable  | `P1`     | App    | `TODO` | `LR-01`    | Playwright runs clean locally and in CI                         |
+| `LR-05` | Make E2E validation reliable  | `P1`     | App    | `DONE` | `LR-01`    | Playwright runs clean locally and in CI                         |
 
 ### Wave 3: Operational Launch Gaps
 
@@ -226,12 +226,20 @@ Objective:
 
 - make browser-level validation part of the real release gate
 
+Evidence:
+
+- Shared Playwright runtime alignment now lives in [playwright.config.helpers.ts](../../../playwright.config.helpers.ts), with coverage in [tests/unit/lib/playwright-config.test.ts](../../../tests/unit/lib/playwright-config.test.ts).
+- [playwright.config.ts](../../../playwright.config.ts) now uses a dedicated local E2E server on `127.0.0.1:3100`, keeps `baseURL` and `webServer.url` aligned, and runs Chromium locally while reserving the multi-browser matrix for CI.
+- The E2E specs in [tests/e2e/auth.spec.ts](../../../tests/e2e/auth.spec.ts), [tests/e2e/create-case.spec.ts](../../../tests/e2e/create-case.spec.ts), and [tests/e2e/designer-flow.spec.ts](../../../tests/e2e/designer-flow.spec.ts) now assert current route behavior instead of stale conditional redirects.
+- The CI gate in [.github/workflows/deploy.yml](../../../.github/workflows/deploy.yml) now installs Playwright browsers and runs `npm run test:e2e`.
+- Local prerequisites and release-checklist expectations are documented in [docs/phase-5/operations/RUNBOOK.md](./RUNBOOK.md).
+
 Tasks:
 
-- `LR-05a` Fix [playwright.config.ts](../../../playwright.config.ts) so the base URL and web server stay aligned even when the default port is taken.
-- `LR-05b` Stabilize any selectors or setup assumptions needed for auth and dashboard flows.
-- `LR-05c` Run E2E locally against a clean environment and document prerequisites.
-- `LR-05d` Add E2E validation expectations to the launch checklist.
+- [x] `LR-05a` Fix [playwright.config.ts](../../../playwright.config.ts) so the base URL and web server stay aligned even when the default port is taken.
+- [x] `LR-05b` Stabilize any selectors or setup assumptions needed for auth and dashboard flows.
+- [x] `LR-05c` Run E2E locally against a clean environment and document prerequisites.
+- [x] `LR-05d` Add E2E validation expectations to the launch checklist.
 
 Recommended commit sequence:
 
@@ -362,3 +370,11 @@ These are the core files that justified the current backlog:
   - `npm.cmd test`
   - `npm.cmd run build`
 - `LR-04` result: observability wiring is now active and verified. `check`, `test`, and `build` all pass; `npm run build` now also emits non-fatal `@sentry/nextjs` OpenTelemetry warnings alongside the pre-existing standalone traced-file copy warning.
+- Completed `LR-05`: stabilized the Playwright release gate with a dedicated E2E port, shared runtime config, updated auth/designer protection assertions, and CI browser installation plus E2E execution in the deploy workflow.
+- `LR-05` verification commands:
+  - `npm.cmd test -- tests/unit/lib/playwright-config.test.ts`
+  - `npm.cmd run test:e2e`
+  - `npm.cmd run check`
+  - `npm.cmd test`
+  - `npm.cmd run build`
+- `LR-05` result: local `npm run test:e2e` now passes reliably on Chromium using the dedicated Playwright server at `127.0.0.1:3100`, while CI is configured to install Chromium, Firefox, and WebKit before running the suite.

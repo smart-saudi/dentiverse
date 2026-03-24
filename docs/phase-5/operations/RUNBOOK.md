@@ -15,8 +15,16 @@ This runbook documents how to deploy, verify, and roll back DentiVerse safely.
 4. Run locally:
    - `npm run check`
    - `npm test`
+   - `npm run test:e2e`
    - `npm run build`
 5. Confirm there is no active P1 or P2 incident.
+
+## Local E2E Prerequisites
+
+- `npm run test:e2e` uses a dedicated Playwright dev server at `http://127.0.0.1:3100` so it does not fight with the usual local app on port `3000`.
+- Override the default E2E server with `PLAYWRIGHT_PORT`, `PLAYWRIGHT_HOST`, `PLAYWRIGHT_PROTOCOL`, or `PLAYWRIGHT_BASE_URL` when needed.
+- Local runs default to Chromium for reliability. CI installs Chromium, Firefox, and WebKit before running the full multi-browser suite.
+- If Playwright reports missing local browsers, run `npx playwright install chromium` for the local gate or `npx playwright install chromium firefox webkit` for full cross-browser coverage.
 
 ## Standard Deployment
 
@@ -30,6 +38,7 @@ This runbook documents how to deploy, verify, and roll back DentiVerse safely.
    - login/register
    - designer browse
    - signed file access for authenticated users
+   - `npm run test:e2e` passes on the preview-ready branch before sign-off
 5. Observability smoke test on preview:
    - Client path: open the preview in a browser, then run `setTimeout(() => { throw new Error('Sentry client smoke test'); }, 0)` in DevTools and confirm a client event lands in Sentry.
    - Server path: send an invalid Stripe webhook request to the preview deployment and confirm a server event lands in Sentry with the route tag `/api/v1/webhooks/stripe`.
