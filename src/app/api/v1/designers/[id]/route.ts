@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  isUpstreamServiceUnavailableError,
+  NotFoundError,
+  ServiceUnavailableError,
+} from '@/lib/errors';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { DesignerService } from '@/services/designer.service';
 
@@ -18,21 +23,33 @@ interface RouteContext {
  */
 export async function GET(_req: NextRequest, context: RouteContext) {
   const supabase = await createServerSupabaseClient();
-  // Designer profiles are publicly viewable — no auth required
-  await supabase.auth.getUser();
-
   const { id } = await context.params;
 
   try {
     const profile = await designerService.getProfile(supabase, id);
     return NextResponse.json({ data: profile });
   } catch (err) {
-    if (err instanceof Error && err.message.includes('not found')) {
+    if (err instanceof NotFoundError) {
       return NextResponse.json(
         { code: 'NOT_FOUND', message: 'Designer not found' },
         { status: 404 },
       );
     }
+
+    if (
+      err instanceof ServiceUnavailableError ||
+      isUpstreamServiceUnavailableError(err)
+    ) {
+      return NextResponse.json(
+        {
+          code: 'SERVICE_UNAVAILABLE',
+          message:
+            'The designer profile service is temporarily unavailable. Please try again shortly.',
+        },
+        { status: 503 },
+      );
+    }
+
     return NextResponse.json(
       {
         code: 'INTERNAL_ERROR',

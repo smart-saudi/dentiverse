@@ -30,13 +30,11 @@ const mockSelectFn = vi.fn().mockImplementation(() => ({
   single: mockSingleFn,
 }));
 const mockInsertFn = vi.fn().mockReturnValue({ select: mockSelectFn });
-const mockUpdateFn = vi
-  .fn()
-  .mockReturnValue({
-    eq: vi
-      .fn()
-      .mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockSingleFn }) }),
-  });
+const mockUpdateFn = vi.fn().mockReturnValue({
+  eq: vi
+    .fn()
+    .mockReturnValue({ select: vi.fn().mockReturnValue({ single: mockSingleFn }) }),
+});
 
 vi.mock('@/lib/supabase/server', () => ({
   createServerSupabaseClient: vi.fn(() => ({
@@ -91,7 +89,6 @@ describe('GET /api/v1/designers', () => {
   });
 
   it('should return paginated designers (200)', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: mockUser }, error: null });
     mockRangeFn.mockResolvedValue({ data: [mockDesignerProfile], error: null, count: 1 });
 
     const { GET } = await import('@/app/api/v1/designers/route');
@@ -109,16 +106,26 @@ describe('GET /api/v1/designers', () => {
   });
 
   it('should allow unauthenticated access (public marketplace)', async () => {
-    mockAuth.getUser.mockResolvedValue({
-      data: { user: null },
-      error: { message: 'No session' },
-    });
+    mockRangeFn.mockResolvedValue({ data: [mockDesignerProfile], error: null, count: 1 });
 
     const { GET } = await import('@/app/api/v1/designers/route');
     const req = buildRequest(null, 'GET');
     const res = await GET(req);
 
     expect(res.status).toBe(200);
+    expect(mockAuth.getUser).not.toHaveBeenCalled();
+  });
+
+  it('should return 503 when the public designer directory backend is unavailable', async () => {
+    mockRangeFn.mockRejectedValue(new TypeError('fetch failed'));
+
+    const { GET } = await import('@/app/api/v1/designers/route');
+    const req = buildRequest(null, 'GET');
+    const res = await GET(req);
+    const json = await res.json();
+
+    expect(res.status).toBe(503);
+    expect(json.code).toBe('SERVICE_UNAVAILABLE');
   });
 });
 
@@ -128,7 +135,6 @@ describe('GET /api/v1/designers/[id]', () => {
   });
 
   it('should return designer profile (200)', async () => {
-    mockAuth.getUser.mockResolvedValue({ data: { user: mockUser }, error: null });
     mockSingleFn.mockResolvedValue({ data: mockDesignerProfile, error: null });
 
     const { GET } = await import('@/app/api/v1/designers/[id]/route');
@@ -141,16 +147,26 @@ describe('GET /api/v1/designers/[id]', () => {
   });
 
   it('should allow unauthenticated access (public profile)', async () => {
-    mockAuth.getUser.mockResolvedValue({
-      data: { user: null },
-      error: { message: 'No session' },
-    });
+    mockSingleFn.mockResolvedValue({ data: mockDesignerProfile, error: null });
 
     const { GET } = await import('@/app/api/v1/designers/[id]/route');
     const req = buildRequest(null, 'GET', 'http://localhost:3000/api/v1/designers/dp-1');
     const res = await GET(req, { params: Promise.resolve({ id: 'dp-1' }) });
 
     expect(res.status).toBe(200);
+    expect(mockAuth.getUser).not.toHaveBeenCalled();
+  });
+
+  it('should return 503 when the public designer profile backend is unavailable', async () => {
+    mockSingleFn.mockRejectedValue(new TypeError('fetch failed'));
+
+    const { GET } = await import('@/app/api/v1/designers/[id]/route');
+    const req = buildRequest(null, 'GET', 'http://localhost:3000/api/v1/designers/dp-1');
+    const res = await GET(req, { params: Promise.resolve({ id: 'dp-1' }) });
+    const json = await res.json();
+
+    expect(res.status).toBe(503);
+    expect(json.code).toBe('SERVICE_UNAVAILABLE');
   });
 });
 

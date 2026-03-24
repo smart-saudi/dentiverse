@@ -486,3 +486,11 @@ These are the core files that justified the current backlog:
   - `docker build -t dentiverse-lr09-check .`
   - `gh run watch 23507861542 --exit-status`
 - `LR-09` follow-up result: PR #3 is now fully green in GitHub Actions. `Deploy Preview` passes after scoping standalone output to Docker builds, lazy-loading Resend so env-less build phases do not crash, and moving the authenticated dashboard home from the conflicting root route to `/dashboard`.
+- Continued `LR-10` hardening locally: public marketplace pages and auth pages no longer depend on middleware auth refresh, and the public designer APIs now return `503 SERVICE_UNAVAILABLE` instead of raw `500` responses when Supabase connectivity is unavailable.
+- `LR-10` local hardening verification commands:
+  - `npm.cmd test -- tests/unit/middleware.test.ts tests/integration/designers.test.ts`
+  - `npm.cmd run check`
+  - `npm.cmd test`
+  - `npm.cmd run build`
+  - `npm.cmd run test:e2e`
+- `LR-10` local hardening result: regression coverage now protects the public-route failure path, and all local release gates are green again (`340` tests, `11` E2E specs). Final launch sign-off is still blocked on deploying the fix with real hosted runtime values and rerunning production smoke on `/login`, `/designers`, and `/api/v1/designers`.

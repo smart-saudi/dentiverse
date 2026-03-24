@@ -35,8 +35,19 @@ export default function DesignerProfilePage({ params }: DesignerProfilePageProps
     setIsLoading(true);
     try {
       const res = await fetch(`/api/v1/designers/${designerId}`);
-      if (!res.ok) throw new Error('Failed to load designer');
-      const json = await res.json();
+      const json = (await res.json().catch(() => null)) as {
+        data?: DesignerProfileRow;
+        message?: string;
+      } | null;
+
+      if (!res.ok) {
+        throw new Error(json?.message ?? 'Failed to load designer');
+      }
+
+      if (!json?.data) {
+        throw new Error('Received an invalid designer profile response.');
+      }
+
       setDesigner(json.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load');

@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+import { isUpstreamServiceUnavailableError } from '@/lib/errors';
 import type { SupabaseCookieToSet } from '@/lib/supabase/types';
 
 /** Routes that do not require authentication. */
@@ -34,6 +35,19 @@ const PUBLIC_API_PREFIXES = [
  * @returns NextResponse (possibly a redirect)
  */
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (isStaticAssetPath(pathname) || isPublicApiPath(pathname)) {
+    return NextResponse.next({ request });
+  }
+
+  const isPublicRoute = isPublicPagePath(pathname);
+  const isAuthRoute = isAuthPagePath(pathname);
+
+  if (isPublicRoute && !isAuthRoute) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -55,29 +69,25 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const {
+      data: { user: authenticatedUser },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
+    if (authError && isUpstreamServiceUnavailableError(authError)) {
+      return handleAuthAvailabilityFailure(request, pathname, isAuthRoute);
+    }
 
-  // Allow public API routes through without auth check
-  if (PUBLIC_API_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
-    return supabaseResponse;
+    user = authenticatedUser;
+  } catch (error) {
+    if (isUpstreamServiceUnavailableError(error)) {
+      return handleAuthAvailabilityFailure(request, pathname, isAuthRoute);
+    }
+
+    throw error;
   }
-
-  // Skip static assets and Next.js internals
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/favicon') ||
-    pathname.includes('.')
-  ) {
-    return supabaseResponse;
-  }
-
-  const isPublicRoute =
-    PUBLIC_ROUTES.includes(pathname) || pathname.startsWith('/designers/');
-  const isAuthRoute = ['/login', '/register', '/forgot-password'].includes(pathname);
 
   // Redirect authenticated users away from auth pages → dashboard
   if (user && isAuthRoute) {
@@ -95,6 +105,52 @@ export async function middleware(request: NextRequest) {
   }
 
   return supabaseResponse;
+}
+
+function isPublicApiPath(pathname: string): boolean {
+  return PUBLIC_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+function isStaticAssetPath(pathname: string): boolean {
+  return (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon') ||
+    pathname.includes('.')
+  );
+}
+
+function isPublicPagePath(pathname: string): boolean {
+  return PUBLIC_ROUTES.includes(pathname) || pathname.startsWith('/designers/');
+}
+
+function isAuthPagePath(pathname: string): boolean {
+  return ['/login', '/register', '/forgot-password'].includes(pathname);
+}
+
+function handleAuthAvailabilityFailure(
+  request: NextRequest,
+  pathname: string,
+  isAuthRoute: boolean,
+) {
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.json(
+      {
+        code: 'SERVICE_UNAVAILABLE',
+        message:
+          'The authentication service is temporarily unavailable. Please try again shortly.',
+      },
+      { status: 503 },
+    );
+  }
+
+  if (isAuthRoute) {
+    return NextResponse.next({ request });
+  }
+
+  const url = request.nextUrl.clone();
+  url.pathname = '/login';
+  url.searchParams.set('redirectTo', pathname);
+  return NextResponse.redirect(url);
 }
 
 export const config = {

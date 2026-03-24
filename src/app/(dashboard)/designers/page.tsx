@@ -39,9 +39,22 @@ export default function DesignersPage() {
       params.set('page', String(page));
 
       const res = await fetch(`/api/v1/designers?${params.toString()}`);
-      if (!res.ok) throw new Error('Failed to load designers');
+      const json = (await res.json().catch(() => null)) as {
+        data?: DesignerProfileRow[];
+        meta?: { total_pages: number };
+        message?: string;
+      } | null;
 
-      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(
+          json?.message ?? 'The designer directory is temporarily unavailable.',
+        );
+      }
+
+      if (!json?.data || !json.meta) {
+        throw new Error('Received an invalid designer directory response.');
+      }
+
       setDesigners(json.data);
       setTotalPages(json.meta.total_pages);
     } catch (err) {
