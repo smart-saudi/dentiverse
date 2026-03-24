@@ -216,23 +216,23 @@ dentiverse/
 
 ## 📐 Architecture Overview
 
-| Layer           | Technology                                               | Notes                                                            |
-| --------------- | -------------------------------------------------------- | ---------------------------------------------------------------- |
-| **Frontend**    | Next.js 15 (App Router), React 19, TypeScript            | All pages in `src/app/`                                          |
-| **Styling**     | Tailwind CSS 4, shadcn/ui                                | Design system in `docs/phase-2/design/DESIGN_SYSTEM.md`          |
-| **State**       | Zustand (client), TanStack Query (server state)          | Hooks in `src/hooks/`, stores in `src/stores/`                   |
-| **3D Viewer**   | Three.js via React Three Fiber                           | Component: `src/components/viewer/stl-viewer.tsx`                |
-| **Backend**     | Supabase (Auth, DB, Storage, Realtime, Edge Functions)   | Clients in `src/lib/supabase/`                                   |
-| **API**         | Next.js API Routes (`src/app/api/v1/`)                   | Spec: `docs/phase-2/api/openapi.yaml`                            |
-| **Database**    | PostgreSQL 16 via Supabase                               | Schema: `docs/phase-2/schema/schema.sql`                         |
-| **Payments**    | Stripe Connect (escrow, split payments)                  | Webhook at `/api/v1/webhooks/stripe`                             |
-| **File Upload** | Uppy.js → Supabase Storage                               | Buckets: `dental-scans`, `design-files`, `avatars`, `portfolios` |
-| **Email**       | Resend                                                   | Transactional emails (welcome, notifications, payment receipts)  |
-| **Auth**        | Supabase Auth (email/password, Google OAuth, Magic Link) | Roles: DENTIST, LAB, DESIGNER, ADMIN                             |
-| **Validation**  | Zod                                                      | Shared schemas in `src/lib/validations/`                         |
-| **Testing**     | Vitest (unit), Playwright (E2E)                          | TDD workflow: test first, then implement                         |
-| **Hosting**     | Vercel (frontend), Supabase Cloud (backend)              | CI/CD via GitHub Actions                                         |
-| **Monitoring**  | Sentry (errors), Vercel Analytics (performance)          |                                                                  |
+| Layer           | Technology                                               | Notes                                                                     |
+| --------------- | -------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Frontend**    | Next.js 15 (App Router), React 19, TypeScript            | All pages in `src/app/`                                                   |
+| **Styling**     | Tailwind CSS 4, shadcn/ui                                | Design system in `docs/phase-2/design/DESIGN_SYSTEM.md`                   |
+| **State**       | Zustand (client), TanStack Query (server state)          | Hooks in `src/hooks/`, stores in `src/stores/`                            |
+| **3D Viewer**   | Three.js via React Three Fiber                           | Component: `src/components/viewer/stl-viewer.tsx`                         |
+| **Backend**     | Supabase (Auth, DB, Storage, Realtime, Edge Functions)   | Clients in `src/lib/supabase/`                                            |
+| **API**         | Next.js API Routes (`src/app/api/v1/`)                   | Spec: `docs/phase-2/api/openapi.yaml`                                     |
+| **Database**    | PostgreSQL 16 via Supabase                               | Schema: `docs/phase-2/schema/schema.sql`                                  |
+| **Payments**    | Stripe Connect (escrow, split payments)                  | Webhook at `/api/v1/webhooks/stripe`                                      |
+| **File Upload** | Uppy.js → Supabase Storage                               | Buckets: `dental-scans`, `design-files`, `avatars`, `portfolios`          |
+| **Email**       | Resend                                                   | Transactional emails (welcome, notifications, payment receipts)           |
+| **Auth**        | Supabase Auth (email/password, Google OAuth, Magic Link) | Roles: DENTIST, LAB, DESIGNER, ADMIN (manual ops only in v1; no admin UI) |
+| **Validation**  | Zod                                                      | Shared schemas in `src/lib/validations/`                                  |
+| **Testing**     | Vitest (unit), Playwright (E2E)                          | TDD workflow: test first, then implement                                  |
+| **Hosting**     | Vercel (frontend), Supabase Cloud (backend)              | CI/CD via GitHub Actions                                                  |
+| **Monitoring**  | Sentry (errors), Vercel Analytics (performance)          |                                                                           |
 
 ---
 
@@ -496,20 +496,21 @@ NEXT_PUBLIC_APP_NAME=DentiVerse
 
 ## 📚 Key Reference Documents
 
-| Document             | Path                                             | Use For                              |
-| -------------------- | ------------------------------------------------ | ------------------------------------ |
-| Product Requirements | `docs/phase-1/DentiVerse_PRD_Light.docx`         | Understanding the product            |
-| User Personas        | `docs/phase-1/DentiVerse_Personas_TechSpec.docx` | User context for UX decisions        |
-| Database Schema      | `docs/phase-2/schema/schema.sql`                 | All table definitions, RLS, triggers |
-| API Specification    | `docs/phase-2/api/openapi.yaml`                  | All endpoint definitions             |
-| Design System        | `docs/phase-2/design/DESIGN_SYSTEM.md`           | Colors, typography, components       |
-| User Flows           | `docs/diagrams/client-user-flow.mmd`             | Client navigation                    |
-| Designer Flows       | `docs/diagrams/designer-user-flow.mmd`           | Designer navigation                  |
-| System Architecture  | `docs/diagrams/system-architecture.mmd`          | Infrastructure overview              |
-| Payment Flow         | `docs/diagrams/payment-escrow-flow.mmd`          | Escrow sequence                      |
-| Deployment Docs      | `docs/phase-5/README.md`                         | Deployment and operations overview   |
-| Logging Strategy     | `docs/phase-5/observability/LOGGING_STRATEGY.md` | Monitoring and log routing           |
-| Runbook              | `docs/phase-5/operations/RUNBOOK.md`             | Deploy, rollback, incident recovery  |
+| Document             | Path                                               | Use For                                           |
+| -------------------- | -------------------------------------------------- | ------------------------------------------------- |
+| Product Requirements | `docs/phase-1/DentiVerse_PRD_Light.docx`           | Understanding the product                         |
+| User Personas        | `docs/phase-1/DentiVerse_Personas_TechSpec.docx`   | User context for UX decisions                     |
+| Database Schema      | `docs/phase-2/schema/schema.sql`                   | All table definitions, RLS, triggers              |
+| API Specification    | `docs/phase-2/api/openapi.yaml`                    | All endpoint definitions                          |
+| Design System        | `docs/phase-2/design/DESIGN_SYSTEM.md`             | Colors, typography, components                    |
+| User Flows           | `docs/diagrams/client-user-flow.mmd`               | Client navigation                                 |
+| Designer Flows       | `docs/diagrams/designer-user-flow.mmd`             | Designer navigation                               |
+| System Architecture  | `docs/diagrams/system-architecture.mmd`            | Infrastructure overview                           |
+| Payment Flow         | `docs/diagrams/payment-escrow-flow.mmd`            | Escrow sequence                                   |
+| Deployment Docs      | `docs/phase-5/README.md`                           | Deployment and operations overview                |
+| Logging Strategy     | `docs/phase-5/observability/LOGGING_STRATEGY.md`   | Monitoring and log routing                        |
+| Runbook              | `docs/phase-5/operations/RUNBOOK.md`               | Deploy, rollback, incident recovery               |
+| Admin Ops Model      | `docs/phase-5/operations/ADMIN_OPERATING_MODEL.md` | Manual support, moderation, and refund procedures |
 
 ---
 

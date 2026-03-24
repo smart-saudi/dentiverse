@@ -19,6 +19,19 @@ This runbook documents how to deploy, verify, and roll back DentiVerse safely.
    - `npm run build`
 5. Confirm there is no active P1 or P2 incident.
 
+## Admin Operations Model
+
+- DentiVerse v1 launches without an in-product admin panel.
+- Support, moderation, refunds, and break-glass data corrections are manual operations.
+- The full operating model, permissions, and reversible SQL procedures live in [ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md).
+
+Before any sensitive manual intervention:
+
+1. Open or update a support or finance ticket.
+2. Confirm the operator has the correct dashboard or SQL permissions for the action.
+3. Prefer reversible state changes over destructive edits.
+4. Mirror the action in `public.audit_log`.
+
 ## Local E2E Prerequisites
 
 - `npm run test:e2e` uses a dedicated Playwright dev server at `http://127.0.0.1:3100` so it does not fight with the usual local app on port `3000`.
@@ -90,6 +103,14 @@ This runbook documents how to deploy, verify, and roll back DentiVerse safely.
 - Confirm private buckets still exist.
 - Confirm runtime keys are current.
 - Review recent changes to file upload and design-version flows.
+
+### Manual Admin Action Needed
+
+- Use [ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md) as the source of truth.
+- For refunds: Stripe first, then reconcile `public.payments`.
+- For moderation: prefer `is_active = false` and `is_available = false` over deleting records.
+- For disputes: move the case and payment rows into `DISPUTED` before further handling.
+- Record the ticket ID and operator in `public.audit_log`.
 
 ### Stripe Webhook Failures
 

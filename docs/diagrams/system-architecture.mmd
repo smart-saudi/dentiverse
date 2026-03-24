@@ -6,7 +6,11 @@ flowchart TD
         WEB["Web App\n(Next.js 15)"]
         MOB["Mobile\n(Future)"]
         VIEWER["3D Viewer\n(Three.js)"]
-        ADMIN["Admin\nPanel"]
+    end
+
+    subgraph Ops["Operations"]
+        RUNBOOK["Manual Ops\nRunbook"]
+        CONSOLES["Ops Consoles\n(Supabase, Stripe,\nVercel, Sentry)"]
     end
 
     subgraph Edge["Edge Tier"]
@@ -37,7 +41,6 @@ flowchart TD
     WEB --> CF
     MOB --> CF
     VIEWER --> CF
-    ADMIN --> CF
     CF --> SSR
     SSR --> AUTH
     SSR --> EDGE
@@ -49,8 +52,14 @@ flowchart TD
     SSR --> EMAIL
     SSR --> SENTRY
     STRIPE -.->|"Webhooks"| SSR
+    RUNBOOK --> CONSOLES
+    CONSOLES --> AUTH
+    CONSOLES --> PG
+    CONSOLES --> STRIPE
+    CONSOLES --> SENTRY
 
     style Clients fill:#E6F1FB,stroke:#185FA5
+    style Ops fill:#FFF1E6,stroke:#A35A00
     style Edge fill:#F1EFE8,stroke:#5F5E5A
     style App fill:#E1F5EE,stroke:#0F6E56
     style Backend fill:#EEEDFE,stroke:#534AB7

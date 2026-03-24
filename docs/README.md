@@ -38,6 +38,8 @@ dentiverse/
 |       |-- iac/README.md
 |       |-- observability/LOGGING_STRATEGY.md
 |       |-- observability/SLA_SLO.md
+|       |-- operations/ADMIN_OPERATING_MODEL.md
+|       |-- operations/LAUNCH_BACKLOG.md
 |       `-- operations/RUNBOOK.md
 |-- AGENTS.md
 |-- CLAUDE.md
@@ -97,21 +99,22 @@ dentiverse/
 | Logging Strategy       | Log sinks, redaction rules, alert priorities                   | Complete |
 | SLA / SLO              | Availability and latency targets, SLIs, error budget           | Complete |
 | Runbook                | Deployment steps, rollback, failure scenarios                  | Complete |
+| Admin Operating Model  | Manual support, moderation, refund, and break-glass procedures | Complete |
 | Launch Backlog         | Live launch blockers, owners, sequence, and verification state | Active   |
 
 ---
 
 ## Quick Start for AI Agents
 
-| Task                         | Recommended Context                                                                                             |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Start of a session           | `CLAUDE.md` and `TODO.md`                                                                                       |
-| Understand the product       | `docs/phase-1/DentiVerse_PRD_Light.docx`                                                                        |
-| Work on API routes           | `docs/phase-2/api/openapi.yaml`                                                                                 |
-| Work on database or RLS      | `docs/phase-2/schema/schema.sql`                                                                                |
-| Work on UI                   | `docs/phase-2/design/DESIGN_SYSTEM.md`                                                                          |
-| Understand flows             | `docs/diagrams/*.mmd`                                                                                           |
-| Deploy or operate the system | `docs/phase-5/README.md`, `docs/phase-5/operations/RUNBOOK.md`, and `docs/phase-5/operations/LAUNCH_BACKLOG.md` |
+| Task                         | Recommended Context                                                                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Start of a session           | `CLAUDE.md` and `TODO.md`                                                                                                                                           |
+| Understand the product       | `docs/phase-1/DentiVerse_PRD_Light.docx`                                                                                                                            |
+| Work on API routes           | `docs/phase-2/api/openapi.yaml`                                                                                                                                     |
+| Work on database or RLS      | `docs/phase-2/schema/schema.sql`                                                                                                                                    |
+| Work on UI                   | `docs/phase-2/design/DESIGN_SYSTEM.md`                                                                                                                              |
+| Understand flows             | `docs/diagrams/*.mmd`                                                                                                                                               |
+| Deploy or operate the system | `docs/phase-5/README.md`, `docs/phase-5/operations/RUNBOOK.md`, `docs/phase-5/operations/ADMIN_OPERATING_MODEL.md`, and `docs/phase-5/operations/LAUNCH_BACKLOG.md` |
 
 ---
 

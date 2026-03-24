@@ -19,6 +19,7 @@ Phase 5 moves DentiVerse from feature completeness into repeatable delivery and 
 ### Step 16: Deployment & Launch
 
 - [RUNBOOK.md](./operations/RUNBOOK.md)
+- [ADMIN_OPERATING_MODEL.md](./operations/ADMIN_OPERATING_MODEL.md)
 - [LAUNCH_BACKLOG.md](./operations/LAUNCH_BACKLOG.md)
 
 ## GitHub Secrets Required for Deployment

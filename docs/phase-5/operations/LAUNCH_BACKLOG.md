@@ -58,7 +58,7 @@ Owner labels:
 | Release candidate cleanliness | Passing              | Completed launch-readiness work is committed on `main`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains in the workspace during active development                                                  |
 | Observability wiring          | Passing              | Sentry runtime init and structured server logging are active in the launch candidate, with coverage in `tests/unit/lib/observability/server.test.ts`                                                                 |
 | Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts`                             |
-| Admin operations model        | Incomplete           | Diagram mentions admin panel, app has no admin surface                                                                                                                                                               |
+| Admin operations model        | Passing              | v1 launch now uses the documented manual-ops model in `docs/phase-5/operations/ADMIN_OPERATING_MODEL.md`, and the system architecture diagram no longer promises an in-product admin panel                           |
 | Transactional email           | Incomplete           | `resend` dependency exists, no runtime usage under `src/`                                                                                                                                                            |
 
 ---
@@ -101,7 +101,7 @@ DentiVerse is launch-ready only when all of the following are true:
 
 | ID      | Title                                          | Priority | Owner   | Status | Depends On | Success Signal                                                          |
 | ------- | ---------------------------------------------- | -------- | ------- | ------ | ---------- | ----------------------------------------------------------------------- |
-| `LR-06` | Define and implement the admin operating model | `P1`     | Shared  | `TODO` | `LR-02`    | Support, refunds, and moderation have an owned operational path         |
+| `LR-06` | Define and implement the admin operating model | `P1`     | Shared  | `DONE` | `LR-02`    | Support, refunds, and moderation have an owned operational path         |
 | `LR-07` | Implement transactional email                  | `P2`     | App     | `TODO` | `LR-02`    | Proposal, design, and payment email flows work in non-local envs        |
 | `LR-08` | Resolve auth scope drift                       | `P2`     | Product | `TODO` | `LR-02`    | OAuth/Magic Link are either implemented or explicitly de-scoped in docs |
 
@@ -253,12 +253,19 @@ Objective:
 
 - make support, refunds, and moderation operationally safe
 
+Evidence:
+
+- The launch decision is now explicit in [docs/phase-5/operations/ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md): DentiVerse v1 ships without an in-product admin panel and uses manual ops for support, moderation, refunds, and break-glass corrections.
+- [docs/phase-5/operations/RUNBOOK.md](./RUNBOOK.md) now references the manual-ops model and includes admin-intervention guardrails for tickets, permissions, and audit logging.
+- [docs/diagrams/system-architecture.mmd](../../diagrams/system-architecture.mmd) now models manual ops and external consoles instead of a shipped admin panel.
+- Internal contributor guidance in [AGENTS.md](../../../AGENTS.md) and [CLAUDE.md](../../../CLAUDE.md) now clarifies that `ADMIN` is manual-ops-only in the current launch candidate.
+
 Tasks:
 
-- `LR-06a` Decide whether launch uses a minimal admin UI or a documented manual-ops flow.
-- `LR-06b` If manual for v1, update [docs/phase-5/operations/RUNBOOK.md](./RUNBOOK.md) with exact procedures and permissions.
-- `LR-06c` If UI is required, create the minimum admin routes and guarded actions needed for launch.
-- `LR-06d` Remove or update any architecture docs that over-promise beyond the chosen v1 path.
+- [x] `LR-06a` Decide whether launch uses a minimal admin UI or a documented manual-ops flow.
+- [x] `LR-06b` If manual for v1, update [docs/phase-5/operations/RUNBOOK.md](./RUNBOOK.md) with exact procedures and permissions.
+- [x] `LR-06c` If UI is required, create the minimum admin routes and guarded actions needed for launch.
+- [x] `LR-06d` Remove or update any architecture docs that over-promise beyond the chosen v1 path.
 
 ### `LR-07` Implement Transactional Email
 
@@ -318,7 +325,7 @@ Tasks:
 | ID     | Decision                                             | Owner   | Status | Notes                                                                                                                                        |
 | ------ | ---------------------------------------------------- | ------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `D-01` | Where auth rate limiting should live                 | Shared  | `DONE` | Current launch candidate uses an app-route wrapper with an in-memory store; move to an external shared store before broader horizontal scale |
-| `D-02` | Whether launch needs a real admin UI                 | Shared  | `TODO` | Manual ops may be acceptable for a controlled launch                                                                                         |
+| `D-02` | Whether launch needs a real admin UI                 | Shared  | `DONE` | Chosen v1 path is manual ops for a controlled launch; no in-product admin UI ships before launch                                             |
 | `D-03` | Whether Google OAuth and Magic Link are launch scope | Product | `TODO` | Current runtime is email/password only                                                                                                       |
 
 ---
@@ -378,3 +385,10 @@ These are the core files that justified the current backlog:
   - `npm.cmd test`
   - `npm.cmd run build`
 - `LR-05` result: local `npm run test:e2e` now passes reliably on Chromium using the dedicated Playwright server at `127.0.0.1:3100`, while CI is configured to install Chromium, Firefox, and WebKit before running the suite.
+- Completed `LR-06`: selected the v1 manual-ops path for admin work, documented the operator roles and reversible procedures for support, moderation, disputes, and refunds, and removed the architecture-level promise of a shipped admin panel.
+- `LR-06` verification commands:
+  - `npm.cmd run check`
+  - `npm.cmd test`
+  - `npm.cmd run test:e2e`
+  - `npm.cmd run build`
+- `LR-06` result: support, refund, and moderation operations now have an explicit owner model and runbook path; the next launch blocker is `LR-07` for transactional email.
