@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { AuditService, extractRequestMeta } from '@/services/audit.service';
+
+const audit = new AuditService();
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -87,6 +90,17 @@ export async function POST(request: NextRequest, context: RouteContext) {
         { status: 500 },
       );
     }
+
+    const meta = extractRequestMeta(request);
+    audit.log({
+      userId: user.id,
+      action: 'case.cancelled',
+      entityType: 'case',
+      entityId: id,
+      oldData: { status: existing.status },
+      newData: { status: 'CANCELLED', reason },
+      ...meta,
+    });
 
     return NextResponse.json({ data }, { status: 200 });
   } catch {

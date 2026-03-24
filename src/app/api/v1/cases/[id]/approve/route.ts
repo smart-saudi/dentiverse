@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { AuditService, extractRequestMeta } from '@/services/audit.service';
+
+const audit = new AuditService();
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -16,7 +19,7 @@ interface RouteContext {
  * @param context - Route context with case ID
  * @returns The updated case
  */
-export async function POST(_req: NextRequest, context: RouteContext) {
+export async function POST(req: NextRequest, context: RouteContext) {
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
@@ -84,6 +87,17 @@ export async function POST(_req: NextRequest, context: RouteContext) {
 
     if (updateError || !updated)
       throw new Error(updateError?.message ?? 'Failed to approve case');
+
+    const meta = extractRequestMeta(req);
+    audit.log({
+      userId: user.id,
+      action: 'case.approved',
+      entityType: 'case',
+      entityId: caseId,
+      oldData: { status: 'REVIEW' },
+      newData: { status: 'APPROVED' },
+      ...meta,
+    });
 
     return NextResponse.json({ data: updated });
   } catch (err) {

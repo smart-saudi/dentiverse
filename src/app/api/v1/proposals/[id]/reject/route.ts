@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { AuditService, extractRequestMeta } from '@/services/audit.service';
 import { ProposalService } from '@/services/proposal.service';
 
 const proposalService = new ProposalService();
+const audit = new AuditService();
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -68,6 +70,18 @@ export async function POST(_req: NextRequest, context: RouteContext) {
     }
 
     const rejected = await proposalService.rejectProposal(supabase, proposalId);
+
+    const meta = extractRequestMeta(_req);
+    audit.log({
+      userId: user.id,
+      action: 'proposal.rejected',
+      entityType: 'proposal',
+      entityId: proposalId,
+      oldData: { status: 'PENDING' },
+      newData: { status: 'REJECTED' },
+      ...meta,
+    });
+
     return NextResponse.json({ data: rejected });
   } catch (err) {
     return NextResponse.json(

@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { AuditService, extractRequestMeta } from '@/services/audit.service';
 import { PaymentService } from '@/services/payment.service';
+
+const audit = new AuditService();
 
 const createIntentSchema = z.object({
   case_id: z.string().uuid(),
@@ -105,6 +108,16 @@ export async function POST(req: NextRequest) {
       Math.round(proposal.price * 100),
       'usd',
     );
+
+    const meta = extractRequestMeta(req);
+    audit.log({
+      userId: user.id,
+      action: 'payment.intent_created',
+      entityType: 'payment',
+      entityId: held.id,
+      newData: { amount: proposal.price, case_id: proposal.case_id, status: 'HELD' },
+      ...meta,
+    });
 
     return NextResponse.json({
       data: {

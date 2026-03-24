@@ -5,9 +5,11 @@ import {
   createDesignVersionSchema,
   designVersionListQuerySchema,
 } from '@/lib/validations/design-version';
+import { AuditService, extractRequestMeta } from '@/services/audit.service';
 import { DesignVersionService } from '@/services/design-version.service';
 
 const designVersionService = new DesignVersionService();
+const audit = new AuditService();
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -59,6 +61,16 @@ export async function POST(req: NextRequest, context: RouteContext) {
       nextVersion,
       parsed.data,
     );
+    const meta = extractRequestMeta(req);
+    audit.log({
+      userId: user.id,
+      action: 'design_version.submitted',
+      entityType: 'design_version',
+      entityId: version.id,
+      newData: { case_id: caseId, version_number: nextVersion },
+      ...meta,
+    });
+
     return NextResponse.json({ data: version }, { status: 201 });
   } catch (err) {
     return NextResponse.json(

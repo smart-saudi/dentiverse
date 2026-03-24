@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createReviewSchema } from '@/lib/validations/review';
+import { AuditService, extractRequestMeta } from '@/services/audit.service';
 import { ReviewService } from '@/services/review.service';
 
 const reviewService = new ReviewService();
+const audit = new AuditService();
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -102,6 +104,20 @@ export async function POST(req: NextRequest, context: RouteContext) {
       proposal.designer_id,
       parsed.data,
     );
+    const meta = extractRequestMeta(req);
+    audit.log({
+      userId: user.id,
+      action: 'review.created',
+      entityType: 'review',
+      entityId: review.id,
+      newData: {
+        case_id: caseId,
+        designer_id: proposal.designer_id,
+        overall_rating: review.overall_rating,
+      },
+      ...meta,
+    });
+
     return NextResponse.json({ data: review }, { status: 201 });
   } catch (err) {
     return NextResponse.json(
