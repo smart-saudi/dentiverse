@@ -1,10 +1,16 @@
 import type { NextConfig } from 'next';
 
+const shouldUseStandaloneOutput = process.env.NEXT_OUTPUT_MODE === 'standalone';
+
 const nextConfig: NextConfig = {
   /* Next.js 15 configuration */
   reactStrictMode: true,
-  output: 'standalone',
-  outputFileTracingRoot: process.cwd(),
+  ...(shouldUseStandaloneOutput
+    ? {
+        output: 'standalone',
+        outputFileTracingRoot: process.cwd(),
+      }
+    : {}),
 
   images: {
     remotePatterns: [
