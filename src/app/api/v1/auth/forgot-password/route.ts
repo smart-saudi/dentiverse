@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { consumeAuthRateLimit, createAuthAbuseResponse } from '@/lib/auth-abuse';
 import { forgotPasswordSchema } from '@/lib/validations/auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
@@ -30,6 +31,12 @@ export async function POST(request: NextRequest) {
     }
 
     const { email } = parsed.data;
+    const rateLimitDecision = consumeAuthRateLimit(request, 'forgot-password', email);
+
+    if (!rateLimitDecision.allowed) {
+      return createAuthAbuseResponse(rateLimitDecision);
+    }
+
     const supabase = await createServerSupabaseClient();
     const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`;
 

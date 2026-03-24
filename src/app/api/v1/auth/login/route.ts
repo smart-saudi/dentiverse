@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  consumeAuthRateLimit,
+  createAuthAbuseResponse,
+  getLoginLockout,
+  recordFailedLoginAttempt,
+  resetLoginFailures,
+} from '@/lib/auth-abuse';
 import { loginSchema } from '@/lib/validations/auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
@@ -29,6 +36,18 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, password } = parsed.data;
+    const rateLimitDecision = consumeAuthRateLimit(request, 'login', email);
+
+    if (!rateLimitDecision.allowed) {
+      return createAuthAbuseResponse(rateLimitDecision);
+    }
+
+    const lockoutDecision = getLoginLockout(email);
+
+    if (lockoutDecision) {
+      return createAuthAbuseResponse(lockoutDecision);
+    }
+
     const supabase = await createServerSupabaseClient();
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -37,11 +56,31 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
+      const isCredentialError =
+        error.status === 400 ||
+        error.status === 401 ||
+        /invalid login credentials/i.test(error.message);
+
+      if (!isCredentialError) {
+        return NextResponse.json(
+          { code: 'INTERNAL_ERROR', message: 'Authentication service unavailable' },
+          { status: 500 },
+        );
+      }
+
+      const updatedLockoutDecision = recordFailedLoginAttempt(email);
+
+      if (updatedLockoutDecision) {
+        return createAuthAbuseResponse(updatedLockoutDecision);
+      }
+
       return NextResponse.json(
         { code: 'UNAUTHORIZED', message: 'Invalid login credentials' },
         { status: 401 },
       );
     }
+
+    resetLoginFailures(email);
 
     return NextResponse.json(
       {

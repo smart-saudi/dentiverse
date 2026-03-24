@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
+import { resetAuthAbuseProtection } from '@/lib/auth-abuse';
+
 // ---------------------------------------------------------------------------
 // Mocks — Supabase client returned by createServerSupabaseClient()
 // ---------------------------------------------------------------------------
@@ -27,11 +29,15 @@ vi.mock('@/lib/supabase/server', () => ({
 // Helper to build a NextRequest with a JSON body
 // ---------------------------------------------------------------------------
 
-function buildRequest(body: unknown, method = 'POST'): NextRequest {
+function buildRequest(
+  body: unknown,
+  method = 'POST',
+  headers: HeadersInit = {},
+): NextRequest {
   return new NextRequest('http://localhost:3000/api/v1/auth/test', {
     method,
     body: JSON.stringify(body),
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...headers },
   });
 }
 
@@ -42,6 +48,11 @@ function buildRequest(body: unknown, method = 'POST'): NextRequest {
 describe('Auth API Routes', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.AUTH_RATE_LIMIT_MAX_ATTEMPTS = '5';
+    process.env.AUTH_RATE_LIMIT_WINDOW_MS = '900000';
+    process.env.AUTH_LOGIN_LOCKOUT_THRESHOLD = '10';
+    process.env.AUTH_LOGIN_LOCKOUT_DURATION_MS = '1800000';
+    resetAuthAbuseProtection();
   });
 
   // ---- POST /api/v1/auth/register ---------------------------------------
@@ -176,6 +187,128 @@ describe('Auth API Routes', () => {
       const json = await res.json();
       expect(json.code).toBe('UNAUTHORIZED');
     });
+
+    it('should return 429 after too many login attempts from the same client', async () => {
+      mockAuth.signInWithPassword.mockResolvedValue({
+        data: {
+          user: { id: 'user-1', email: 'dentist@example.com' },
+          session: {
+            access_token: 'access-123',
+            refresh_token: 'refresh-123',
+            expires_at: 1234567890,
+          },
+        },
+        error: null,
+      });
+
+      const { POST } = await import('@/app/api/v1/auth/login/route');
+
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const res = await POST(
+          buildRequest(validBody, 'POST', { 'x-forwarded-for': '198.51.100.20' }),
+        );
+        expect(res.status).toBe(200);
+      }
+
+      const throttled = await POST(
+        buildRequest(validBody, 'POST', { 'x-forwarded-for': '198.51.100.20' }),
+      );
+
+      expect(throttled.status).toBe(429);
+      expect(mockAuth.signInWithPassword).toHaveBeenCalledTimes(5);
+      expect(throttled.headers.get('retry-after')).toBeTruthy();
+      const json = await throttled.json();
+      expect(json.code).toBe('TOO_MANY_REQUESTS');
+    });
+
+    it('should lock an account after repeated failed logins and block further attempts', async () => {
+      process.env.AUTH_RATE_LIMIT_MAX_ATTEMPTS = '20';
+      process.env.AUTH_LOGIN_LOCKOUT_THRESHOLD = '3';
+      process.env.AUTH_LOGIN_LOCKOUT_DURATION_MS = '60000';
+      mockAuth.signInWithPassword.mockResolvedValue({
+        data: { user: null, session: null },
+        error: { message: 'Invalid login credentials', status: 400 },
+      });
+
+      const { POST } = await import('@/app/api/v1/auth/login/route');
+
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const res = await POST(
+          buildRequest(validBody, 'POST', { 'x-forwarded-for': '198.51.100.21' }),
+        );
+        expect(res.status).toBe(401);
+      }
+
+      const locked = await POST(
+        buildRequest(validBody, 'POST', { 'x-forwarded-for': '198.51.100.21' }),
+      );
+
+      expect(locked.status).toBe(429);
+      const lockedJson = await locked.json();
+      expect(lockedJson.code).toBe('ACCOUNT_LOCKED');
+
+      mockAuth.signInWithPassword.mockResolvedValue({
+        data: {
+          user: { id: 'user-1', email: 'dentist@example.com' },
+          session: {
+            access_token: 'access-123',
+            refresh_token: 'refresh-123',
+            expires_at: 1234567890,
+          },
+        },
+        error: null,
+      });
+
+      const stillLocked = await POST(
+        buildRequest(validBody, 'POST', { 'x-forwarded-for': '198.51.100.21' }),
+      );
+
+      expect(stillLocked.status).toBe(429);
+      expect(mockAuth.signInWithPassword).toHaveBeenCalledTimes(3);
+    });
+
+    it('should clear failed login history after a successful login', async () => {
+      process.env.AUTH_RATE_LIMIT_MAX_ATTEMPTS = '20';
+      process.env.AUTH_LOGIN_LOCKOUT_THRESHOLD = '3';
+
+      mockAuth.signInWithPassword
+        .mockResolvedValueOnce({
+          data: { user: null, session: null },
+          error: { message: 'Invalid login credentials', status: 400 },
+        })
+        .mockResolvedValueOnce({
+          data: { user: null, session: null },
+          error: { message: 'Invalid login credentials', status: 400 },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            user: { id: 'user-1', email: 'dentist@example.com' },
+            session: {
+              access_token: 'access-123',
+              refresh_token: 'refresh-123',
+              expires_at: 1234567890,
+            },
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({
+          data: { user: null, session: null },
+          error: { message: 'Invalid login credentials', status: 400 },
+        });
+
+      const { POST } = await import('@/app/api/v1/auth/login/route');
+      const headers = { 'x-forwarded-for': '198.51.100.22' };
+
+      const first = await POST(buildRequest(validBody, 'POST', headers));
+      const second = await POST(buildRequest(validBody, 'POST', headers));
+      const third = await POST(buildRequest(validBody, 'POST', headers));
+      const fourth = await POST(buildRequest(validBody, 'POST', headers));
+
+      expect(first.status).toBe(401);
+      expect(second.status).toBe(401);
+      expect(third.status).toBe(200);
+      expect(fourth.status).toBe(401);
+    });
   });
 
   // ---- POST /api/v1/auth/logout -----------------------------------------
@@ -224,6 +357,35 @@ describe('Auth API Routes', () => {
       const res = await POST(req);
 
       expect(res.status).toBe(400);
+    });
+
+    it('should return 429 after too many password reset attempts', async () => {
+      mockAuth.resetPasswordForEmail.mockResolvedValue({
+        data: {},
+        error: null,
+      });
+
+      const { POST } = await import('@/app/api/v1/auth/forgot-password/route');
+
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const res = await POST(
+          buildRequest({ email: 'anyone@example.com' }, 'POST', {
+            'x-forwarded-for': '198.51.100.30',
+          }),
+        );
+        expect(res.status).toBe(200);
+      }
+
+      const throttled = await POST(
+        buildRequest({ email: 'anyone@example.com' }, 'POST', {
+          'x-forwarded-for': '198.51.100.30',
+        }),
+      );
+
+      expect(throttled.status).toBe(429);
+      expect(mockAuth.resetPasswordForEmail).toHaveBeenCalledTimes(5);
+      const json = await throttled.json();
+      expect(json.code).toBe('TOO_MANY_REQUESTS');
     });
   });
 

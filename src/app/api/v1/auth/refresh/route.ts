@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import { consumeAuthRateLimit, createAuthAbuseResponse } from '@/lib/auth-abuse';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const refreshSchema = z.object({
@@ -14,38 +15,55 @@ const refreshSchema = z.object({
  * @returns New session with access and refresh tokens
  */
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const parsed = refreshSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      {
-        code: 'VALIDATION_ERROR',
-        message: 'Invalid input',
-        details: parsed.error.flatten().fieldErrors,
+  try {
+    const body = await req.json();
+    const parsed = refreshSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid input',
+          details: parsed.error.flatten().fieldErrors,
+        },
+        { status: 400 },
+      );
+    }
+
+    const rateLimitDecision = consumeAuthRateLimit(
+      req,
+      'refresh',
+      parsed.data.refresh_token,
+    );
+
+    if (!rateLimitDecision.allowed) {
+      return createAuthAbuseResponse(rateLimitDecision);
+    }
+
+    const supabase = await createServerSupabaseClient();
+
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token: parsed.data.refresh_token,
+    });
+
+    if (error || !data.session) {
+      return NextResponse.json(
+        { code: 'UNAUTHORIZED', message: error?.message ?? 'Failed to refresh token' },
+        { status: 401 },
+      );
+    }
+
+    return NextResponse.json({
+      data: {
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+        expires_in: data.session.expires_in,
+        expires_at: data.session.expires_at,
       },
-      { status: 400 },
-    );
-  }
-
-  const supabase = await createServerSupabaseClient();
-
-  const { data, error } = await supabase.auth.refreshSession({
-    refresh_token: parsed.data.refresh_token,
-  });
-
-  if (error || !data.session) {
+    });
+  } catch {
     return NextResponse.json(
-      { code: 'UNAUTHORIZED', message: error?.message ?? 'Failed to refresh token' },
-      { status: 401 },
+      { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
+      { status: 500 },
     );
   }
-
-  return NextResponse.json({
-    data: {
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-      expires_in: data.session.expires_in,
-      expires_at: data.session.expires_at,
-    },
-  });
 }

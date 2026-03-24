@@ -12,6 +12,7 @@ please report it responsibly.
 Instead, please email: **security@dentiverse.com**
 
 Include:
+
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
@@ -19,16 +20,17 @@ Include:
 
 ### What to Expect
 
-| Timeframe | Action |
-|-----------|--------|
-| **24 hours** | We acknowledge receipt of your report |
-| **72 hours** | We provide an initial assessment and severity rating |
-| **7 days** | We aim to have a fix deployed for critical/high issues |
-| **30 days** | We aim to have a fix deployed for medium/low issues |
+| Timeframe    | Action                                                 |
+| ------------ | ------------------------------------------------------ |
+| **24 hours** | We acknowledge receipt of your report                  |
+| **72 hours** | We provide an initial assessment and severity rating   |
+| **7 days**   | We aim to have a fix deployed for critical/high issues |
+| **30 days**  | We aim to have a fix deployed for medium/low issues    |
 
 ### Scope
 
 The following are **in scope**:
+
 - `app.dentiverse.com` (production web application)
 - `api.dentiverse.com/api/v1/*` (REST API)
 - Authentication and authorization flaws
@@ -40,6 +42,7 @@ The following are **in scope**:
 - Server-side request forgery (SSRF)
 
 The following are **out of scope**:
+
 - Social engineering attacks
 - Denial of service (DoS/DDoS) attacks
 - Issues in third-party services (Supabase, Stripe, Vercel)
@@ -49,6 +52,7 @@ The following are **out of scope**:
 ### Safe Harbor
 
 We will not pursue legal action against researchers who:
+
 - Report vulnerabilities through the process above
 - Do not access, modify, or delete other users' data
 - Do not disclose the vulnerability publicly before we've addressed it
@@ -56,11 +60,11 @@ We will not pursue legal action against researchers who:
 
 ### Supported Versions
 
-| Version | Supported |
-|---------|-----------|
-| Latest (production) | Yes |
-| Staging/preview | Best effort |
-| Local development | Not applicable |
+| Version             | Supported      |
+| ------------------- | -------------- |
+| Latest (production) | Yes            |
+| Staging/preview     | Best effort    |
+| Local development   | Not applicable |
 
 ### Recognition
 
@@ -68,12 +72,12 @@ We appreciate the security research community. Reporters of valid vulnerabilitie
 will be credited in our security acknowledgments (with permission) and may be
 eligible for a reward based on severity:
 
-| Severity | Reward |
-|----------|--------|
-| Critical | $500–$2,000 |
-| High | $200–$500 |
-| Medium | $50–$200 |
-| Low | Acknowledgment |
+| Severity | Reward         |
+| -------- | -------------- |
+| Critical | $500–$2,000    |
+| High     | $200–$500      |
+| Medium   | $50–$200       |
+| Low      | Acknowledgment |
 
 Rewards are at our discretion and depend on the quality and impact of the report.
 
@@ -86,6 +90,7 @@ Rewards are at our discretion and depend on the quality and impact of the report
 All secrets are stored in environment variables, never in code. See `.env.example` for the complete list.
 
 **Critical secrets (rotate quarterly):**
+
 - `SUPABASE_SERVICE_ROLE_KEY` — Bypasses RLS. Server-side only.
 - `STRIPE_SECRET_KEY` — Stripe API access. Server-side only.
 - `STRIPE_WEBHOOK_SECRET` — Webhook signature verification.
@@ -107,9 +112,17 @@ All secrets are stored in environment variables, never in code. See `.env.exampl
 
 - Supabase Auth with email verification required
 - JWT access tokens (1hr expiry) + refresh token rotation
-- Rate limiting on auth endpoints (5 attempts per 15 minutes)
-- Account lockout after 10 failed attempts
+- App-route auth abuse protection on `login`, `forgot-password`, and `refresh`
+- Request throttling defaults to 5 attempts per 15 minutes per client fingerprint
+- Failed email/password logins trigger account lockout after 10 attempts
+- Lockout duration defaults to 30 minutes and is configurable through `.env`
 - Optional: Google OAuth, Magic Link
+
+Current implementation notes:
+
+- The launch candidate enforces auth abuse protection in the Next.js route layer via [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts).
+- Client fingerprints combine the forwarded client IP with a normalized request identifier (email or refresh token hash).
+- This is the current v1 launch enforcement layer; if DentiVerse moves to multi-region or high-horizontal-scale auth traffic, migrate the counters to an external shared store.
 
 ### Authorization
 

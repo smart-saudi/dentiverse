@@ -49,17 +49,17 @@ Owner labels:
 
 ## Current Snapshot
 
-| Gate                          | Current State        | Last Evidence                                                                                                                                       |
-| ----------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                  |
-| `npm test`                    | Passing              | `npm.cmd test` passed with `315` tests green on 2026-03-24                                                                                          |
-| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remains non-fatal |
-| `npm run test:e2e`            | Failing              | Playwright timed out because port `3000` was already occupied                                                                                       |
-| Release candidate cleanliness | Passing              | Launch-ready changes were committed in `0dae88681d4ae0fabd811e9c708735c251606752`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains |
-| Observability wiring          | Incomplete           | Docs present, Sentry runtime integration absent                                                                                                     |
-| Auth abuse protection         | Incomplete           | No rate limiting or lockout implementation found in `src/`                                                                                          |
-| Admin operations model        | Incomplete           | Diagram mentions admin panel, app has no admin surface                                                                                              |
-| Transactional email           | Incomplete           | `resend` dependency exists, no runtime usage under `src/`                                                                                           |
+| Gate                          | Current State        | Last Evidence                                                                                                                                                                            |
+| ----------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                       |
+| `npm test`                    | Passing              | `npm.cmd test` passed with `322` tests green on 2026-03-24                                                                                                                               |
+| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remains non-fatal                                      |
+| `npm run test:e2e`            | Failing              | Playwright timed out because port `3000` was already occupied                                                                                                                            |
+| Release candidate cleanliness | Passing              | Launch-ready changes were committed in `0dae88681d4ae0fabd811e9c708735c251606752`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains                                      |
+| Observability wiring          | Incomplete           | Docs present, Sentry runtime integration absent                                                                                                                                          |
+| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts` |
+| Admin operations model        | Incomplete           | Diagram mentions admin panel, app has no admin surface                                                                                                                                   |
+| Transactional email           | Incomplete           | `resend` dependency exists, no runtime usage under `src/`                                                                                                                                |
 
 ---
 
@@ -93,7 +93,7 @@ DentiVerse is launch-ready only when all of the following are true:
 
 | ID      | Title                         | Priority | Owner  | Status | Depends On | Success Signal                                                  |
 | ------- | ----------------------------- | -------- | ------ | ------ | ---------- | --------------------------------------------------------------- |
-| `LR-03` | Add auth abuse protection     | `P1`     | App    | `TODO` | `LR-01`    | Login, forgot-password, and refresh are rate-limited and tested |
+| `LR-03` | Add auth abuse protection     | `P1`     | App    | `DONE` | `LR-01`    | Login, forgot-password, and refresh are rate-limited and tested |
 | `LR-04` | Wire production observability | `P1`     | Shared | `TODO` | `LR-01`    | Sentry and structured logs receive real runtime errors          |
 | `LR-05` | Make E2E validation reliable  | `P1`     | App    | `TODO` | `LR-01`    | Playwright runs clean locally and in CI                         |
 
@@ -175,11 +175,17 @@ Objective:
 
 Tasks:
 
-- `LR-03a` Decide the enforcement layer for rate limiting and lockout behavior.
-- `LR-03b` Implement login throttling.
-- `LR-03c` Extend protection to forgot-password and refresh endpoints.
-- `LR-03d` Add integration tests for throttled, repeated, and recovery paths.
-- `LR-03e` Update security docs and environment/config notes.
+- [x] `LR-03a` Decide the enforcement layer for rate limiting and lockout behavior.
+- [x] `LR-03b` Implement login throttling.
+- [x] `LR-03c` Extend protection to forgot-password and refresh endpoints.
+- [x] `LR-03d` Add integration tests for throttled, repeated, and recovery paths.
+- [x] `LR-03e` Update security docs and environment/config notes.
+
+Evidence:
+
+- Auth abuse protection is enforced in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts).
+- [src/app/api/v1/auth/login/route.ts](../../../src/app/api/v1/auth/login/route.ts), [src/app/api/v1/auth/forgot-password/route.ts](../../../src/app/api/v1/auth/forgot-password/route.ts), and [src/app/api/v1/auth/refresh/route.ts](../../../src/app/api/v1/auth/refresh/route.ts) now consume the shared limiter.
+- Coverage was added in [tests/unit/lib/auth-abuse.test.ts](../../../tests/unit/lib/auth-abuse.test.ts), [tests/integration/auth.test.ts](../../../tests/integration/auth.test.ts), and [tests/integration/auth-refresh.test.ts](../../../tests/integration/auth-refresh.test.ts).
 
 Recommended commit sequence:
 
@@ -294,11 +300,11 @@ Tasks:
 
 ## Open Decisions
 
-| ID     | Decision                                             | Owner   | Status | Notes                                                     |
-| ------ | ---------------------------------------------------- | ------- | ------ | --------------------------------------------------------- |
-| `D-01` | Where auth rate limiting should live                 | Shared  | `TODO` | App route wrapper, middleware, edge, or external provider |
-| `D-02` | Whether launch needs a real admin UI                 | Shared  | `TODO` | Manual ops may be acceptable for a controlled launch      |
-| `D-03` | Whether Google OAuth and Magic Link are launch scope | Product | `TODO` | Current runtime is email/password only                    |
+| ID     | Decision                                             | Owner   | Status | Notes                                                                                                                                        |
+| ------ | ---------------------------------------------------- | ------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `D-01` | Where auth rate limiting should live                 | Shared  | `DONE` | Current launch candidate uses an app-route wrapper with an in-memory store; move to an external shared store before broader horizontal scale |
+| `D-02` | Whether launch needs a real admin UI                 | Shared  | `TODO` | Manual ops may be acceptable for a controlled launch                                                                                         |
+| `D-03` | Whether Google OAuth and Magic Link are launch scope | Product | `TODO` | Current runtime is email/password only                                                                                                       |
 
 ---
 
@@ -335,3 +341,10 @@ These are the core files that justified the current backlog:
   - `npm.cmd run build`
 - Result: release health is restored. Remaining launch blockers are now `LR-02` onward, plus the known non-fatal Next standalone traced-file copy warning during build.
 - Completed `LR-02`: committed the release candidate as `0dae88681d4ae0fabd811e9c708735c251606752`, including the Phase 5 IaC/docs/workflow assets, design-version file-reference hardening, and the Supabase typing recovery. The only remaining local dirt is the unrelated `.claude/worktrees/eager-boyd` change, which is intentionally excluded from the candidate.
+- Completed `LR-03`: added app-layer auth abuse protection with configurable route throttling and failed-login lockout for `login`, `forgot-password`, and `refresh`, plus integration and unit coverage for throttled and recovery paths.
+- `LR-03` verification commands:
+  - `npm.cmd test -- tests/unit/lib/auth-abuse.test.ts tests/integration/auth.test.ts tests/integration/auth-refresh.test.ts`
+  - `npm.cmd run check`
+  - `npm.cmd test`
+  - `npm.cmd run build`
+- `LR-03` result: auth abuse protection is now active and verified. `check`, `test`, and `build` all pass; the pre-existing non-fatal Next standalone traced-file copy warning remains unchanged.
