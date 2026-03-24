@@ -10,14 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { FileUploader } from '@/components/shared/file-uploader';
-
-interface UploadedFile {
-  url: string;
-  name: string;
-  size: number;
-  type: string;
-}
+import { FileUploader, type UploadedFile } from '@/components/shared/file-uploader';
 
 interface DesignVersionSubmitProps {
   caseId: string;

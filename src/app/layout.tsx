@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import '@uppy/core/css/style.min.css';
+import '@uppy/dashboard/css/style.min.css';
 import './globals.css';
 import { APP_NAME, APP_DESCRIPTION, APP_URL } from '@/lib/constants';
 
