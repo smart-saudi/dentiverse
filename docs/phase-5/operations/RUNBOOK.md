@@ -47,14 +47,21 @@ Before any sensitive manual intervention:
 2. Wait for the `Deploy` workflow to pass `Validate App` and `Validate Terraform`.
 3. Confirm `Deploy Preview` succeeds.
 4. Smoke test:
-   - landing page
+   - landing page (`/`)
    - login/register
-   - designer browse
+   - designer browse shell (`/designers`)
+   - at least one data-backed route, for example `/api/v1/designers`
    - signed file access for authenticated users
    - `npm run test:e2e` passes on the preview-ready branch before sign-off
-5. Observability smoke test on preview:
+5. If preview protection is enabled, run smoke through `vercel curl` or an authenticated browser session.
+6. Observability smoke test on preview:
    - Client path: open the preview in a browser, then run `setTimeout(() => { throw new Error('Sentry client smoke test'); }, 0)` in DevTools and confirm a client event lands in Sentry.
    - Server path: send an invalid Stripe webhook request to the preview deployment and confirm a server event lands in Sentry with the route tag `/api/v1/webhooks/stripe`.
+
+Preview rehearsal notes:
+
+- For CLI prebuilt deploys, use `vercel deploy --prebuilt --archive=tgz ...`. The 2026-03-24 rehearsal reproduced missing `[id]` route functions without archive mode.
+- Hosted preview smoke only counts when runtime secrets point at real cloud services. If Supabase or other providers still use placeholder or localhost values, page shells may load while server-side routes fail with `TypeError: fetch failed`.
 
 ### Production
 
@@ -66,6 +73,7 @@ Before any sensitive manual intervention:
    - case list/create flow
    - payment create-intent route
    - signed URL route
+   - metadata and canonical URLs reflect the real production host instead of `http://localhost:3000`
 5. Confirm no unexpected P1/P2 Sentry alerts fired during rollout.
 
 ## Rollback
@@ -73,9 +81,15 @@ Before any sensitive manual intervention:
 ### Application Rollback
 
 1. Identify the last healthy Vercel production deployment.
-2. Promote it back to production.
+2. Run `npx vercel rollback <deployment-or-alias> --yes`.
 3. Re-run smoke tests.
 4. Record the failing commit SHA and rollback deployment ID.
+
+Rollback rehearsal notes:
+
+- Preview deployments cannot be rollback targets because they never served production traffic.
+- The 2026-03-24 rehearsal rolled production traffic back to `dpl_C7R7GM1wSWdqaT2KFQ8pekPLmUKh` in about `6.66s`.
+- Alias inspection can lag immediately after rollback. Treat the CLI success output plus a healthy response from `/` on the production alias as the source of truth.
 
 ### Configuration Rollback
 
@@ -95,6 +109,7 @@ Before any sensitive manual intervention:
 
 - Verify `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`.
 - Confirm the Vercel project still exists and is linked to the correct branch.
+- If a prebuilt deploy fails on dynamic routes such as `[id]`, rerun with `vercel deploy --prebuilt --archive=tgz ...`.
 - If Vercel is degraded, pause rollout and redeploy when healthy.
 
 ### Signed URL Failures
