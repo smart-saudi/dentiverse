@@ -49,17 +49,19 @@ Owner labels:
 
 ## Current Snapshot
 
-| Gate                          | Current State        | Last Evidence                                                                                                                                                                                                                    |
-| ----------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                                                               |
-| `npm test`                    | Passing              | `npm.cmd test` passed with `334` tests green on 2026-03-24                                                                                                                                                                       |
-| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; non-fatal OpenTelemetry dependency warnings from `@sentry/nextjs` and the standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remain               |
-| `npm run test:e2e`            | Passing              | `npm.cmd run test:e2e` passed with `11` Chromium specs on 2026-03-24 using the dedicated Playwright server at `http://127.0.0.1:3100`; CI now installs browsers and runs the suite in `.github/workflows/deploy.yml`             |
-| Release candidate cleanliness | Passing              | Completed launch-readiness work is committed on `main`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains in the workspace during active development                                                              |
-| Observability wiring          | Passing              | Sentry runtime init and structured server logging are active in the launch candidate, with coverage in `tests/unit/lib/observability/server.test.ts`                                                                             |
-| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts`                                         |
-| Admin operations model        | Passing              | v1 launch now uses the documented manual-ops model in `docs/phase-5/operations/ADMIN_OPERATING_MODEL.md`, and the system architecture diagram no longer promises an in-product admin panel                                       |
-| Transactional email           | Passing              | Resend-backed delivery now lives in [src/services/email.service.ts](../../../src/services/email.service.ts), with proposal/design hooks and webhook-triggered payment emails covered by unit and integration tests on 2026-03-24 |
+| Gate                          | Current State        | Last Evidence                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                                                                                                                                                                                                       |
+| `npm test`                    | Passing              | `npm.cmd test` passed with `335` tests green on 2026-03-24 after the preview-CI follow-up fixes                                                                                                                                                                                                                                                                          |
+| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; non-fatal OpenTelemetry dependency warnings from `@sentry/nextjs` and the standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remain                                                                                                                                                       |
+| `npm run test:e2e`            | Passing              | `npm.cmd run test:e2e` passed with `11` Chromium specs on 2026-03-24 using the dedicated Playwright server at `http://127.0.0.1:3100`; CI now installs browsers and runs the suite in `.github/workflows/deploy.yml`                                                                                                                                                     |
+| Release candidate cleanliness | Passing              | Completed launch-readiness work is committed on `main`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains in the workspace during active development                                                                                                                                                                                                      |
+| Observability wiring          | Passing              | Sentry runtime init and structured server logging are active in the launch candidate, with coverage in `tests/unit/lib/observability/server.test.ts`                                                                                                                                                                                                                     |
+| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts`                                                                                                                                                                                 |
+| Admin operations model        | Passing              | v1 launch now uses the documented manual-ops model in `docs/phase-5/operations/ADMIN_OPERATING_MODEL.md`, and the system architecture diagram no longer promises an in-product admin panel                                                                                                                                                                               |
+| Transactional email           | Passing              | Resend-backed delivery now lives in [src/services/email.service.ts](../../../src/services/email.service.ts), with proposal/design hooks and webhook-triggered payment emails covered by unit and integration tests on 2026-03-24                                                                                                                                         |
+| Preview smoke validation      | Blocked              | PR #3 workflow run `23507861542` now passes `Validate App`, `Validate Terraform`, and `Deploy Preview` after scoping standalone output to Docker builds, lazy-loading Resend in `EmailService`, and moving the dashboard home to `/dashboard`; hosted smoke is still blocked because `/api/v1/designers` fails until Vercel runtime secrets point at real cloud services |
+| Rollback rehearsal            | Passing with caveat  | Preview rollback is invalid because preview deployments never served production traffic; a real production rollback back to `dpl_C7R7GM1wSWdqaT2KFQ8pekPLmUKh` succeeded in about `6.66s`, and the production landing page stayed healthy after the alias move                                                                                                           |
 
 ---
 
@@ -107,10 +109,10 @@ DentiVerse is launch-ready only when all of the following are true:
 
 ### Wave 4: Go-Live Validation
 
-| ID      | Title                                      | Priority | Owner  | Status | Depends On                         | Success Signal                                         |
-| ------- | ------------------------------------------ | -------- | ------ | ------ | ---------------------------------- | ------------------------------------------------------ |
-| `LR-09` | Run preview smoke tests and rollback drill | `P1`     | Shared | `TODO` | `LR-02`, `LR-03`, `LR-04`, `LR-05` | Preview and rollback runbooks are validated end-to-end |
-| `LR-10` | Final launch sign-off and doc lock         | `P1`     | Shared | `TODO` | `LR-06`, `LR-07`, `LR-08`, `LR-09` | Docs, tracker, and release candidate all agree         |
+| ID      | Title                                      | Priority | Owner  | Status    | Depends On                         | Success Signal                                         |
+| ------- | ------------------------------------------ | -------- | ------ | --------- | ---------------------------------- | ------------------------------------------------------ |
+| `LR-09` | Run preview smoke tests and rollback drill | `P1`     | Shared | `DONE`    | `LR-02`, `LR-03`, `LR-04`, `LR-05` | Preview and rollback runbooks are validated end-to-end |
+| `LR-10` | Final launch sign-off and doc lock         | `P1`     | Shared | `BLOCKED` | `LR-06`, `LR-07`, `LR-08`, `LR-09` | Docs, tracker, and release candidate all agree         |
 
 ---
 
@@ -327,12 +329,30 @@ Objective:
 
 - validate the actual release path before launch
 
+Evidence:
+
+- GitHub repository environments `preview` and `production` now exist, and deploy secrets were populated so the `Deploy` workflow can evaluate preview and production jobs instead of failing at parse time.
+- [.github/workflows/deploy.yml](../../../.github/workflows/deploy.yml) now validates deploy secrets in-job and uses `vercel deploy --prebuilt --archive=tgz` for both preview and production. The archive flag is required because the non-archived prebuilt upload path dropped dynamic route folders such as `[id]` during rehearsal.
+- Preview CI run `23507861542` is now fully green in GitHub Actions, including `Deploy Preview`, after follow-up fixes in [next.config.ts](../../../next.config.ts), [Dockerfile](../../../Dockerfile), [src/services/email.service.ts](../../../src/services/email.service.ts), and the dashboard route move to [src/app/(dashboard)/dashboard/page.tsx](../../../src/app/%28dashboard%29/dashboard/page.tsx).
+- Preview deployment `dpl_9mrkoSB8wceBsVjiw4EaUjBGLetv` at `https://dentiverse-js5txv6t5-h-amris-projects.vercel.app` reached `Ready`.
+- Preview smoke via `vercel curl` confirmed the public shell on `/`, `/login`, and `/designers`, but `/api/v1/designers` returned `{"code":"INTERNAL_ERROR","message":"TypeError: fetch failed"}` because hosted runtime secrets still point at placeholder or local-only service values.
+- Raw preview URL access returned `401` while preview protection was enabled, so rehearsal smoke required `vercel curl` or an authenticated browser session.
+- Production deployments `dpl_C7R7GM1wSWdqaT2KFQ8pekPLmUKh` and `dpl_CQJyjThrMuE7JvVxDku2KNUizDS8` both reached `Ready`.
+- `vercel rollback dentiverse-8prrdq2dl-h-amris-projects.vercel.app --yes` succeeded in about `6.66s` and rolled production traffic back to `dpl_C7R7GM1wSWdqaT2KFQ8pekPLmUKh`. Alias inspection was slightly inconsistent immediately after the command, so the healthy landing-page response was used as the source of truth for post-rollback validation.
+- Hosted metadata still drifts when placeholder values are used. During rehearsal, some production HTML still rendered `NEXT_PUBLIC_APP_URL` as `http://localhost:3000`, which means the hosted environment is not yet launch-correct even though the shell deploys.
+
 Tasks:
 
-- `LR-09a` Deploy a clean preview candidate.
-- `LR-09b` Run the smoke checklist from [RUNBOOK.md](./RUNBOOK.md).
-- `LR-09c` Trigger one rollback rehearsal and record timings and steps.
-- `LR-09d` Update this doc with the result and any follow-up blockers.
+- [x] `LR-09a` Deploy a clean preview candidate.
+- [x] `LR-09b` Run the smoke checklist from [RUNBOOK.md](./RUNBOOK.md).
+- [x] `LR-09c` Trigger one rollback rehearsal and record timings and steps.
+- [x] `LR-09d` Update this doc with the result and any follow-up blockers.
+
+Follow-up blockers handed to `LR-10`:
+
+- Replace placeholder Vercel runtime secrets with real cloud values for Supabase, Stripe, Resend, Sentry, and `NEXT_PUBLIC_APP_URL`.
+- Re-run hosted preview smoke against at least one data-backed route after the real envs are present.
+- Re-run hosted Sentry smoke tests against the preview deployment with the real DSN and record the event IDs.
 
 ### `LR-10` Final Launch Sign-Off And Doc Lock
 
@@ -346,6 +366,11 @@ Tasks:
 - `LR-10b` Mark completed launch items in [TODO.md](../../../TODO.md).
 - `LR-10c` Freeze launch docs to the final shipped behavior.
 - `LR-10d` Record the launch SHA, deployment ID, and operator checklist location.
+
+Blockers:
+
+- Hosted preview and production deployments are still using placeholder or local-only runtime values, so data-backed smoke tests do not yet pass from Vercel.
+- Final sign-off cannot happen until the hosted `NEXT_PUBLIC_APP_URL` and third-party service credentials match the real launch environment.
 
 ---
 
@@ -435,3 +460,29 @@ These are the core files that justified the current backlog:
   - `npm.cmd run test:e2e`
   - `npm.cmd run build`
 - `LR-08` result: launch-facing auth docs now match the shipped runtime auth surface, and the next blocker is `LR-09` for preview smoke tests and rollback rehearsal.
+- Completed `LR-09`: fixed the invalid deploy workflow conditions, linked the repo to Vercel, created preview and production GitHub environments plus deploy secrets, ran real preview and production prebuilt deploy rehearsals, and validated rollback behavior with a production alias rollback drill.
+- `LR-09` verification commands:
+  - `gh auth status`
+  - `gh run list --workflow deploy.yml --limit 5`
+  - `cmd /c npx vercel link --yes --team h-amris-projects --project dentiverse`
+  - `gh secret list`
+  - `npm.cmd run check`
+  - `cmd /c npx vercel build --target=preview --yes`
+  - `cmd /c npx vercel deploy --prebuilt --archive=tgz --target=preview --yes --no-wait --logs --scope h-amris-projects`
+  - `cmd /c npx vercel inspect dentiverse-js5txv6t5-h-amris-projects.vercel.app --wait --timeout 180s --scope h-amris-projects`
+  - `cmd /c npx vercel curl / --deployment https://dentiverse-js5txv6t5-h-amris-projects.vercel.app --scope h-amris-projects`
+  - `cmd /c npx vercel curl /api/v1/designers --deployment https://dentiverse-js5txv6t5-h-amris-projects.vercel.app --scope h-amris-projects`
+  - `cmd /c npx vercel build --prod --yes`
+  - `cmd /c npx vercel deploy --prebuilt --archive=tgz --prod --yes --no-wait --logs --scope h-amris-projects`
+  - `Measure-Command { cmd /c npx vercel rollback dentiverse-8prrdq2dl-h-amris-projects.vercel.app --yes }`
+- `LR-09` result: the deploy and rollback procedures are now rehearsed and documented, but final launch sign-off remains blocked until hosted runtime config is replaced with real cloud values and the preview smoke test passes on data-backed routes.
+- `LR-09` local gate note: run `npm.cmd test`, `npm.cmd run build`, and `npm.cmd run test:e2e` sequentially when re-checking release health. Parallel runs produced false negatives because Vitest, Next build, and the Playwright dev server contended for the same workspace artifacts.
+- `LR-09` follow-up verification commands:
+  - `npm.cmd run check`
+  - `npm.cmd test`
+  - `npm.cmd run build`
+  - `npm.cmd run test:e2e`
+  - `cmd /c npx vercel build --target=preview --yes`
+  - `docker build -t dentiverse-lr09-check .`
+  - `gh run watch 23507861542 --exit-status`
+- `LR-09` follow-up result: PR #3 is now fully green in GitHub Actions. `Deploy Preview` passes after scoping standalone output to Docker builds, lazy-loading Resend so env-less build phases do not crash, and moving the authenticated dashboard home from the conflicting root route to `/dashboard`.

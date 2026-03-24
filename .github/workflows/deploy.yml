@@ -13,6 +13,24 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+  STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+  STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+  RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+  EMAIL_FROM_ADDRESS: ${{ secrets.EMAIL_FROM_ADDRESS }}
+  EMAIL_REPLY_TO: ${{ secrets.EMAIL_REPLY_TO }}
+  NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+  NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+  NEXT_PUBLIC_APP_NAME: ${{ secrets.NEXT_PUBLIC_APP_NAME }}
+  AUTH_RATE_LIMIT_MAX_ATTEMPTS: ${{ secrets.AUTH_RATE_LIMIT_MAX_ATTEMPTS }}
+  AUTH_RATE_LIMIT_WINDOW_MS: ${{ secrets.AUTH_RATE_LIMIT_WINDOW_MS }}
+  AUTH_LOGIN_LOCKOUT_THRESHOLD: ${{ secrets.AUTH_LOGIN_LOCKOUT_THRESHOLD }}
+  AUTH_LOGIN_LOCKOUT_DURATION_MS: ${{ secrets.AUTH_LOGIN_LOCKOUT_DURATION_MS }}
+
 jobs:
   validate:
     name: Validate App
@@ -75,7 +93,7 @@ jobs:
     needs:
       - validate
       - validate_infra
-    if: ${{ github.event_name == 'pull_request' && secrets.VERCEL_TOKEN != '' && secrets.VERCEL_ORG_ID != '' && secrets.VERCEL_PROJECT_ID != '' }}
+    if: ${{ github.event_name == 'pull_request' }}
     environment:
       name: preview
 
@@ -95,20 +113,60 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull preview environment
+      - name: Validate preview deploy configuration
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          missing=0
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing deploy secret::$name is required for preview deployments."
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Pull preview project settings
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Build preview deployment
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy preview
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          runtime_env_args=(
+            -e "NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}"
+            -e "NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}"
+            -e "SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}"
+            -e "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}"
+            -e "STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}"
+            -e "STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}"
+            -e "RESEND_API_KEY=${RESEND_API_KEY}"
+            -e "EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}"
+            -e "EMAIL_REPLY_TO=${EMAIL_REPLY_TO}"
+            -e "NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}"
+            -e "NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}"
+            -e "NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME}"
+            -e "AUTH_RATE_LIMIT_MAX_ATTEMPTS=${AUTH_RATE_LIMIT_MAX_ATTEMPTS}"
+            -e "AUTH_RATE_LIMIT_WINDOW_MS=${AUTH_RATE_LIMIT_WINDOW_MS}"
+            -e "AUTH_LOGIN_LOCKOUT_THRESHOLD=${AUTH_LOGIN_LOCKOUT_THRESHOLD}"
+            -e "AUTH_LOGIN_LOCKOUT_DURATION_MS=${AUTH_LOGIN_LOCKOUT_DURATION_MS}"
+          )
+
+          # Archive the prebuilt bundle so dynamic route folders like [id]
+          # survive the upload path consistently across environments.
+          vercel deploy --prebuilt --archive=tgz --target=preview --token=${{ secrets.VERCEL_TOKEN }} "${runtime_env_args[@]}"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -119,7 +177,7 @@ jobs:
     needs:
       - validate
       - validate_infra
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.VERCEL_TOKEN != '' && secrets.VERCEL_ORG_ID != '' && secrets.VERCEL_PROJECT_ID != '' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     environment:
       name: production
 
@@ -139,7 +197,25 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull production environment
+      - name: Validate production deploy configuration
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          missing=0
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing deploy secret::$name is required for production deployments."
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Pull production project settings
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -152,7 +228,29 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy production
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          runtime_env_args=(
+            -e "NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}"
+            -e "NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}"
+            -e "SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}"
+            -e "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}"
+            -e "STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}"
+            -e "STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}"
+            -e "RESEND_API_KEY=${RESEND_API_KEY}"
+            -e "EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}"
+            -e "EMAIL_REPLY_TO=${EMAIL_REPLY_TO}"
+            -e "NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}"
+            -e "NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}"
+            -e "NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME}"
+            -e "AUTH_RATE_LIMIT_MAX_ATTEMPTS=${AUTH_RATE_LIMIT_MAX_ATTEMPTS}"
+            -e "AUTH_RATE_LIMIT_WINDOW_MS=${AUTH_RATE_LIMIT_WINDOW_MS}"
+            -e "AUTH_LOGIN_LOCKOUT_THRESHOLD=${AUTH_LOGIN_LOCKOUT_THRESHOLD}"
+            -e "AUTH_LOGIN_LOCKOUT_DURATION_MS=${AUTH_LOGIN_LOCKOUT_DURATION_MS}"
+          )
+
+          # Archive the prebuilt bundle so dynamic route folders like [id]
+          # survive the upload path consistently across environments.
+          vercel deploy --prebuilt --archive=tgz --prod --token=${{ secrets.VERCEL_TOKEN }} "${runtime_env_args[@]}"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

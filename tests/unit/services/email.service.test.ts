@@ -146,6 +146,14 @@ describe('EmailService', () => {
     );
   });
 
+  it('should construct without a Resend API key until delivery is attempted', async () => {
+    process.env.RESEND_API_KEY = '';
+
+    const { EmailService } = await import('@/services/email.service');
+
+    expect(() => new EmailService()).not.toThrow();
+  });
+
   it('should capture and swallow email delivery failures', async () => {
     const resend = {
       emails: {

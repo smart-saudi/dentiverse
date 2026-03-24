@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
-  usePathname: vi.fn(() => '/'),
+  usePathname: vi.fn(() => '/dashboard'),
 }));
 
 // Mock next/link
@@ -43,7 +43,10 @@ describe('Sidebar', () => {
 
   it('should render links with correct href attributes', () => {
     render(<Sidebar />);
-    expect(screen.getByText('Dashboard').closest('a')).toHaveAttribute('href', '/');
+    expect(screen.getByText('Dashboard').closest('a')).toHaveAttribute(
+      'href',
+      '/dashboard',
+    );
     expect(screen.getByText('Cases').closest('a')).toHaveAttribute('href', '/cases');
     expect(screen.getByText('Designers').closest('a')).toHaveAttribute(
       'href',

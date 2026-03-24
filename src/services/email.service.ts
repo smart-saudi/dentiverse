@@ -98,10 +98,10 @@ export interface PaymentEmailInput {
  * on the server to assemble the email context before sending.
  */
 export class EmailService {
-  private readonly resend: ResendClientLike;
+  private resendClient?: ResendClientLike;
 
   constructor(resendClient?: ResendClientLike) {
-    this.resend = resendClient ?? new Resend(process.env.RESEND_API_KEY ?? '');
+    this.resendClient = resendClient;
   }
 
   /**
@@ -430,7 +430,8 @@ export class EmailService {
     }
 
     try {
-      const response = await this.resend.emails.send({
+      const resend = this.getResendClient(config);
+      const response = await resend.emails.send({
         from: fromAddress,
         to: payload.recipientEmail,
         subject: payload.subject,
@@ -574,5 +575,17 @@ export class EmailService {
       status: 'failed',
       reason: error instanceof Error ? error.message : 'unknown_email_error',
     };
+  }
+
+  private getResendClient(config: EmailConfig): ResendClientLike {
+    if (!this.resendClient) {
+      if (!config.apiKey) {
+        throw new Error('RESEND_API_KEY is not configured');
+      }
+
+      this.resendClient = new Resend(config.apiKey);
+    }
+
+    return this.resendClient;
   }
 }
