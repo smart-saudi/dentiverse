@@ -175,6 +175,7 @@
 | 2026-03-23 | #9 | Repo audit: reviewed README/CLAUDE/SECURITY against codebase, verified stack/scripts, and identified drift between docs and implementation (diagram path references differ from actual `docs/diagrams` location, custom canvas STL viewer, public file URL usage). Current health check: `npm.cmd run check` fails on TypeScript test errors and `npm.cmd test` has 2 notification-read failures. | Align docs with code and fix notification/typecheck regressions |
 | 2026-03-24 | #10 | Security hardening: IDOR fixes, role checks, bucket allowlist, signed URLs. Fixed 43 tsc errors (mock typing), Prettier formatting. Merged PR #1. | Gap map remediation |
 | 2026-03-24 | #11 | Gap map remediation — closed API contract drift. Implemented 8 missing OpenAPI endpoints: approve design, request revision, signed-url, create-intent, dashboard stats, auth refresh, public user profile, mark-messages-read. Added review system (validation, service, 2 routes). All checks green (294 tests). | Audit log writes, frontend stack (Three.js/Uppy) |
+| 2026-03-24 | #12 | Audit log writes — AuditService with admin client, extractRequestMeta helper, audit writes on 10 critical actions (case publish/cancel/approve/revision, proposal accept/reject, payment create/intent, review create, design version submit). 6 new tests, 300 total passing. | Frontend stack (Three.js STL viewer, Uppy file upload) |
 
 ---
 
@@ -182,7 +183,7 @@
 
 *(Prioritized backlog — remaining gaps)*
 
-- [ ] **GAP-1** Audit log writes — insert into `audit_log` table on critical actions (case state transitions, payment events, admin operations)
+- [x] **GAP-1** Audit log writes — AuditService + 10 critical action audit points — 2026-03-24
 - [ ] **GAP-2** Frontend stack maturity — install `three`, `@react-three/fiber`, `@react-three/drei`; upgrade `stl-viewer.tsx` from canvas wireframe to React Three Fiber + STLLoader
 - [ ] **GAP-3** Frontend stack maturity — install `@uppy/core`, `@uppy/dashboard`, `@uppy/tus`; upgrade `file-uploader.tsx` from custom drag-drop to Uppy.js
 - [ ] **GAP-4** Integration tests for new API routes (approve, request-revision, signed-url, create-intent, dashboard, auth/refresh, users/[id], messages/read)
