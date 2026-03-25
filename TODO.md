@@ -22,6 +22,7 @@
 | M7: Messaging & Notifications | 6     | 6    | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 100% |
 | M8: Polish & Launch           | 6     | 6    | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 100% |
 | M9: Launch Readiness          | 11    | 10   | 91%                                 |
+| M10: Admin Operations         | 2     | 2    | 100%                                |
 
 ---
 
@@ -39,7 +40,7 @@ _(Tasks that cannot proceed due to a dependency or decision needed)_
 
 _(Tasks currently being worked on)_
 
-_(none)_
+- None. The next active work resumes when real hosted runtime values are available for `M9-LR-10`.
 
 ---
 
@@ -91,6 +92,11 @@ _(Completed tasks â€” move here when finished with date)_
 - [x] **M9-LR-08** Resolve Google OAuth / Magic Link scope drift - 2026-03-24
 - [x] **M9-LR-09** Run preview smoke tests and rollback rehearsal - 2026-03-24
 - [ ] **M9-LR-10** Final launch sign-off and doc lock
+
+### Phase 7: Admin Operations
+
+- [x] **M10-ADMIN-01** Build Admin Panel v1 — role-guarded `/admin`, operational dashboard, user controls, case/payment support actions, and audit-log visibility — 2026-03-24
+- [x] **M10-ADMIN-02** Finish Admin Panel v1 action coverage, UX polish, and release verification — 2026-03-24
 
 ### M0: Project Setup
 
@@ -228,6 +234,7 @@ _(Completed tasks â€” move here when finished with date)_
 | 2026-03-24 | #27 | Completed `LR-09` preview and rollback rehearsal. Fixed the invalid deploy workflow conditions, added archive-mode prebuilt deploys for Vercel, linked the repo to the `dentiverse` Vercel project, created preview and production GitHub environments plus deploy secrets, and rehearsed real preview and production deploys. Preview page shells passed, but data-backed hosted routes still fail until Vercel runtime secrets are replaced with real cloud values. Production rollback back to `dpl_C7R7GM1wSWdqaT2KFQ8pekPLmUKh` succeeded in about `6.66s`. PR #3 then confirmed `Validate App` passes in GitHub Actions and surfaced one follow-up Terraform formatting fix in `infra/terraform/main.tf`. | Start `LR-10` with real hosted runtime config and final sign-off |
 | 2026-03-24 | #28 | Closed the remaining `LR-09` preview-CI blocker. Scoped standalone output to Docker-only builds, lazy-loaded Resend so env-less build phases do not crash, and moved the authenticated dashboard home from the conflicting root route to `/dashboard`. Verified `npm.cmd run check`, `npm.cmd test` (`335` passing), `npm.cmd run build`, `npm.cmd run test:e2e` (`11` Chromium specs), `cmd /c npx vercel build --target=preview --yes`, `docker build -t dentiverse-lr09-check .`, and GitHub Actions run `23507861542` with `Validate Terraform`, `Validate App`, and `Deploy Preview` all green. | Start `LR-10` with real hosted runtime config and final sign-off |
 | 2026-03-24 | #29 | Hardened the public-route production failure path before `LR-10` sign-off. Public marketplace pages and auth pages no longer force a Supabase auth refresh in middleware, public designer APIs no longer call `auth.getUser()`, and upstream connectivity failures now return `503 SERVICE_UNAVAILABLE` instead of raw `500` responses. Added regression coverage in `tests/unit/middleware.test.ts` and expanded `tests/integration/designers.test.ts`. Verified `npm.cmd test -- tests/unit/middleware.test.ts tests/integration/designers.test.ts`, `npm.cmd run check`, `npm.cmd test` (`340` passing), `npm.cmd run build`, and `npm.cmd run test:e2e` (`11` Chromium specs). | Deploy this fix with real hosted cloud values, then rerun production smoke for `/login`, `/designers`, and `/api/v1/designers` |
+| 2026-03-24 | #30 | Reopened the launch admin scope and shipped Admin Panel v1 for real operators. Added a guarded `/admin` workspace with overview, user controls, case support actions, payment interventions, and audit-log visibility; routed login through the protected server auth path so suspended accounts cannot bypass lockout checks; and updated launch and operations docs so `/admin` is the primary operator surface with external consoles as fallback only. Verified `npm.cmd run check`, `npm.cmd test` (`381` passing), `npm.cmd run build`, and `npm.cmd run test:e2e` (`11` Chromium specs). | Wait for real hosted runtime values, then finish `M9-LR-10` hosted validation and sign-off |
 
 ---
 
@@ -263,7 +270,7 @@ _(Prioritized backlog â€” remaining gaps)_
 | 12  | Issue    | Launch docs previously drifted from runtime status                                                            | Use `LAUNCH_BACKLOG.md` as the living source of truth and mirror only top-level status here                                                                                                                                                                                                     |
 | 13  | Issue    | Sentry introduces non-fatal build warnings                                                                    | `npm run build` now emits OpenTelemetry-related warnings from `@sentry/nextjs`; builds still pass, so monitor preview and production deploys before tuning the integration further                                                                                                              |
 | 14  | Decision | E2E browser matrix                                                                                            | Local `npm run test:e2e` runs Chromium only on a dedicated Playwright server at `127.0.0.1:3100`; CI installs Chromium, Firefox, and WebKit and runs the full suite                                                                                                                             |
-| 15  | Decision | Launch admin operations model                                                                                 | DentiVerse v1 launches without an in-product admin panel; support, moderation, refunds, and break-glass corrections follow `docs/phase-5/operations/ADMIN_OPERATING_MODEL.md`                                                                                                                   |
+| 15  | Decision | Launch admin operations model                                                                                 | DentiVerse ships with a role-guarded `/admin` workspace for day-to-day support, moderation, payment actions, and audit review. `docs/phase-5/operations/ADMIN_OPERATING_MODEL.md` defines the primary admin workflows and the fallback external-console / break-glass procedures.               |
 | 16  | Issue    | Hosted preview smoke still fails on data-backed routes                                                        | Page shells deploy on Vercel, but `/api/v1/designers` still fails from hosted preview with `TypeError: fetch failed` until Supabase and related runtime secrets are pointed at real cloud services instead of placeholder or localhost values                                                   |
 | 17  | Learning | Vercel prebuilt deploys need archive mode for this app                                                        | Use `vercel deploy --prebuilt --archive=tgz` in CI and manual rehearsals; the non-archived upload path dropped dynamic route folders such as `[id]` during LR-09 validation                                                                                                                     |
 | 18  | Learning | Local release gates should be run sequentially                                                                | Run `npm run check`, `npm test`, `npm run build`, and `npm run test:e2e` one at a time when verifying launch readiness. Parallel runs caused false negatives from `.next` and dev-server artifact contention during LR-09 verification                                                          |

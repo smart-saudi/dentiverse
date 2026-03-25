@@ -2,9 +2,9 @@
 
 ## Launch Decision
 
-DentiVerse v1 launches without an in-product admin panel.
+DentiVerse ships with a role-guarded admin workspace at `/admin`.
 
-Internal support, moderation, and refund handling are manual operations performed through:
+The admin workspace is the primary surface for launch-critical support, moderation, payment intervention, and audit review. External consoles remain available for provider-native workflows and break-glass recovery:
 
 - Supabase Dashboard / SQL Editor
 - Stripe Dashboard
@@ -13,13 +13,20 @@ Internal support, moderation, and refund handling are manual operations performe
 - GitHub
 - this runbook set
 
-This is an explicit launch decision for a controlled release, not an accidental gap.
+This is the long-term launch operating model for v1: use `/admin` first, and fall back to external consoles only when the action is provider-native or the app cannot recover safely.
 
 ## What Exists Today
 
-- The public product has no `/admin` route and no admin UI.
-- The database still supports the `ADMIN` role for future product work and controlled internal use.
-- Audit logging exists and must be used to record sensitive manual interventions.
+- `/admin` is available only to active `ADMIN` users.
+- The workspace includes five operator tabs:
+  - Overview
+  - Users
+  - Cases
+  - Payments
+  - Audit Log
+- Admin actions require a ticket reference and reason.
+- Sensitive actions are audit-logged.
+- External dashboards and SQL remain fallback tools for provider-native actions and break-glass recovery.
 
 ## Operator Roles
 
@@ -34,10 +41,11 @@ Primary responsibilities:
 
 Required tools:
 
-- Supabase Dashboard read access
+- `/admin` access
 - Sentry read access
 - Vercel read access
 - GitHub issue access
+- Supabase Dashboard read access for fallback investigations
 
 ### Finance Operator
 
@@ -50,9 +58,10 @@ Primary responsibilities:
 
 Required tools:
 
+- `/admin` access
 - Stripe Dashboard refund access
-- Supabase Dashboard read access
-- Supabase SQL Editor access for payment-state reconciliation
+- Supabase Dashboard read access for reconciliation
+- Supabase SQL Editor access for break-glass payment-state correction
 
 ### Break-Glass DB Operator
 
@@ -82,11 +91,118 @@ Rules:
 | Runtime incidents                          | Sentry + Vercel logs                                |
 | Release and rollback history               | GitHub Actions + Vercel deployments                 |
 
-## Standard Procedures
+## Primary In-Product Procedures
 
-### 1. Suspend a User
+### 1. Review Operational Health
 
-Use when a user must be blocked from further activity because of abuse, fraud, or a serious policy violation.
+Use the **Overview** tab in `/admin` to review:
+
+- total and suspended users
+- active and disputed cases
+- held and disputed payments
+- recent audit activity
+
+This is the default starting point for launch-day support and moderation triage.
+
+### 2. Suspend or Reactivate a User
+
+Use the **Users** tab in `/admin`.
+
+Available actions:
+
+- suspend account
+- reactivate account
+
+Expected workflow:
+
+1. Open or update a support ticket.
+2. Search for the user by name, email, role, or active state.
+3. Choose the action.
+4. Enter the ticket reference and reason.
+5. Confirm the result in the updated user row and in the Audit Log tab.
+
+Notes:
+
+- Suspending a designer also marks them unavailable for new work.
+- Admins cannot deactivate themselves.
+
+### 3. Support a Case
+
+Use the **Cases** tab in `/admin`.
+
+Available actions:
+
+- move case to `DISPUTED`
+- move case back to `REVIEW`
+- move case to `REVISION`
+- cancel a case
+
+Expected workflow:
+
+1. Open or update a support ticket.
+2. Filter or search for the case.
+3. Choose the support action.
+4. Enter the ticket reference and reason.
+5. Confirm the new case status and check the related payment status when applicable.
+
+Notes:
+
+- Moving a case to `DISPUTED` or `CANCELLED` also marks related payments as disputed.
+- Moving a case to `REVISION` increments the revision counter and updates submitted design versions accordingly.
+
+### 4. Intervene on a Payment
+
+Use the **Payments** tab in `/admin`.
+
+Available actions:
+
+- mark payment disputed
+- release a held payment
+- refund a payment
+
+Expected workflow:
+
+1. Open or update a finance ticket.
+2. Locate the payment by status or related case.
+3. Choose the action.
+4. Enter the ticket reference and reason.
+5. Confirm the updated payment state in the table and verify the audit entry.
+
+Notes:
+
+- Refund and release actions use the server-side Stripe integration.
+- A payment must be `HELD` before it can be released manually.
+- Refunds require a valid Stripe payment intent on the payment record.
+
+### 5. Review Audit History
+
+Use the **Audit Log** tab in `/admin`.
+
+Expected workflow:
+
+1. Filter by entity type, action, or search term.
+2. Review actor, target entity, timestamps, and metadata.
+3. Cross-reference the ticket reference before taking a follow-up action.
+
+## Fallback And Break-Glass Procedures
+
+Use external consoles only when:
+
+- the action is provider-native and not exposed safely in `/admin`
+- `/admin` is degraded or unavailable
+- a historical data correction requires SQL
+- Stripe or Supabase reconciliation cannot be completed from the app surface
+
+Before any fallback action:
+
+1. Open or update a support, finance, or incident ticket.
+2. Confirm the operator has the minimum required permissions.
+3. Prefer reversible state changes over destructive edits.
+4. Mirror the action in `public.audit_log`.
+
+### 1. Suspend a User With SQL Fallback
+
+Use only when `/admin` cannot perform the action safely or when an incident requires direct SQL.
 
 1. Open a support ticket and record the user ID and reason.
 2. In Supabase SQL Editor, run:
@@ -126,9 +242,9 @@ insert into public.audit_log (
 3. Confirm the user can no longer operate normally.
 4. Reply to the support ticket with the timestamp and operator.
 
-### 2. Restore a User
+### 2. Restore a User With SQL Fallback
 
-Use only after documented review.
+Use only after documented review when `/admin` is unavailable or cannot complete the recovery.
 
 ```sql
 update public.users
@@ -161,9 +277,9 @@ insert into public.audit_log (
 );
 ```
 
-### 3. Freeze a Disputed Case
+### 3. Freeze a Disputed Case With SQL Fallback
 
-Use when delivery, pricing, or quality is under dispute and neither party should continue through the normal approval/payment path.
+Use only when `/admin` cannot complete the case support transition safely.
 
 ```sql
 update public.cases
@@ -201,9 +317,9 @@ Then:
 - contact both parties from the support mailbox
 - decide whether the outcome is refund, revision, or case cancellation
 
-### 4. Process a Refund
+### 4. Process a Refund With Stripe And SQL Fallback
 
-Stripe is the payment source of truth. Always perform the refund in Stripe first.
+Stripe remains the payment source of truth. Use this fallback only when the in-product payment action cannot complete successfully.
 
 1. Find the payment in Stripe using `stripe_payment_intent_id` or case metadata.
 2. Issue the refund in Stripe Dashboard.
@@ -240,9 +356,9 @@ insert into public.audit_log (
 
 5. If the case should be closed as cancelled, also update `public.cases` with `status = 'CANCELLED'`, `cancelled_at = now()`, and `cancellation_reason`.
 
-### 5. Review Audit History
+### 5. Review Audit History With SQL Fallback
 
-Use Supabase SQL Editor or table browser:
+Use Supabase SQL Editor or table browser only when the Audit Log tab is unavailable:
 
 ```sql
 select
@@ -259,17 +375,19 @@ limit 100;
 
 ## Permissions and Safeguards
 
+- Use `/admin` as the primary operator surface.
 - Do not share service-role credentials outside trusted operators.
 - Finance actions require a ticket reference and Stripe reconciliation.
 - DB write procedures must be reversible where possible.
 - Prefer changing availability and activation flags over deleting data.
 - Never delete audit history.
 
-## Out of Scope for v1
+## Remaining External-Console Work
 
-- customer-facing admin dashboard
-- internal moderation queue UI
-- in-app support inbox
-- self-serve refund console
+- Stripe dashboard dispute evidence and provider-native reconciliation
+- Supabase SQL break-glass repair procedures
+- Vercel deploy and rollback controls
+- Sentry incident triage
+- GitHub release and incident coordination
 
-These remain valid future enhancements, but they are not launch blockers as long as the manual model above is followed.
+These are not a substitute for `/admin`; they are fallback controls for provider-native or recovery-only scenarios.

@@ -53,6 +53,16 @@ describe('Auth API Routes', () => {
     process.env.AUTH_LOGIN_LOCKOUT_THRESHOLD = '10';
     process.env.AUTH_LOGIN_LOCKOUT_DURATION_MS = '1800000';
     resetAuthAbuseProtection();
+    mockFrom.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: { id: 'user-1', role: 'DENTIST', is_active: true },
+            error: null,
+          }),
+        }),
+      }),
+    });
   });
 
   // ---- POST /api/v1/auth/register ---------------------------------------
@@ -308,6 +318,43 @@ describe('Auth API Routes', () => {
       expect(second.status).toBe(401);
       expect(third.status).toBe(200);
       expect(fourth.status).toBe(401);
+    });
+
+    it('should reject deactivated accounts even when Supabase auth succeeds', async () => {
+      mockAuth.signInWithPassword.mockResolvedValue({
+        data: {
+          user: { id: 'user-1', email: 'dentist@example.com' },
+          session: {
+            access_token: 'access-123',
+            refresh_token: 'refresh-123',
+            expires_at: 1234567890,
+          },
+        },
+        error: null,
+      });
+
+      const profileSingle = vi.fn().mockResolvedValue({
+        data: { id: 'user-1', role: 'DENTIST', is_active: false },
+        error: null,
+      });
+
+      mockFrom.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: profileSingle,
+          }),
+        }),
+      });
+      mockAuth.signOut.mockResolvedValue({ error: null });
+
+      const { POST } = await import('@/app/api/v1/auth/login/route');
+      const req = buildRequest(validBody);
+      const res = await POST(req);
+
+      expect(res.status).toBe(403);
+      expect(mockAuth.signOut).toHaveBeenCalledOnce();
+      const json = await res.json();
+      expect(json.code).toBe('ACCOUNT_DISABLED');
     });
   });
 

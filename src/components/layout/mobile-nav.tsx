@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth-store';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { navItems } from '@/components/layout/sidebar';
+import { getNavItems } from '@/components/layout/sidebar';
 
 interface MobileNavProps {
   open: boolean;
@@ -23,6 +24,8 @@ interface MobileNavProps {
  */
 export function MobileNav({ open, onOpenChange }: MobileNavProps) {
   const pathname = usePathname();
+  const user = useAuthStore((state) => state.user);
+  const navItems = getNavItems(user?.role);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

@@ -11,6 +11,7 @@ import {
   buildRequestLogContext,
   captureServerException,
 } from '@/lib/observability/server';
+import { getUserProfileById } from '@/lib/user-access';
 import { loginSchema } from '@/lib/validations/auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
@@ -95,6 +96,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { code: 'UNAUTHORIZED', message: 'Invalid login credentials' },
         { status: 401 },
+      );
+    }
+
+    try {
+      const profile = await getUserProfileById(supabase, data.user.id);
+
+      if (!profile.is_active) {
+        await supabase.auth.signOut();
+
+        return NextResponse.json(
+          {
+            code: 'ACCOUNT_DISABLED',
+            message: 'This account has been deactivated. Contact support.',
+          },
+          { status: 403 },
+        );
+      }
+    } catch (profileError) {
+      captureServerException(profileError, 'Login profile lookup failed', {
+        request: requestContext,
+        context: {
+          provider: 'supabase-postgres',
+        },
+      });
+
+      return NextResponse.json(
+        { code: 'INTERNAL_ERROR', message: 'Unable to load the user profile' },
+        {
+          status: 500,
+          headers: {
+            'X-Request-Id': requestContext.requestId,
+          },
+        },
       );
     }
 

@@ -22,6 +22,8 @@ Phase 5 moves DentiVerse from feature completeness into repeatable delivery and 
 - [ADMIN_OPERATING_MODEL.md](./operations/ADMIN_OPERATING_MODEL.md)
 - [LAUNCH_BACKLOG.md](./operations/LAUNCH_BACKLOG.md)
 
+Admin Panel v1 now ships at `/admin` and is the primary operator surface for launch-critical support, moderation, payment intervention, and audit review. The operating-model document now covers both the in-product workflows and the external-console fallback path.
+
 ## GitHub Secrets Required for Deployment
 
 - `VERCEL_TOKEN`

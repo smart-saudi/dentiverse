@@ -4,3 +4,12 @@ export type { Case } from './case';
 export type { DesignerProfile } from './designer';
 export type { Proposal } from './proposal';
 export type { Payment } from './payment';
+export type {
+  AdminAuditLogItem,
+  AdminCaseListItem,
+  AdminDashboardSummary,
+  AdminPaymentListItem,
+  AdminUserListItem,
+  AdminUserReference,
+  PaginatedAdminResult,
+} from './admin';

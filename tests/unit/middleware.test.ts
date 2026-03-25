@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockGetUser = vi.fn();
+const mockProfileSingle = vi.fn();
 const mockCreateServerClient = vi.fn();
 const mockNext = vi.fn();
 const mockRedirect = vi.fn();
@@ -54,6 +55,17 @@ describe('Root middleware', () => {
       auth: {
         getUser: mockGetUser,
       },
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: mockProfileSingle,
+          })),
+        })),
+      })),
+    });
+    mockProfileSingle.mockResolvedValue({
+      data: { role: 'DENTIST', is_active: true },
+      error: null,
     });
 
     mockNext.mockImplementation(({ request } = {}) => ({
@@ -114,6 +126,73 @@ describe('Root middleware', () => {
     expect(response).toMatchObject({
       type: 'redirect',
       url: 'http://localhost:3000/login?redirectTo=%2Fdashboard',
+    });
+  });
+
+  it('should redirect non-admin users away from admin pages', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-1' } },
+      error: null,
+    });
+    mockProfileSingle.mockResolvedValue({
+      data: { role: 'DENTIST', is_active: true },
+      error: null,
+    });
+
+    const { middleware } = await import('../../src/middleware');
+
+    const response = await middleware(buildRequest('/admin') as never);
+
+    expect(mockRedirect).toHaveBeenCalledOnce();
+    expect(response).toMatchObject({
+      type: 'redirect',
+      url: 'http://localhost:3000/dashboard',
+    });
+  });
+
+  it('should return 403 for non-admin admin APIs', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-1' } },
+      error: null,
+    });
+    mockProfileSingle.mockResolvedValue({
+      data: { role: 'DESIGNER', is_active: true },
+      error: null,
+    });
+
+    const { middleware } = await import('../../src/middleware');
+
+    const response = await middleware(buildRequest('/api/v1/admin/dashboard') as never);
+
+    expect(mockJson).toHaveBeenCalledOnce();
+    expect(response).toMatchObject({
+      type: 'json',
+      status: 403,
+      body: {
+        code: 'FORBIDDEN',
+        message: 'Admin access is required for this resource.',
+      },
+    });
+  });
+
+  it('should redirect inactive users to login with a disabled flag', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-1' } },
+      error: null,
+    });
+    mockProfileSingle.mockResolvedValue({
+      data: { role: 'ADMIN', is_active: false },
+      error: null,
+    });
+
+    const { middleware } = await import('../../src/middleware');
+
+    const response = await middleware(buildRequest('/cases') as never);
+
+    expect(mockRedirect).toHaveBeenCalledOnce();
+    expect(response).toMatchObject({
+      type: 'redirect',
+      url: 'http://localhost:3000/login?disabled=1',
     });
   });
 });

@@ -162,13 +162,13 @@ docs: update README
 
 All planning and specification documents live in the `docs/` directory:
 
-| Phase       | Documents                                                                        |
-| ----------- | -------------------------------------------------------------------------------- |
-| **Phase 1** | PRD, User Personas, Tech Spec                                                    |
-| **Phase 2** | Schema SQL, OpenAPI spec, Design System, Architecture diagrams                   |
-| **Phase 3** | AI workflow, task tracker, developer onboarding                                  |
-| **Phase 4** | Security, QA, performance, release checklists                                    |
-| **Phase 5** | Infrastructure as code, observability, deployment runbook, admin operating model |
+| Phase       | Documents                                                                                 |
+| ----------- | ----------------------------------------------------------------------------------------- |
+| **Phase 1** | PRD, User Personas, Tech Spec                                                             |
+| **Phase 2** | Schema SQL, OpenAPI spec, Design System, Architecture diagrams                            |
+| **Phase 3** | AI workflow, task tracker, developer onboarding                                           |
+| **Phase 4** | Security, QA, performance, release checklists                                             |
+| **Phase 5** | Infrastructure as code, observability, deployment runbook, Admin Panel v1 operating model |
 
 For Claude Code users: read `CLAUDE.md` for all coding standards and conventions.
 

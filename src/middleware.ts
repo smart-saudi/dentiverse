@@ -24,6 +24,9 @@ const PUBLIC_API_PREFIXES = [
   '/api/v1/designers',
 ];
 
+const ADMIN_ROUTE_PREFIX = '/admin';
+const ADMIN_API_PREFIX = '/api/v1/admin';
+
 /**
  * Next.js middleware — runs on every matched request.
  *
@@ -43,6 +46,8 @@ export async function middleware(request: NextRequest) {
 
   const isPublicRoute = isPublicPagePath(pathname);
   const isAuthRoute = isAuthPagePath(pathname);
+  const isAdminRoute = isAdminPagePath(pathname);
+  const isAdminApiRoute = isAdminApiPath(pathname);
 
   if (isPublicRoute && !isAuthRoute) {
     return NextResponse.next({ request });
@@ -89,6 +94,35 @@ export async function middleware(request: NextRequest) {
     throw error;
   }
 
+  let accessProfile: { role: string; is_active: boolean } | null = null;
+  if (user) {
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('users')
+        .select('role, is_active')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError && isUpstreamServiceUnavailableError(profileError)) {
+        return handleAuthAvailabilityFailure(request, pathname, isAuthRoute);
+      }
+
+      if (!profileError && profile) {
+        accessProfile = profile;
+      }
+    } catch (error) {
+      if (isUpstreamServiceUnavailableError(error)) {
+        return handleAuthAvailabilityFailure(request, pathname, isAuthRoute);
+      }
+
+      throw error;
+    }
+  }
+
+  if (user && accessProfile && !accessProfile.is_active) {
+    return handleInactiveAccount(request, pathname, isAuthRoute);
+  }
+
   // Redirect authenticated users away from auth pages → dashboard
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone();
@@ -102,6 +136,22 @@ export async function middleware(request: NextRequest) {
     url.pathname = '/login';
     url.searchParams.set('redirectTo', pathname);
     return NextResponse.redirect(url);
+  }
+
+  if (user && isAdminRoute && accessProfile?.role !== 'ADMIN') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
+  }
+
+  if (user && isAdminApiRoute && accessProfile?.role !== 'ADMIN') {
+    return NextResponse.json(
+      {
+        code: 'FORBIDDEN',
+        message: 'Admin access is required for this resource.',
+      },
+      { status: 403 },
+    );
   }
 
   return supabaseResponse;
@@ -127,6 +177,14 @@ function isAuthPagePath(pathname: string): boolean {
   return ['/login', '/register', '/forgot-password'].includes(pathname);
 }
 
+function isAdminPagePath(pathname: string): boolean {
+  return pathname === ADMIN_ROUTE_PREFIX || pathname.startsWith(`${ADMIN_ROUTE_PREFIX}/`);
+}
+
+function isAdminApiPath(pathname: string): boolean {
+  return pathname === ADMIN_API_PREFIX || pathname.startsWith(`${ADMIN_API_PREFIX}/`);
+}
+
 function handleAuthAvailabilityFailure(
   request: NextRequest,
   pathname: string,
@@ -150,6 +208,31 @@ function handleAuthAvailabilityFailure(
   const url = request.nextUrl.clone();
   url.pathname = '/login';
   url.searchParams.set('redirectTo', pathname);
+  return NextResponse.redirect(url);
+}
+
+function handleInactiveAccount(
+  request: NextRequest,
+  pathname: string,
+  isAuthRoute: boolean,
+) {
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.json(
+      {
+        code: 'ACCOUNT_DISABLED',
+        message: 'This account has been deactivated. Contact support.',
+      },
+      { status: 403 },
+    );
+  }
+
+  if (isAuthRoute) {
+    return NextResponse.next({ request });
+  }
+
+  const url = request.nextUrl.clone();
+  url.pathname = '/login';
+  url.searchParams.set('disabled', '1');
   return NextResponse.redirect(url);
 }
 

@@ -92,15 +92,15 @@ dentiverse/
 
 ### Phase 5: Deployment and Operations
 
-| Document               | Contents                                                       | Status   |
-| ---------------------- | -------------------------------------------------------------- | -------- |
-| Phase 5 README         | Index of deployment and operations assets                      | Complete |
-| Infrastructure as Code | Dockerfile, Docker Compose, Terraform, GitHub Actions          | Complete |
-| Logging Strategy       | Log sinks, redaction rules, alert priorities                   | Complete |
-| SLA / SLO              | Availability and latency targets, SLIs, error budget           | Complete |
-| Runbook                | Deployment steps, rollback, failure scenarios                  | Complete |
-| Admin Operating Model  | Manual support, moderation, refund, and break-glass procedures | Complete |
-| Launch Backlog         | Live launch blockers, owners, sequence, and verification state | Active   |
+| Document               | Contents                                                                | Status   |
+| ---------------------- | ----------------------------------------------------------------------- | -------- |
+| Phase 5 README         | Index of deployment and operations assets                               | Complete |
+| Infrastructure as Code | Dockerfile, Docker Compose, Terraform, GitHub Actions                   | Complete |
+| Logging Strategy       | Log sinks, redaction rules, alert priorities                            | Complete |
+| SLA / SLO              | Availability and latency targets, SLIs, error budget                    | Complete |
+| Runbook                | Deployment steps, rollback, failure scenarios                           | Complete |
+| Admin Operating Model  | Admin Panel v1 workflows, fallback consoles, and break-glass procedures | Complete |
+| Launch Backlog         | Live launch blockers, owners, sequence, and verification state          | Active   |
 
 ---
 

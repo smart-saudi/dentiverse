@@ -21,16 +21,18 @@ This runbook documents how to deploy, verify, and roll back DentiVerse safely.
 
 ## Admin Operations Model
 
-- DentiVerse v1 launches without an in-product admin panel.
-- Support, moderation, refunds, and break-glass data corrections are manual operations.
-- The full operating model, permissions, and reversible SQL procedures live in [ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md).
+- DentiVerse ships with a role-guarded admin workspace at `/admin`.
+- Support, moderation, payment intervention, and audit review should start in `/admin`.
+- External consoles and SQL procedures are fallback tools for provider-native actions and break-glass recovery.
+- The full operating model, permissions, and fallback procedures live in [ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md).
 
-Before any sensitive manual intervention:
+Before any sensitive admin intervention:
 
 1. Open or update a support or finance ticket.
 2. Confirm the operator has the correct dashboard or SQL permissions for the action.
-3. Prefer reversible state changes over destructive edits.
-4. Mirror the action in `public.audit_log`.
+3. Prefer `/admin` before using external consoles or SQL.
+4. Prefer reversible state changes over destructive edits.
+5. Mirror the action in `public.audit_log`.
 
 ## Local E2E Prerequisites
 
@@ -130,10 +132,11 @@ Rollback rehearsal notes:
 
 ### Manual Admin Action Needed
 
-- Use [ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md) as the source of truth.
-- For refunds: Stripe first, then reconcile `public.payments`.
-- For moderation: prefer `is_active = false` and `is_available = false` over deleting records.
-- For disputes: move the case and payment rows into `DISPUTED` before further handling.
+- Use `/admin` as the primary control surface.
+- Use [ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md) as the source of truth when `/admin` is unavailable or a provider-native fallback is required.
+- For refunds: use the Payments tab first, then Stripe dashboard fallback if the provider action fails in-app.
+- For moderation: use the Users tab first and prefer deactivation over deleting records.
+- For disputes: use the Cases tab first to move the case into `DISPUTED`, then escalate to fallback procedures only if recovery requires it.
 - Record the ticket ID and operator in `public.audit_log`.
 
 ### Stripe Webhook Failures

@@ -73,16 +73,55 @@ export function useAuth() {
   }, [supabase, clear, setUser, setLoaded, router]);
 
   const login = useCallback(
-    async (email: string, password: string) => {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+    async (email: string, password: string, redirectTo = '/dashboard') => {
+      const safeRedirectTo =
+        redirectTo.startsWith('/') && !redirectTo.startsWith('//')
+          ? redirectTo
+          : '/dashboard';
+
+      const response = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
-      if (error) throw error;
-      router.push('/');
+      const body = (await response.json()) as {
+        data?: {
+          user: { id: string };
+          access_token: string;
+          refresh_token: string;
+        };
+        message?: string;
+      };
+
+      if (!response.ok || !body.data) {
+        throw new Error(body.message ?? 'Login failed');
+      }
+
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: body.data.access_token,
+        refresh_token: body.data.refresh_token,
+      });
+
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      try {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', body.data.user.id)
+          .single();
+
+        setUser(profile as UserRow | null);
+      } finally {
+        setLoaded();
+      }
+
+      router.push(safeRedirectTo);
       router.refresh();
     },
-    [supabase, router],
+    [router, setLoaded, setUser, supabase],
   );
 
   const register = useCallback(

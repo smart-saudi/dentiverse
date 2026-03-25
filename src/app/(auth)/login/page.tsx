@@ -30,10 +30,13 @@ export default function LoginPage() {
 function LoginForm() {
   const { login } = useAuth();
   const searchParams = useSearchParams();
-  const rawRedirect = searchParams.get('redirectTo') ?? '/';
+  const rawRedirect = searchParams.get('redirectTo') ?? '/dashboard';
+  const isDisabled = searchParams.get('disabled') === '1';
   // Prevent open redirect: only allow relative paths
   const redirectTo =
-    rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
+    rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')
+      ? rawRedirect
+      : '/dashboard';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,7 +49,7 @@ function LoginForm() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await login(email, password, redirectTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -64,6 +67,15 @@ function LoginForm() {
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
+          {isDisabled && (
+            <div
+              role="status"
+              className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+            >
+              This account has been deactivated. Contact support before trying to sign in
+              again.
+            </div>
+          )}
           {error && (
             <div
               role="alert"
@@ -107,7 +119,6 @@ function LoginForm() {
               autoComplete="current-password"
             />
           </div>
-          <input type="hidden" name="redirectTo" value={redirectTo} />
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={isLoading}>

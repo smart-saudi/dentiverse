@@ -46,6 +46,16 @@ export class ForbiddenError extends AppError {
 }
 
 /**
+ * 403 — Account exists but has been administratively disabled.
+ */
+export class AccountDisabledError extends AppError {
+  constructor(message = 'This account has been deactivated. Contact support.') {
+    super(message, 'ACCOUNT_DISABLED', 403);
+    this.name = 'AccountDisabledError';
+  }
+}
+
+/**
  * 404 — Requested resource does not exist.
  */
 export class NotFoundError extends AppError {

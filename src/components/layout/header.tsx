@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { Menu, Search, User } from 'lucide-react';
+import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -31,6 +33,7 @@ interface HeaderProps {
  */
 export function Header({ className }: HeaderProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { logout, user } = useAuth();
 
   return (
     <header
@@ -84,10 +87,26 @@ export function Header({ className }: HeaderProps) {
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/settings/profile">Profile</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/settings">Settings</Link>
+          </DropdownMenuItem>
+          {user?.role === 'ADMIN' && (
+            <DropdownMenuItem asChild>
+              <Link href="/admin">Admin Panel</Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Log out</DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault();
+              void logout();
+            }}
+          >
+            Log out
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

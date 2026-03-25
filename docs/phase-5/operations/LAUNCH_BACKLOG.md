@@ -49,19 +49,19 @@ Owner labels:
 
 ## Current Snapshot
 
-| Gate                          | Current State        | Last Evidence                                                                                                                                                                                                                                                                                                                                                            |
-| ----------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                                                                                                                                                                                                       |
-| `npm test`                    | Passing              | `npm.cmd test` passed with `335` tests green on 2026-03-24 after the preview-CI follow-up fixes                                                                                                                                                                                                                                                                          |
-| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; non-fatal OpenTelemetry dependency warnings from `@sentry/nextjs` and the standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remain                                                                                                                                                       |
-| `npm run test:e2e`            | Passing              | `npm.cmd run test:e2e` passed with `11` Chromium specs on 2026-03-24 using the dedicated Playwright server at `http://127.0.0.1:3100`; CI now installs browsers and runs the suite in `.github/workflows/deploy.yml`                                                                                                                                                     |
-| Release candidate cleanliness | Passing              | Completed launch-readiness work is committed on `main`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains in the workspace during active development                                                                                                                                                                                                      |
-| Observability wiring          | Passing              | Sentry runtime init and structured server logging are active in the launch candidate, with coverage in `tests/unit/lib/observability/server.test.ts`                                                                                                                                                                                                                     |
-| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts`                                                                                                                                                                                 |
-| Admin operations model        | Passing              | v1 launch now uses the documented manual-ops model in `docs/phase-5/operations/ADMIN_OPERATING_MODEL.md`, and the system architecture diagram no longer promises an in-product admin panel                                                                                                                                                                               |
-| Transactional email           | Passing              | Resend-backed delivery now lives in [src/services/email.service.ts](../../../src/services/email.service.ts), with proposal/design hooks and webhook-triggered payment emails covered by unit and integration tests on 2026-03-24                                                                                                                                         |
-| Preview smoke validation      | Blocked              | PR #3 workflow run `23507861542` now passes `Validate App`, `Validate Terraform`, and `Deploy Preview` after scoping standalone output to Docker builds, lazy-loading Resend in `EmailService`, and moving the dashboard home to `/dashboard`; hosted smoke is still blocked because `/api/v1/designers` fails until Vercel runtime secrets point at real cloud services |
-| Rollback rehearsal            | Passing with caveat  | Preview rollback is invalid because preview deployments never served production traffic; a real production rollback back to `dpl_C7R7GM1wSWdqaT2KFQ8pekPLmUKh` succeeded in about `6.66s`, and the production landing page stayed healthy after the alias move                                                                                                           |
+| Gate                          | Current State        | Last Evidence                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run check`               | Passing              | `npm.cmd run check` passed on 2026-03-24 after regenerating DB types and normalizing shared Supabase client typing                                                                                                                                                                                                                                                                                                                               |
+| `npm test`                    | Passing              | `npm.cmd test` passed with `381` tests green on 2026-03-24 after shipping Admin Panel v1, login-path hardening, and the public-route resiliency fixes                                                                                                                                                                                                                                                                                            |
+| `npm run build`               | Passing with warning | `npm.cmd run build` passed on 2026-03-24; non-fatal OpenTelemetry dependency warnings from `@sentry/nextjs` and the standalone traced-file copy warning for `(dashboard)/page_client-reference-manifest.js` remain                                                                                                                                                                                                                               |
+| `npm run test:e2e`            | Passing              | `npm.cmd run test:e2e` passed with `11` Chromium specs on 2026-03-24 using the dedicated Playwright server at `http://127.0.0.1:3100`; CI now installs browsers and runs the suite in `.github/workflows/deploy.yml`                                                                                                                                                                                                                             |
+| Release candidate cleanliness | Passing              | Completed launch-readiness work is committed on `main`; only unrelated local `.claude/worktrees/eager-boyd` dirt remains in the workspace during active development                                                                                                                                                                                                                                                                              |
+| Observability wiring          | Passing              | Sentry runtime init and structured server logging are active in the launch candidate, with coverage in `tests/unit/lib/observability/server.test.ts`                                                                                                                                                                                                                                                                                             |
+| Auth abuse protection         | Passing              | Auth throttling and login lockout now live in [src/lib/auth-abuse.ts](../../../src/lib/auth-abuse.ts), with coverage in `auth.test.ts`, `auth-refresh.test.ts`, and `auth-abuse.test.ts`                                                                                                                                                                                                                                                         |
+| Admin operations model        | Passing              | Admin Panel v1 now ships at [src/app/(dashboard)/admin/page.tsx](../../../src/app/%28dashboard%29/admin/page.tsx), is guarded by [src/app/(dashboard)/admin/layout.tsx](../../../src/app/%28dashboard%29/admin/layout.tsx), and uses the APIs under [src/app/api/v1/admin](../../../src/app/api/v1/admin). External consoles remain documented fallback paths in [docs/phase-5/operations/ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md). |
+| Transactional email           | Passing              | Resend-backed delivery now lives in [src/services/email.service.ts](../../../src/services/email.service.ts), with proposal/design hooks and webhook-triggered payment emails covered by unit and integration tests on 2026-03-24                                                                                                                                                                                                                 |
+| Preview smoke validation      | Blocked              | PR #3 workflow run `23507861542` now passes `Validate App`, `Validate Terraform`, and `Deploy Preview` after scoping standalone output to Docker builds, lazy-loading Resend in `EmailService`, and moving the dashboard home to `/dashboard`; hosted smoke is still blocked because `/api/v1/designers` fails until Vercel runtime secrets point at real cloud services                                                                         |
+| Rollback rehearsal            | Passing with caveat  | Preview rollback is invalid because preview deployments never served production traffic; a real production rollback back to `dpl_C7R7GM1wSWdqaT2KFQ8pekPLmUKh` succeeded in about `6.66s`, and the production landing page stayed healthy after the alias move                                                                                                                                                                                   |
 
 ---
 
@@ -79,6 +79,7 @@ DentiVerse is launch-ready only when all of the following are true:
 8. Preview deploy smoke tests pass
 9. Rollback steps are rehearsed and recorded
 10. Launch-facing docs match shipped behavior
+11. Admin operators can perform launch-critical support, moderation, payment, and audit actions through a shipped `/admin` surface
 
 ---
 
@@ -109,10 +110,16 @@ DentiVerse is launch-ready only when all of the following are true:
 
 ### Wave 4: Go-Live Validation
 
-| ID      | Title                                      | Priority | Owner  | Status    | Depends On                         | Success Signal                                         |
-| ------- | ------------------------------------------ | -------- | ------ | --------- | ---------------------------------- | ------------------------------------------------------ |
-| `LR-09` | Run preview smoke tests and rollback drill | `P1`     | Shared | `DONE`    | `LR-02`, `LR-03`, `LR-04`, `LR-05` | Preview and rollback runbooks are validated end-to-end |
-| `LR-10` | Final launch sign-off and doc lock         | `P1`     | Shared | `BLOCKED` | `LR-06`, `LR-07`, `LR-08`, `LR-09` | Docs, tracker, and release candidate all agree         |
+| ID      | Title                                      | Priority | Owner  | Status    | Depends On                                     | Success Signal                                         |
+| ------- | ------------------------------------------ | -------- | ------ | --------- | ---------------------------------------------- | ------------------------------------------------------ |
+| `LR-09` | Run preview smoke tests and rollback drill | `P1`     | Shared | `DONE`    | `LR-02`, `LR-03`, `LR-04`, `LR-05`             | Preview and rollback runbooks are validated end-to-end |
+| `LR-10` | Final launch sign-off and doc lock         | `P1`     | Shared | `BLOCKED` | `LR-06`, `LR-07`, `LR-08`, `LR-09`, `ADMIN-01` | Docs, tracker, and release candidate all agree         |
+
+### Wave 4.5: Admin Control Surface
+
+| ID         | Title                | Priority | Owner | Status | Depends On | Success Signal                                                              |
+| ---------- | -------------------- | -------- | ----- | ------ | ---------- | --------------------------------------------------------------------------- |
+| `ADMIN-01` | Build Admin Panel v1 | `P1`     | App   | `DONE` | `LR-02`    | `/admin` ships with guarded support, dispute, payment, and audit operations |
 
 ---
 
@@ -257,10 +264,11 @@ Objective:
 
 Evidence:
 
-- The launch decision is now explicit in [docs/phase-5/operations/ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md): DentiVerse v1 ships without an in-product admin panel and uses manual ops for support, moderation, refunds, and break-glass corrections.
-- [docs/phase-5/operations/RUNBOOK.md](./RUNBOOK.md) now references the manual-ops model and includes admin-intervention guardrails for tickets, permissions, and audit logging.
-- [docs/diagrams/system-architecture.mmd](../../diagrams/system-architecture.mmd) now models manual ops and external consoles instead of a shipped admin panel.
-- Internal contributor guidance in [AGENTS.md](../../../AGENTS.md) and [CLAUDE.md](../../../CLAUDE.md) now clarifies that `ADMIN` is manual-ops-only in the current launch candidate.
+- The shipped admin workspace now lives in [src/app/(dashboard)/admin/page.tsx](../../../src/app/%28dashboard%29/admin/page.tsx) and [src/components/admin/admin-panel.tsx](../../../src/components/admin/admin-panel.tsx), with overview, users, cases, payments, and audit-log tabs.
+- Admin access is guarded in [src/app/(dashboard)/admin/layout.tsx](../../../src/app/%28dashboard%29/admin/layout.tsx), [src/lib/user-access.ts](../../../src/lib/user-access.ts), and [src/middleware.ts](../../../src/middleware.ts), including inactive-account enforcement.
+- The server-side admin action surface now lives in [src/services/admin.service.ts](../../../src/services/admin.service.ts) and [src/app/api/v1/admin](../../../src/app/api/v1/admin), covering user suspension/reactivation, case support transitions, payment interventions, and audit-log review.
+- [docs/phase-5/operations/ADMIN_OPERATING_MODEL.md](./ADMIN_OPERATING_MODEL.md) now defines `/admin` as the primary operator surface and keeps external consoles plus SQL procedures as fallback only.
+- [docs/phase-5/operations/RUNBOOK.md](./RUNBOOK.md), [docs/diagrams/system-architecture.mmd](../../diagrams/system-architecture.mmd), [AGENTS.md](../../../AGENTS.md), and [CLAUDE.md](../../../CLAUDE.md) now reflect the shipped admin surface instead of a manual-ops-only launch model.
 
 Tasks:
 
@@ -379,7 +387,7 @@ Blockers:
 | ID     | Decision                                             | Owner   | Status | Notes                                                                                                                                        |
 | ------ | ---------------------------------------------------- | ------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `D-01` | Where auth rate limiting should live                 | Shared  | `DONE` | Current launch candidate uses an app-route wrapper with an in-memory store; move to an external shared store before broader horizontal scale |
-| `D-02` | Whether launch needs a real admin UI                 | Shared  | `DONE` | Chosen v1 path is manual ops for a controlled launch; no in-product admin UI ships before launch                                             |
+| `D-02` | Whether launch needs a real admin UI                 | Shared  | `DONE` | Launch now ships Admin Panel v1 at `/admin`, with external consoles and break-glass SQL reserved for fallback and provider-native operations |
 | `D-03` | Whether Google OAuth and Magic Link are launch scope | Product | `DONE` | Chosen v1 path is email/password plus password reset only; Google OAuth and Magic Link are explicitly de-scoped from launch                  |
 
 ---
@@ -494,3 +502,10 @@ These are the core files that justified the current backlog:
   - `npm.cmd run build`
   - `npm.cmd run test:e2e`
 - `LR-10` local hardening result: regression coverage now protects the public-route failure path, and all local release gates are green again (`340` tests, `11` E2E specs). Final launch sign-off is still blocked on deploying the fix with real hosted runtime values and rerunning production smoke on `/login`, `/designers`, and `/api/v1/designers`.
+- Completed `ADMIN-01`: reopened the launch admin scope and shipped Admin Panel v1 with guarded overview, user, case, payment, and audit-log workflows under `/admin`.
+- `ADMIN-01` verification commands:
+  - `npm.cmd run check`
+  - `npm.cmd test`
+  - `npm.cmd run build`
+  - `npm.cmd run test:e2e`
+- `ADMIN-01` result: launch-critical operator actions now have an in-product control surface, and all local release gates are green again (`381` tests, `11` E2E specs). `LR-10` is blocked only on real hosted runtime values plus hosted smoke and Sentry verification.

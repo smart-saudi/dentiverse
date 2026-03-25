@@ -10,9 +10,11 @@ import {
   Bell,
   Settings,
   Send,
+  ShieldCheck,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth-store';
 
 interface NavItem {
   label: string;
@@ -20,7 +22,7 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const navItems: NavItem[] = [
+const baseNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Cases', href: '/cases', icon: FileText },
   { label: 'Designers', href: '/designers', icon: Palette },
@@ -29,6 +31,22 @@ const navItems: NavItem[] = [
   { label: 'Notifications', href: '/notifications', icon: Bell },
   { label: 'Settings', href: '/settings', icon: Settings },
 ];
+
+const adminNavItem: NavItem = {
+  label: 'Admin',
+  href: '/admin',
+  icon: ShieldCheck,
+};
+
+/**
+ * Build sidebar items for the current role.
+ *
+ * @param role - Current user role from `public.users`
+ * @returns Navigation items visible to that role
+ */
+export function getNavItems(role?: string | null): NavItem[] {
+  return role === 'ADMIN' ? [...baseNavItems, adminNavItem] : baseNavItems;
+}
 
 interface SidebarProps {
   className?: string;
@@ -44,6 +62,8 @@ interface SidebarProps {
  */
 export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname();
+  const user = useAuthStore((state) => state.user);
+  const navItems = getNavItems(user?.role);
 
   return (
     <aside className={cn('flex h-full flex-col', className)}>
@@ -80,5 +100,4 @@ export function Sidebar({ className }: SidebarProps) {
   );
 }
 
-export { navItems };
 export type { NavItem };
